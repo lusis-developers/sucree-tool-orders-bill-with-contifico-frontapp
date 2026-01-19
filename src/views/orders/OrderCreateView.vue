@@ -469,8 +469,8 @@ onMounted(() => {
 
 .products-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
 }
 
 .product-card {
@@ -857,9 +857,27 @@ onMounted(() => {
   }
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
+@media (max-width: 900px) {
+  .main-content {
+    grid-template-columns: 1fr;
+    padding-bottom: 2rem;
+  }
+
+  .container {
+    padding: 0 1rem;
+  }
+
+  .products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .product-image {
+    height: 120px !important;
+  }
+
+  .product-content {
+    padding: 0.75rem !important;
   }
 }
 </style>
