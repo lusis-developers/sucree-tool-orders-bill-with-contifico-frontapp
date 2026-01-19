@@ -144,7 +144,6 @@ const logout = () => {
 .desktop-only {
   display: block;
 }
-}
 
 @media (max-width: 768px) {
   .navbar {
