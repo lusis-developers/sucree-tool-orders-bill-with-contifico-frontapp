@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { Product } from '@/types/order'
+import { useProductImage } from '@/composables/useProductImage'
 
-defineProps<{
+const props = defineProps<{
   product: Product
 }>()
 
@@ -9,24 +10,21 @@ const emit = defineEmits<{
   (e: 'add', product: Product): void
 }>()
 
-const handleImageError = (e: Event) => {
-  const target = e.target as HTMLImageElement
-  target.src = 'https://placehold.co/150x150/f3e8ff/6b21a8?text=Nicole'
-}
+// Use the cached image loader
+const { imageSrc, isLoading } = useProductImage(props.product.imagen)
 
-const getProductImage = (product: Product) => {
-  return product.imagen || 'https://placehold.co/150x150/f3e8ff/6b21a8?text=Nicole'
-}
 </script>
 
 <template>
   <div class="product-card">
-    <div class="product-image">
+    <div class="product-image" :class="{ 'is-loading': isLoading }">
       <img 
-        :src="getProductImage(product)" 
+        :src="imageSrc" 
         :alt="product.nombre" 
-        @error="handleImageError" 
       />
+      <div v-if="isLoading" class="loading-overlay">
+        <span class="spinner-sm"></span>
+      </div>
     </div>
     <div class="product-content">
       <div class="product-info">
@@ -62,11 +60,38 @@ const getProductImage = (product: Product) => {
     width: 100%;
     height: 140px;
     background: $gray-100;
+    position: relative;
 
     img {
       width: 100%;
       height: 100%;
       object-fit: cover;
+    }
+
+    &.is-loading {
+      img {
+        opacity: 0.5;
+      }
+    }
+
+    .loading-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .spinner-sm {
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba($NICOLE-PURPLE, 0.3);
+      border-radius: 50%;
+      border-top-color: $NICOLE-PURPLE;
+      animation: spin 1s ease-in-out infinite;
     }
   }
 
