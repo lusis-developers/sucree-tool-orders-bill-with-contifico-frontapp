@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import AuthService from '@/services/auth.service'
 
 const router = useRouter()
 const email = ref('')
@@ -12,17 +13,29 @@ const handleLogin = async () => {
   error.value = ''
   isLoading.value = true
 
-  // Simulating network delay for better UX
-  await new Promise(resolve => setTimeout(resolve, 800))
+  try {
+    const response = await AuthService.login({
+      email: email.value,
+      password: password.value
+    })
 
-  if (email.value.trim().toLowerCase() === 'ventas@nicole.com.ec' && password.value === 'Nicole2020!') {
-    localStorage.setItem('access_token', 'dummy_token_secure_enough_for_internal_tools')
-    router.push('/orders/new')
-  } else {
-    error.value = 'Credenciales incorrectas. Por favor verifique.'
+    if (response && response.token) {
+      localStorage.setItem('access_token', response.token)
+      if (response.user) {
+        localStorage.setItem('user_info', JSON.stringify(response.user))
+      }
+      router.push('/orders/new')
+    }
+  } catch (err: any) {
+    if (err.status === 401 || err.message === 'USER_NOT_FOUND' || err.message === 'PASSWORD_INCORRECT') {
+      error.value = 'Credenciales incorrectas. Por favor verifique.'
+    } else {
+      error.value = 'Ocurrió un error al iniciar sesión. Intente nuevamente.'
+    }
+    console.error(err)
+  } finally {
+    isLoading.value = false
   }
-
-  isLoading.value = false
 }
 </script>
 
