@@ -15,7 +15,7 @@ const handleLogin = async () => {
 
   try {
     const response = await AuthService.login({
-      email: email.value,
+      email: email.value.toLowerCase(),
       password: password.value
     })
 
