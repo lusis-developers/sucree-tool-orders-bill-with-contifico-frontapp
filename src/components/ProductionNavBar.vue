@@ -15,14 +15,13 @@ const handleLogout = () => {
     <div class="nav-top">
       <div class="brand">
         <h1>Producción</h1>
-        <span class="subtitle">Tablero de Control</span>
+        <span class="subtitle">Resumen Operativo</span>
       </div>
       <button @click="handleLogout" class="btn-logout">
         Cerrar Sesión
       </button>
     </div>
     <nav class="sub-nav">
-      <router-link to="/production" class="nav-item" active-class="active" exact>Tablero</router-link>
       <router-link to="/production/summary" class="nav-item" active-class="active">Resumen</router-link>
     </nav>
   </header>
