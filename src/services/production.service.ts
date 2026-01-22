@@ -32,9 +32,14 @@ class ProductionService extends APIBase {
     await this.post('production/progress', { productName, quantity })
   }
 
-  async getSummary(): Promise<any[]> {
-    const response = await this.get<{ summary: any[] }>('production/summary')
-    return response.data.summary
+  async getSummary(): Promise<any> {
+    const response = await this.get<{ dashboard: any }>('production/summary')
+    return response.data.dashboard
+  }
+
+  async updateItemStatus(orderId: string, productName: string, status: string, notes?: string) {
+    const response = await this.patch(`production/${orderId}/product-status`, { productName, status, notes })
+    return response.data
   }
 }
 
