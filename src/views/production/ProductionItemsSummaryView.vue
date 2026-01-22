@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import ProductionService from '@/services/production.service'
-import ConfirmationModal from '@/components/ConfirmationModal.vue'
+import ProductionRegisterModal from './components/ProductionRegisterModal.vue'
 
 interface SummaryItem {
   _id: string // Product Name
@@ -22,8 +22,8 @@ const isLoading = ref(true)
 const error = ref('')
 
 // Modal State
-const isModalOpen = ref(false)
-const itemToFinish = ref<SummaryItem | null>(null)
+const isRegisterModalOpen = ref(false)
+const selectedItem = ref<SummaryItem | null>(null)
 
 onMounted(async () => {
   await fetchSummary()
@@ -48,8 +48,9 @@ const toggleExpand = (item: SummaryItem) => {
 const formatDate = (dateString: string) => {
   const date = new Date(dateString)
   return new Intl.DateTimeFormat('es-EC', {
-    weekday: 'long',
+    weekday: 'short',
     day: 'numeric',
+    // month: 'short', 
     hour: '2-digit',
     minute: '2-digit'
   }).format(date)
@@ -94,45 +95,55 @@ const futureItems = computed(() => {
   })
 })
 
-const promptBatchFinish = (item: SummaryItem, event: Event) => {
-  event.stopPropagation() // Prevent card toggle
-  itemToFinish.value = item
-  isModalOpen.value = true
+const openRegisterModal = (item: SummaryItem, event: Event) => {
+  event.stopPropagation()
+  selectedItem.value = item
+  isRegisterModalOpen.value = true
 }
 
-const confirmBatchFinish = async () => {
-  if (!itemToFinish.value) return
+const handleRegisterConfirm = async (quantity: number) => {
+  if (!selectedItem.value) return
 
-  isModalOpen.value = false // Close immediately to show responsiveness
+  isRegisterModalOpen.value = false
 
   try {
-    const ids = itemToFinish.value.orders.map(o => o.id)
-    await ProductionService.batchUpdate(ids, 'FINISHED')
-
+    await ProductionService.registerProgress(selectedItem.value._id, quantity)
     // Refresh list
     await fetchSummary()
   } catch (err) {
-    alert('Error al actualizar items')
+    alert('Error al registrar progreso')
   } finally {
-    itemToFinish.value = null
+    selectedItem.value = null
   }
+}
+
+// Helper for card class logic
+const getCardClass = (type: 'today' | 'tomorrow' | 'future') => {
+  return type
 }
 
 </script>
 
 <template>
   <div class="summary-view">
-    <div class="header">
-      <h1>Resumen de Producción</h1>
-      <p>Vista consolidada y acciones masivas</p>
+    <div class="header-section">
+      <div class="header-content">
+        <h1>Resumen de Producción</h1>
+        <p>Control de items pendientes y registro de progreso</p>
+      </div>
+      <button class="btn-refresh" @click="fetchSummary" :disabled="isLoading">
+        <i class="fas fa-sync-alt" :class="{ 'fa-spin': isLoading }"></i>
+        Actualizar
+      </button>
     </div>
 
     <div v-if="isLoading" class="loading-state">
       <span class="loader"></span>
-      <p>Calculando totales...</p>
+      <p>Cargando información...</p>
     </div>
 
     <div v-else-if="error" class="error-msg">
+      <i class="fas fa-exclamation-triangle"></i>
       {{ error }}
       <button @click="fetchSummary">Reintentar</button>
     </div>
@@ -141,11 +152,13 @@ const confirmBatchFinish = async () => {
       
       <!-- TODAY SECTION -->
       <section v-if="todayItems.length > 0" class="group-section today">
-        <h2 class="section-title urgent">
-          <i class="fas fa-exclamation-circle"></i>
-          Para Hoy / Urgente
-        </h2>
-        <div class="items-list">
+        <div class="section-title urgent">
+          <div class="icon-box"><i class="fas fa-fire"></i></div>
+          <h2>Para Hoy / Urgente</h2>
+          <span class="count-badge">{{ todayItems.length }} items</span>
+        </div>
+        
+        <div class="items-grid">
           <div 
             v-for="item in todayItems" 
             :key="item._id" 
@@ -153,39 +166,35 @@ const confirmBatchFinish = async () => {
             :class="{ expanded: item.isExpanded }"
             @click="toggleExpand(item)"
           >
-            <div class="card-main">
-              <div class="info">
-                <h3 class="product-name">{{ item._id }}</h3>
-                <span class="next-delivery">
-                  Vence: <strong>{{ formatDate(item.urgency) }}</strong>
-                </span>
+            <div class="card-header urgent">
+              <span class="due-label">VENCE:</span>
+              <span class="due-time">{{ formatDate(item.urgency) }}</span>
+            </div>
+            
+            <div class="card-body">
+              <div class="quantity-box urgent">
+                <span class="number">{{ item.totalQuantity }}</span>
+                <span class="label">PENDIENTES</span>
               </div>
-              <div class="actions">
-                 <button class="btn-check" @click="(e) => promptBatchFinish(item, e)" title="Marcar TODO como Terminado">
-                   <span class="icon">✓</span>
-                   <span class="btn-label">Todo</span>
-                 </button>
-                 <div class="total-badge urgent">
-                    <span class="qty">{{ item.totalQuantity }}</span>
-                    <span class="label">unid.</span>
-                 </div>
-              </div>
+              <h3 class="product-name">{{ item._id }}</h3>
+            </div>
+
+            <div class="card-actions">
+               <button class="btn-register urgent" @click="(e) => openRegisterModal(item, e)">
+                 <i class="fas fa-clipboard-check"></i>
+                 REGISTRAR
+               </button>
+               <button class="btn-expand" :class="{ rotated: item.isExpanded }">
+                 <i class="fas fa-chevron-down"></i>
+               </button>
             </div>
 
             <div v-if="item.isExpanded" class="breakdown">
-              <h4>Detalle por Orden</h4>
+              <h4>Detalle de Pedidos</h4>
               <ul>
-                <li v-for="order in item.orders" :key="order.id" class="breakdown-item">
-                  <div class="order-info">
-                    <strong>{{ order.client }}</strong>
-                    <span class="order-date">{{ formatDate(order.delivery) }}</span>
-                  </div>
-                  <div class="order-qty">
-                    x{{ order.quantity }}
-                    <span class="stage-tag" :class="order.stage.toLowerCase()">
-                      {{ order.stage === 'IN_PROCESS' ? 'PROCESO' : 'PEND.' }}
-                    </span>
-                  </div>
+                <li v-for="order in item.orders" :key="order.id">
+                  <span class="client-name">{{ order.client }}</span>
+                  <span class="qty-pill">x{{ order.quantity }}</span>
                 </li>
               </ul>
             </div>
@@ -195,11 +204,13 @@ const confirmBatchFinish = async () => {
 
       <!-- TOMORROW SECTION -->
       <section v-if="tomorrowItems.length > 0" class="group-section tomorrow">
-        <h2 class="section-title warning">
-          <i class="fas fa-clock"></i>
-          Para Mañana
-        </h2>
-        <div class="items-list">
+        <div class="section-title warning">
+          <div class="icon-box"><i class="fas fa-clock"></i></div>
+          <h2>Para Mañana</h2>
+          <span class="count-badge">{{ tomorrowItems.length }} items</span>
+        </div>
+
+        <div class="items-grid">
           <div 
             v-for="item in tomorrowItems" 
             :key="item._id" 
@@ -207,38 +218,35 @@ const confirmBatchFinish = async () => {
             :class="{ expanded: item.isExpanded }"
             @click="toggleExpand(item)"
           >
-            <div class="card-main">
-              <div class="info">
-                <h3 class="product-name">{{ item._id }}</h3>
-                <span class="next-delivery">
-                   Vence: {{ formatDate(item.urgency) }}
-                </span>
+            <div class="card-header warning">
+              <span class="due-label">ENTREGA:</span>
+              <span class="due-time">{{ formatDate(item.urgency) }}</span>
+            </div>
+            
+            <div class="card-body">
+              <div class="quantity-box warning">
+                <span class="number">{{ item.totalQuantity }}</span>
+                <span class="label">PENDIENTES</span>
               </div>
-               <div class="actions">
-                 <button class="btn-check warning" @click="(e) => promptBatchFinish(item, e)">
-                   <span class="icon">✓</span>
-                 </button>
-                 <div class="total-badge warning">
-                  <span class="qty">{{ item.totalQuantity }}</span>
-                  <span class="label">unid.</span>
-                </div>
-               </div>
+              <h3 class="product-name">{{ item._id }}</h3>
+            </div>
+            
+            <div class="card-actions">
+               <button class="btn-register warning" @click="(e) => openRegisterModal(item, e)">
+                 <i class="fas fa-clipboard-check"></i>
+                 AVANZAR
+               </button>
+               <button class="btn-expand" :class="{ rotated: item.isExpanded }">
+                 <i class="fas fa-chevron-down"></i>
+               </button>
             </div>
 
-            <div v-if="item.isExpanded" class="breakdown">
-              <h4>Detalle por Orden</h4>
+             <div v-if="item.isExpanded" class="breakdown">
+              <h4>Detalle de Pedidos</h4>
               <ul>
-                <li v-for="order in item.orders" :key="order.id" class="breakdown-item">
-                  <div class="order-info">
-                    <strong>{{ order.client }}</strong>
-                    <span class="order-date">{{ formatDate(order.delivery) }}</span>
-                  </div>
-                  <div class="order-qty">
-                    x{{ order.quantity }}
-                    <span class="stage-tag" :class="order.stage.toLowerCase()">
-                      {{ order.stage === 'IN_PROCESS' ? 'PROCESO' : 'PEND.' }}
-                    </span>
-                  </div>
+                <li v-for="order in item.orders" :key="order.id">
+                  <span class="client-name">{{ order.client }}</span>
+                  <span class="qty-pill">x{{ order.quantity }}</span>
                 </li>
               </ul>
             </div>
@@ -248,46 +256,30 @@ const confirmBatchFinish = async () => {
 
       <!-- FUTURE SECTION -->
       <section v-if="futureItems.length > 0" class="group-section future">
-        <h2 class="section-title future">
-          <i class="fas fa-calendar-alt"></i>
-          Futuro (Pasado Mañana +)
-        </h2>
-        <div class="items-list">
+        <div class="section-title info">
+          <div class="icon-box"><i class="fas fa-calendar-alt"></i></div>
+          <h2>Futuro</h2>
+          <span class="count-badge">{{ futureItems.length }} items</span>
+        </div>
+
+        <div class="items-grid">
           <div 
             v-for="item in futureItems" 
             :key="item._id" 
-            class="summary-card future"
+            class="summary-card info"
             :class="{ expanded: item.isExpanded }"
             @click="toggleExpand(item)"
           >
-            <div class="card-main">
-              <div class="info">
-                <h3 class="product-name">{{ item._id }}</h3>
-                <span class="next-delivery">
-                   Vence: {{ formatDate(item.urgency) }}
-                </span>
-              </div>
-              <div class="actions">
-                <div class="total-badge future">
-                  <span class="qty">{{ item.totalQuantity }}</span>
-                  <span class="label">unid.</span>
-                </div>
-              </div>
+             <div class="card-header info">
+              <span class="due-label">FECHA:</span>
+              <span class="due-time">{{ formatDate(item.urgency) }}</span>
             </div>
-            
-            <div v-if="item.isExpanded" class="breakdown">
-              <!-- Content similar to above -->
-               <ul>
-                <li v-for="order in item.orders" :key="order.id" class="breakdown-item">
-                  <div class="order-info">
-                    <strong>{{ order.client }}</strong>
-                    <span class="order-date">{{ formatDate(order.delivery) }}</span>
-                  </div>
-                  <div class="order-qty">
-                    x{{ order.quantity }}
-                  </div>
-                </li>
-              </ul>
+            <div class="card-body">
+              <div class="quantity-box info">
+                <span class="number">{{ item.totalQuantity }}</span>
+                <span class="label">PENDIENTES</span>
+              </div>
+              <h3 class="product-name">{{ item._id }}</h3>
             </div>
           </div>
         </div>
@@ -295,285 +287,409 @@ const confirmBatchFinish = async () => {
 
       <div v-if="items.length === 0" class="empty-state">
         <i class="fas fa-check-circle"></i>
-        <p>¡Todo al día!</p>
+        <p>¡No hay producción pendiente!</p>
+        <span>Buen trabajo, el tablero está limpio.</span>
       </div>
 
     </div>
 
-    <!-- Confirmation Modal -->
-    <ConfirmationModal 
-      :is-open="isModalOpen"
-      title="Completar Producción"
-      :message="`¿Confirmas que se terminaron los ${itemToFinish?.totalQuantity} items de '${itemToFinish?._id}'?`"
-      confirm-text="¡Sí, terminado!"
-      @close="isModalOpen = false"
-      @confirm="confirmBatchFinish"
+    <!-- Production Register Modal -->
+    <ProductionRegisterModal 
+      :is-open="isRegisterModalOpen"
+      :product-name="selectedItem?._id || ''"
+      :pending-quantity="selectedItem?.totalQuantity || 0"
+      @close="isRegisterModalOpen = false"
+      @confirm="handleRegisterConfirm"
     />
   </div>
 </template>
 
 <style lang="scss" scoped>
-/* Keeping existing styles, plus Modal is managed inside standard template */
+/* VARIABLE FALLBACKS */
+$card-radius: 16px;
+$shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+$shadow-md: 0 8px 24px rgba(0, 0, 0, 0.12);
+$font-stack: 'Inter', system-ui, -apple-system, sans-serif;
+$color-urgent: #e74c3c;
+$color-urgent-bg: #c0392b;
+$color-warning: #f39c12;
+$color-warning-bg: #d35400; // Gradient end
+$color-info: #3498db;
+$color-info-bg: #2980b9;
+
 .summary-view {
   min-height: 100vh;
-  background-color: $gray-50;
-  padding: 1rem;
-  padding-bottom: 4rem;
+  background-color: #f8f9fa;
+  padding: 1.5rem;
+  padding-bottom: 5rem;
+  font-family: $font-stack;
 }
 
-.header {
-  margin-bottom: 2rem;
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 3rem;
 
-  h1 {
-    font-size: 1.5rem;
-    color: $NICOLE-PURPLE;
-    margin: 0;
-    font-family: $font-principal;
+  .header-content {
+    h1 {
+      font-size: 1.75rem;
+      color: #2c3e50;
+      margin: 0 0 0.5rem 0;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    p {
+      color: #7f8c8d;
+      margin: 0;
+      font-size: 0.95rem;
+    }
   }
 
-  p {
-    color: $text-light;
-    margin: 0;
-    font-size: 0.9rem;
+  .btn-refresh {
+    background: white;
+    border: 1px solid #e0e0e0;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    color: #7f8c8d;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+
+    &:hover {
+      border-color: #bdc3c7;
+      color: #2c3e50;
+    }
   }
 }
 
 .section-title {
-  font-size: 1.1rem;
-  margin-bottom: 1rem;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-family: $font-principal;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
 
+  .icon-box {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    color: white;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .count-badge {
+    background: #e0e0e0;
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #555;
+  }
+
+  /* Theme Variants */
   &.urgent {
-    color: $error;
+    .icon-box {
+      background: linear-gradient(135deg, $color-urgent, $color-urgent-bg);
+    }
+
+    h2 {
+      color: $color-urgent;
+    }
   }
 
   &.warning {
-    color: $warning;
+    .icon-box {
+      background: linear-gradient(135deg, $color-warning, #e67e22);
+    }
+
+    h2 {
+      color: #d35400;
+    }
   }
 
-  &.future {
-    color: #3498db;
+  &.info {
+    .icon-box {
+      background: linear-gradient(135deg, $color-info, $color-info-bg);
+    }
+
+    h2 {
+      color: $color-info;
+    }
   }
 }
 
 .group-section {
-  margin-bottom: 2.5rem;
+  margin-bottom: 3.5rem;
 }
 
-.items-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+.items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.5rem;
 }
 
 .summary-card {
   background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-radius: $card-radius;
+  box-shadow: $shadow-sm;
+  transition: transform 0.2s, box-shadow 0.2s;
   overflow: hidden;
-  transition: all 0.2s;
-  cursor: pointer;
-  border-left-width: 6px;
-  border-left-style: solid;
-
-  &.urgent {
-    border-left-color: $error;
-  }
-
-  &.warning {
-    border-left-color: $warning;
-  }
-
-  &.future {
-    border-left-color: #3498db;
-  }
-
-  &:active {
-    transform: scale(0.98);
-  }
-
-  &.expanded {
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-  }
-}
-
-.card-main {
-  padding: 1rem 1.25rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.product-name {
-  margin: 0;
-  font-size: 1.1rem;
-  color: $text-dark;
-  font-family: $font-secondary;
-  font-weight: 600;
-}
-
-.next-delivery {
-  font-size: 0.85rem;
-  color: $text-light;
-  display: block;
-  margin-top: 0.35rem;
-}
-
-.actions {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.btn-check {
-  background: $success;
-  color: white;
-  border: none;
-  border-radius: 50px;
-  padding: 0.5rem 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  box-shadow: 0 2px 5px rgba($success, 0.3);
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba($success, 0.4);
-  }
-
-  .icon {
-    font-weight: bold;
-    font-size: 1.1rem;
-  }
-
-  .btn-label {
-    font-size: 0.85rem;
-    font-weight: 600;
-  }
-
-  &.warning {
-    background: $warning;
-    box-shadow: 0 2px 5px rgba($warning, 0.3);
-  }
-}
-
-.total-badge {
-  text-align: center;
-  min-width: 50px;
+  border: 1px solid rgba(0, 0, 0, 0.03);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
 
-  &.urgent .qty {
-    color: $error;
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: $shadow-md;
   }
 
-  &.warning .qty {
-    color: darken($warning, 10%);
-  }
-
-  &.future .qty {
-    color: #3498db;
-  }
-
-  .qty {
-    display: block;
-    font-size: 1.5rem;
-    font-weight: 800;
-    line-height: 1;
-  }
-
-  .label {
-    font-size: 0.65rem;
-    color: $text-light;
-    text-transform: uppercase;
-  }
-}
-
-/* Breakdown styles (reused) */
-.breakdown {
-  background: $gray-50;
-  padding: 1rem 1.25rem;
-  border-top: 1px solid $border-light;
-  animation: slideDown 0.2s ease-out;
-
-  h4 {
-    margin: 0 0 0.75rem 0;
-    font-size: 0.8rem;
-    color: $text-light;
-    text-transform: uppercase;
-  }
-
-  ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  .breakdown-item {
+  /* Header Styles */
+  .card-header {
+    padding: 0.6rem 1rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid $gray-200;
-    font-size: 0.95rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+
+    &.urgent {
+      background: linear-gradient(90deg, $color-urgent, $color-urgent-bg);
+    }
+
+    &.warning {
+      background: linear-gradient(90deg, $color-warning, #e67e22);
+    }
+
+    &.info {
+      background: linear-gradient(90deg, $color-info, $color-info-bg);
+    }
   }
 
-  .order-info {
+  /* Body Styles */
+  .card-body {
+    padding: 1.5rem 1rem 1rem 1rem;
+    text-align: center;
+    flex-grow: 1;
+  }
+
+  .quantity-box {
+    margin-bottom: 1rem;
     display: flex;
     flex-direction: column;
-  }
-}
+    align-items: center;
 
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-5px);
+    .number {
+      font-size: 3rem;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -2px;
+    }
+
+    .label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: #95a5a6;
+      letter-spacing: 1px;
+      margin-top: 4px;
+    }
+
+    &.urgent .number {
+      color: $color-urgent;
+    }
+
+    &.warning .number {
+      color: #d35400;
+    }
+
+    &.info .number {
+      color: $color-info;
+    }
   }
 
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  .product-name {
+    font-size: 0.95rem;
+    color: #34495e;
+    margin: 0;
+    line-height: 1.4;
+    font-weight: 600;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Actions */
+  .card-actions {
+    padding: 1rem;
+    display: flex;
+    gap: 0.5rem;
+    border-top: 1px solid #f1f2f6;
+
+    .btn-register {
+      flex-grow: 1;
+      border: none;
+      padding: 0.6rem;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: white;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.4rem;
+      transition: opacity 0.2s;
+
+      &:hover {
+        opacity: 0.9;
+      }
+
+      &.urgent {
+        background: $color-urgent;
+      }
+
+      &.warning {
+        background: #f39c12;
+        color: white;
+      }
+    }
+
+    .btn-expand {
+      background: #f1f2f6;
+      border: none;
+      width: 32px;
+      border-radius: 8px;
+      color: #7f8c8d;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+
+      &:hover {
+        background: #e0e0e0;
+      }
+
+      &.rotated i {
+        transform: rotate(180deg);
+      }
+
+      i {
+        transition: transform 0.2s;
+        font-size: 0.8rem;
+      }
+    }
+  }
+
+  /* Breakdown */
+  .breakdown {
+    background: #fafbfc;
+    padding: 1rem;
+    border-top: 1px solid #eee;
+
+    h4 {
+      margin: 0 0 0.8rem 0;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      color: #95a5a6;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+      font-size: 0.85rem;
+
+      .client-name {
+        color: #2c3e50;
+        font-weight: 500;
+      }
+
+      .qty-pill {
+        background: #ecf0f1;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 600;
+        font-size: 0.75rem;
+        color: #7f8c8d;
+      }
+    }
   }
 }
 
 .empty-state {
-  text-align: center;
-  padding: 3rem;
-  color: $text-light;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+  color: #bdc3c7;
 
   i {
-    font-size: 3rem;
-    color: $success;
+    font-size: 4rem;
     margin-bottom: 1rem;
+    color: #2ecc71;
+  }
+
+  p {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+    color: #7f8c8d;
+  }
+
+  span {
+    font-size: 1rem;
+    margin-top: 0.5rem;
   }
 }
 
 .loading-state {
   text-align: center;
-  padding: 2rem;
+  padding: 4rem;
+  color: #95a5a6;
 
   .loader {
-    width: 32px;
-    height: 32px;
-    border: 3px solid $gray-200;
-    border-bottom-color: $NICOLE-PURPLE;
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3498db;
     border-radius: 50%;
     display: inline-block;
-    animation: rotation 1s linear infinite;
+    animation: spin 1s linear infinite;
     margin-bottom: 1rem;
   }
 }
 
-@keyframes rotation {
+@keyframes spin {
   0% {
     transform: rotate(0deg);
   }
