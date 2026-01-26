@@ -4,7 +4,11 @@ interface OrderData {
   customerName: string
   customerPhone: string
   deliveryDate: string
-  deliveryType: 'pickup' | 'delivery'
+  deliveryTime: string
+  deliveryType: 'pickup' | 'delivery' | 'retiro'
+  branch?: 'San Marino' | 'Mall del Sol' | 'Centro de Producción'
+  googleMapsLink?: string
+  deliveryAddress?: string
   products: Array<{
     id?: string
     contifico_id?: string

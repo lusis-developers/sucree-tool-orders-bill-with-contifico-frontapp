@@ -22,7 +22,11 @@ const formData = reactive<OrderFormData>({
   customerName: '',
   customerPhone: '',
   deliveryDate: '',
+  deliveryTime: '',
   deliveryType: 'pickup',
+  branch: 'San Marino', // Default or undefined
+  deliveryAddress: '',
+  googleMapsLink: '',
   invoiceNeeded: false,
   comments: '',
   responsible: 'Web',
@@ -70,7 +74,26 @@ const updateQuantity = (index: number, change: number) => {
 }
 
 const submitOrder = async () => {
-  if (cart.value.length === 0) return
+  if (cart.value.length === 0) {
+    alert("El carrito está vacío.")
+    return
+  }
+
+  // Frontend Validation
+  if (!formData.customerName) { alert("Nombre del cliente es obligatorio"); return; }
+  if (!formData.customerPhone) { alert("Teléfono del cliente es obligatorio"); return; }
+  if (!formData.deliveryDate) { alert("Fecha de entrega es obligatoria"); return; }
+  if (!formData.deliveryTime) { alert("Hora de entrega es obligatoria"); return; }
+  if (!formData.branch) { alert("Sucursal de origen es obligatoria"); return; }
+
+  if (formData.deliveryType === 'delivery') {
+    if (!formData.deliveryAddress) { alert("Dirección de entrega es obligatoria para Delivery"); return; }
+    if (!formData.googleMapsLink) { alert("Link de Google Maps es obligatorio para Delivery"); return; }
+  }
+
+  if (formData.invoiceNeeded) {
+    if (!formData.invoiceData.ruc) { alert("RUC/Cédula es obligatorio para factura"); return; }
+  }
 
   isSubmitting.value = true
   try {
@@ -88,8 +111,8 @@ const submitOrder = async () => {
 
     generatedWhatsAppMessage.value = response.whatsappMessage
     showWhatsAppModal.value = true
-  } catch (e) {
-    alert('Error creating order. Please try again.')
+  } catch (e: any) {
+    alert(e.response?.data?.message || 'Error creating order. Please try again.')
     console.error(e)
   } finally {
     isSubmitting.value = false

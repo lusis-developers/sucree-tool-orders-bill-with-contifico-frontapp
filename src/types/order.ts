@@ -59,7 +59,11 @@ export interface OrderFormData {
   customerName: string
   customerPhone: string
   deliveryDate: string
-  deliveryType: 'pickup' | 'delivery'
+  deliveryTime: string // New field
+  deliveryType: 'pickup' | 'delivery' | 'retiro' // 'retiro' is used in backend
+  branch?: 'San Marino' | 'Mall del Sol' | 'Centro de Producción' // New field
+  googleMapsLink?: string // New field
+  deliveryAddress?: string // New field
   invoiceNeeded: boolean
   comments: string
   responsible: string
