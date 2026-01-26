@@ -14,6 +14,10 @@ const props = defineProps({
   defaultAmount: {
     type: Number,
     default: 0
+  },
+  existingPayment: {
+    type: Object,
+    default: null
   }
 })
 
@@ -22,14 +26,43 @@ const emit = defineEmits(['close', 'submit'])
 const isSubmitting = ref(false)
 
 const formData = reactive({
-  forma_cobro: 'TRA', // Default: Transferencia (most common)
+  forma_cobro: 'TRA',
   monto: props.defaultAmount,
-  fecha: new Date().toISOString().split('T')[0], // YYYY-MM-DD
-  numero_comprobante: '', // For Cheque/Transferencia
+  fecha: new Date().toISOString().split('T')[0],
+  numero_comprobante: '',
   cuenta_bancaria_id: '',
-  numero_tarjeta: '', // For TC
-  tipo_ping: 'D' // Datafast/Medianet
+  numero_tarjeta: '',
+  tipo_ping: 'D'
 })
+
+// Reactivity: update form when Modal opens or existingPayment changes
+import { watch } from 'vue'
+watch(() => props.isOpen, (val) => {
+  if (val) {
+    if (props.existingPayment) {
+      Object.assign(formData, {
+        forma_cobro: props.existingPayment.forma_cobro || 'TRA',
+        monto: props.existingPayment.monto || props.defaultAmount,
+        fecha: props.existingPayment.fecha || new Date().toISOString().split('T')[0],
+        numero_comprobante: props.existingPayment.numero_comprobante || '',
+        cuenta_bancaria_id: props.existingPayment.cuenta_bancaria_id || '',
+        numero_tarjeta: props.existingPayment.numero_tarjeta || '',
+        tipo_ping: props.existingPayment.tipo_ping || 'D'
+      })
+    } else {
+      // Reset defaults if no existing payment
+      Object.assign(formData, {
+        forma_cobro: 'TRA',
+        monto: props.defaultAmount,
+        fecha: new Date().toISOString().split('T')[0],
+        numero_comprobante: '',
+        cuenta_bancaria_id: '',
+        numero_tarjeta: '',
+        tipo_ping: 'D'
+      })
+    }
+  }
+}, { immediate: true })
 
 const submitPayment = async () => {
   if (props.defaultAmount > 0 && formData.monto <= 0) {
@@ -81,8 +114,13 @@ const submitPayment = async () => {
   <div v-if="isOpen" class="modal-overlay">
     <div class="modal-content">
       <div class="modal-header">
-        <h3>Registrar Cobro</h3>
+        <h3>{{ existingPayment ? 'Editar/Ver Cobro' : 'Registrar Cobro' }}</h3>
         <button @click="$emit('close')" class="close-btn">&times;</button>
+      </div>
+
+      <div v-if="existingPayment" class="alert-info">
+        <i class="fa-solid fa-circle-info"></i>
+        <span>Estás editando un cobro ya registrado anteriormente.</span>
       </div>
 
       <div class="modal-body">
@@ -92,7 +130,7 @@ const submitPayment = async () => {
       <div class="modal-footer">
         <button @click="$emit('close')" class="btn-cancel">Cancelar</button>
         <button @click="submitPayment" class="btn-confirm" :disabled="isSubmitting">
-          {{ isSubmitting ? 'Registrando...' : 'Registrar' }}
+          {{ isSubmitting ? 'Guardando...' : (existingPayment ? 'Actualizar Cobro' : 'Registrar') }}
         </button>
       </div>
     </div>
@@ -211,5 +249,20 @@ const submitPayment = async () => {
   font-size: 0.8rem;
   color: $text-light;
   margin-top: 0.25rem;
+}
+</style>
+
+<style scoped lang="scss">
+.alert-info {
+  background-color: #e0f2fe;
+  color: #0369a1;
+  padding: 0.75rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  border: 1px solid #bae6fd;
 }
 </style>
