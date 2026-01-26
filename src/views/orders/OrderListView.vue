@@ -5,6 +5,7 @@ import { generateOrderSummary } from '@/utils/orderSummary'
 import ToastNotification from '@/components/ToastNotification.vue'
 import OrderWhatsAppModal from './components/OrderWhatsAppModal.vue'
 import PaymentModal from './components/PaymentModal.vue'
+import InvoiceEditModal from './components/InvoiceEditModal.vue'
 
 const orders = ref<any[]>([])
 const isLoading = ref(false)
@@ -23,6 +24,10 @@ const whatsAppModalMessage = ref('')
 // Payment Modal State
 const showPaymentModal = ref(false)
 const selectedOrderForPayment = ref<any>(null)
+
+// Invoice Edit Modal State
+const showInvoiceEditModal = ref(false)
+const selectedOrderForInvoice = ref<any>(null)
 
 const fetchOrders = async () => {
   isLoading.value = true
@@ -72,6 +77,26 @@ const openWhatsApp = () => {
 const openPaymentModal = (order: any) => {
   selectedOrderForPayment.value = order
   showPaymentModal.value = true
+}
+
+const openInvoiceEditModal = (order: any) => {
+  if (order.invoiceStatus === 'PROCESSED') {
+    toast.value = { show: true, message: 'Factura ya procesada, no se puede editar.', type: 'info' }
+    return
+  }
+  selectedOrderForInvoice.value = order
+  showInvoiceEditModal.value = true
+}
+
+const handleInvoiceSaved = (updatedOrder: any) => {
+  // Update local list
+  const index = orders.value.findIndex(o => o._id === updatedOrder._id)
+  if (index !== -1) {
+    orders.value[index] = updatedOrder
+  }
+  toast.value = { show: true, message: 'Datos de facturación actualizados.', type: 'success' }
+  // Refetch to be sure of statuses
+  fetchOrders()
 }
 
 const handlePaymentRegister = async (payload: any) => {
@@ -157,8 +182,25 @@ onMounted(() => {
                   <button class="btn-icon" @click="copySummary(order)" title="Copiar Resumen WhatsApp">
                     <i class="fa-regular fa-copy"></i>
                   </button>
-                  <button class="btn-icon pay-icon" @click="openPaymentModal(order)" title="Registrar Cobro">
-                    <i class="fa-solid fa-dollar-sign"></i>
+                  
+                  <!-- Payment Action -->
+                  <button 
+                    class="btn-icon" 
+                    :class="order.paymentDetails?.monto ? 'paid-icon' : 'pay-icon'" 
+                    @click="openPaymentModal(order)" 
+                    :title="order.paymentDetails?.monto ? 'Ver/Editar Cobro' : 'Registrar Cobro'"
+                  >
+                    <i :class="order.paymentDetails?.monto ? 'fa-solid fa-file-invoice-dollar' : 'fa-solid fa-dollar-sign'"></i>
+                  </button>
+
+                  <!-- Invoice Edit Action -->
+                  <button 
+                    v-if="order.invoiceStatus !== 'PROCESSED'"
+                    class="btn-icon edit-icon" 
+                    @click="openInvoiceEditModal(order)" 
+                    title="Editar Datos Facturación"
+                  >
+                    <i class="fa-solid fa-pen-to-square"></i>
                   </button>
                </td>
             </tr>
@@ -192,8 +234,20 @@ onMounted(() => {
       :is-open="showPaymentModal"
       :order-id="selectedOrderForPayment._id"
       :default-amount="selectedOrderForPayment.totalValue"
+      :existing-payment="selectedOrderForPayment.paymentDetails"
       @close="showPaymentModal = false"
       @submit="handlePaymentRegister"
+    />
+
+    <!-- Invoice Edit Modal -->
+    <InvoiceEditModal
+      v-if="selectedOrderForInvoice"
+      :is-open="showInvoiceEditModal"
+      :order-id="selectedOrderForInvoice._id"
+      :invoice-needed="selectedOrderForInvoice.invoiceNeeded"
+      :current-invoice-data="selectedOrderForInvoice.invoiceData"
+      @close="showInvoiceEditModal = false"
+      @saved="handleInvoiceSaved"
     />
   </div>
 </template>
@@ -416,6 +470,24 @@ onMounted(() => {
     &:hover {
       background-color: rgba($success, 0.1);
       color: darken($success, 10%);
+    }
+  }
+
+  &.paid-icon {
+    color: $NICOLE-PURPLE;
+    background-color: rgba($NICOLE-PURPLE, 0.1);
+
+    &:hover {
+      background-color: rgba($NICOLE-PURPLE, 0.2);
+    }
+  }
+
+  &.edit-icon {
+    color: $text-light;
+
+    &:hover {
+      background-color: $gray-200;
+      color: $text-dark;
     }
   }
 }
