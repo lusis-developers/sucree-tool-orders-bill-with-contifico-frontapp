@@ -14,6 +14,16 @@ class ProductionService extends APIBase {
     }
   }
 
+  async getAllOrders(): Promise<ProductionTask[]> {
+    try {
+      const response = await this.get<{ data: ProductionTask[] }>('production/all-orders')
+      return response.data.data
+    } catch (error) {
+      console.error('Error fetching all orders:', error)
+      throw error
+    }
+  }
+
   async updateTask(id: string, updates: { stage?: 'PENDING' | 'IN_PROCESS' | 'FINISHED'; notes?: string }): Promise<ProductionTask> {
     try {
       const response = await this.patch<{ data: ProductionTask }>(`production/${id}`, updates)
