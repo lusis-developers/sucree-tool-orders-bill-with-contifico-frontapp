@@ -61,6 +61,12 @@ const router = createRouter({
       name: 'production-summary',
       component: () => import('../views/production/ProductionItemsSummaryView.vue'),
       meta: { requiresAuth: true, role: 'production', title: 'Resumen de Producción' }
+    },
+    {
+      path: '/production/orders',
+      name: 'production-orders',
+      component: () => import('../views/production/ProductionOrdersView.vue'),
+      meta: { requiresAuth: true, role: 'production', title: 'Órdenes de Producción' }
     }
   ],
 })
