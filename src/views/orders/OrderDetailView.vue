@@ -202,6 +202,11 @@ onMounted(() => {
 </template>
 
 <style lang="scss" scoped>
+.order-detail-page {
+  background-color: #f8fafc;
+  min-height: 100vh;
+}
+
 .app-header {
   background-color: white;
   border-bottom: 1px solid $border-light;
@@ -211,82 +216,131 @@ onMounted(() => {
   .container {
     display: flex;
     align-items: center;
+    max-width: 1400px; // Match container
+    margin: 0 auto;
+    padding: 0 2rem;
   }
 }
 
 .header-left {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 1.5rem;
 
   h1 {
     margin: 0;
     font-family: $font-principal;
     color: $NICOLE-PURPLE;
-    font-size: 1.5rem;
+    font-size: 1.8rem;
+    font-weight: 700;
   }
 
   .back-link {
     text-decoration: none;
     color: $text-light;
-    font-weight: 500;
+    font-weight: 600;
+    background: white;
+    padding: 0.5rem 1rem;
+    border: 1px solid $border-light;
+    border-radius: 8px;
+    transition: all 0.2s;
+    font-size: 0.9rem;
 
     &:hover {
       color: $NICOLE-PURPLE;
+      border-color: $NICOLE-PURPLE;
+      background: rgba($NICOLE-PURPLE, 0.05);
     }
+  }
+}
+
+.container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+@media (max-width: 900px) {
+
+  .app-header .container,
+  .container {
+    padding: 0 1rem;
   }
 }
 
 .header-info {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
+  gap: 1.5rem;
   margin-bottom: 2rem;
   background: white;
-  padding: 1.5rem;
-  border-radius: 12px;
+  padding: 2rem;
+  border-radius: 16px;
   border: 1px solid $border-light;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
 
   .info-group {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: 0.5rem;
+    position: relative;
+    padding-left: 1rem;
+    border-left: 3px solid rgba($NICOLE-PURPLE, 0.1);
 
     .label {
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       color: $text-light;
-      font-weight: 600;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 1px;
     }
 
     .value {
-      font-weight: 600;
-      font-size: 1.1rem;
+      font-weight: 700;
+      font-size: 1.25rem;
       color: $text-dark;
+      font-family: $font-principal;
     }
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    padding: 1.5rem;
   }
 }
 
 .content-grid {
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: 1fr 400px; // Fixed width sidebar for details
   gap: 2rem;
   padding-bottom: 4rem;
+  align-items: start;
 }
 
 .card {
   background: white;
-  border-radius: 12px;
+  border-radius: 16px;
   border: 1px solid $border-light;
-  padding: 1.5rem;
+  padding: 2rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.03), 0 4px 6px -2px rgba(0, 0, 0, 0.01);
+  transition: transform 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.01);
+  }
 
   h2 {
     margin: 0 0 1.5rem 0;
-    font-size: 1.2rem;
-    color: $NICOLE-SECONDARY;
-    border-bottom: 1px solid $border-light;
+    font-size: 1.25rem;
+    color: $text-dark;
+    font-weight: 700;
+    border-bottom: 2px solid $gray-50;
     padding-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
 }
 
@@ -294,68 +348,100 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  position: sticky;
+  top: 2rem;
 }
 
 .field {
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px dashed $gray-100;
+  padding-bottom: 0.75rem;
+
+  &:last-child {
+    margin-bottom: 0;
+    border-bottom: none;
+    padding-bottom: 0;
+  }
 
   label {
     display: block;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     color: $text-light;
-    font-weight: 500;
-    margin-bottom: 0.2rem;
+    font-weight: 600;
+    margin-bottom: 0.35rem;
+    text-transform: uppercase;
   }
 
   p {
     margin: 0;
     font-weight: 500;
     color: $text-dark;
+    font-size: 1rem;
+    line-height: 1.4;
   }
 
   .comments {
-    background: $gray-50;
-    padding: 0.75rem;
-    border-radius: 6px;
-    font-size: 0.9rem;
+    background: #fff8e1; // Light yellow
+    color: #b45309;
+    padding: 1rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
     font-style: italic;
+    border: 1px solid #fcd34d;
+    margin-top: 0.5rem;
   }
 }
 
 .table-wrapper {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid $border-light;
+
   table {
     width: 100%;
     border-collapse: collapse;
 
     th {
       text-align: left;
-      padding: 0.75rem;
+      padding: 1rem;
       background: $gray-50;
-      color: $text-light;
-      font-weight: 600;
+      color: $text-dark;
+      font-weight: 700;
       font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     td {
-      padding: 1rem 0.75rem;
+      padding: 1.25rem 1rem;
       border-bottom: 1px solid $border-light;
+      color: $text-dark;
+      font-size: 0.95rem;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
     }
 
     tfoot {
+      background-color: $gray-50;
+
       td {
         border-top: 2px solid $border-light;
-        padding-top: 1rem;
+        padding-top: 1.5rem;
+        padding-bottom: 1.5rem;
       }
 
       .label-total {
-        font-weight: 600;
+        font-weight: 700;
         font-size: 1.1rem;
+        text-transform: uppercase;
       }
 
       .value-total {
-        font-weight: 700;
-        font-size: 1.2rem;
-        color: $NICOLE-SECONDARY;
+        font-weight: 800;
+        font-size: 1.5rem;
+        color: $NICOLE-PURPLE;
       }
     }
   }
@@ -370,7 +456,7 @@ onMounted(() => {
 }
 
 .font-bold {
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .capitalize {
@@ -378,25 +464,30 @@ onMounted(() => {
 }
 
 .badge {
-  display: inline-block;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.75rem;
+  border-radius: 20px;
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: 0.3px;
 
   &.PENDING {
-    background: rgba($warning, 0.15);
-    color: darken($warning, 10%);
+    background: #fff7ed;
+    color: #c2410c;
+    border: 1px solid #ffedd5;
   }
 
   &.PROCESSED {
-    background: rgba($success, 0.15);
-    color: darken($success, 10%);
+    background: #f0fdf4;
+    color: #15803d;
+    border: 1px solid #dcfce7;
   }
 
   &.ERROR {
-    background: rgba($error, 0.15);
-    color: darken($error, 10%);
+    background: #fef2f2;
+    color: #b91c1c;
+    border: 1px solid #fee2e2;
   }
 
   &.NONE {
@@ -411,19 +502,20 @@ onMounted(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: white;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(4px);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 50;
 
   .spinner {
-    width: 40px;
-    height: 40px;
-    border: 4px solid rgba($NICOLE-PURPLE, 0.2);
+    width: 50px;
+    height: 50px;
+    border: 4px solid rgba($NICOLE-PURPLE, 0.1);
     border-top-color: $NICOLE-PURPLE;
     border-radius: 50%;
-    animation: spin 1s infinite linear;
+    animation: spin 0.8s infinite cubic-bezier(0.68, -0.55, 0.265, 1.55);
   }
 }
 
@@ -441,42 +533,54 @@ onMounted(() => {
   .header-info {
     grid-template-columns: 1fr 1fr;
   }
+
+  .side-info {
+    position: static;
+  }
 }
 
 .card-header-row {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid $border-light;
-  margin-bottom: 1.5rem;
-  padding-bottom: 0.75rem;
-
-  h2 {
-    border-bottom: none;
-    margin: 0;
-    padding: 0;
-  }
+  justify-content: space-between;
+  width: 100%;
 }
 
 .btn-xs {
   background: white;
   border: 1px solid $border-light;
-  padding: 0.25rem 0.75rem;
-  border-radius: 4px;
-  font-size: 0.8rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
   cursor: pointer;
   color: $NICOLE-PURPLE;
-  font-weight: 500;
+  font-weight: 600;
+  transition: all 0.2s;
 
   &:hover {
-    background: $gray-50;
+    background: $NICOLE-PURPLE;
+    color: white;
     border-color: $NICOLE-PURPLE;
+  }
+
+  &.btn-primary {
+    background: $NICOLE-PURPLE;
+    color: white;
+    border-color: $NICOLE-PURPLE;
+
+    &:hover {
+      background: darken-color($NICOLE-PURPLE, 5%);
+    }
   }
 }
 
 .empty-invoice {
   color: $text-light;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-style: italic;
+  padding: 1rem;
+  background: $gray-50;
+  border-radius: 8px;
+  text-align: center;
 }
 </style>
