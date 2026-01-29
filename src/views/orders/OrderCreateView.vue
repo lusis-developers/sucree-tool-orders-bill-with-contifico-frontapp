@@ -16,6 +16,7 @@ const router = useRouter()
 const isSubmitting = ref(false)
 const showWhatsAppModal = ref(false)
 const generatedWhatsAppMessage = ref('')
+const isCourtesyMode = ref(false)
 
 // Form Data - Strictly Typed
 const formData = reactive<OrderFormData>({
@@ -60,12 +61,17 @@ const addToCart = (product: Product) => {
   if (existing) {
     existing.quantity++
   } else {
+    // Determine price and courtesy status based on mode
+    const price = isCourtesyMode.value ? 0 : parseFloat(product.pvp1 || '0')
+    const isCourtesy = isCourtesyMode.value
+
     cart.value.push({
       id: product.id,
       contifico_id: product.id,
       name: product.nombre,
-      price: parseFloat(product.pvp1 || '0'),
-      quantity: 1
+      price: price,
+      quantity: 1,
+      isCourtesy: isCourtesy // Add this property to CartItem type definition if needed, but JS will allow it. Ideally update Type.
     })
   }
 }
@@ -114,7 +120,8 @@ const submitOrder = async () => {
         contifico_id: item.contifico_id,
         name: item.name,
         quantity: item.quantity,
-        price: item.price
+        price: item.price,
+        isCourtesy: item.isCourtesy || false
       })),
     }
 
@@ -147,7 +154,22 @@ const sendWhatsApp = () => {
 
     <main class="container main-content">
       <!-- Left Column: Product Selection -->
-      <OrderProductSelector @add-to-cart="addToCart" />
+      <section class="left-column">
+        <div class="mode-toggle-container">
+           <button 
+             class="btn-courtesy-toggle" 
+             :class="{ active: isCourtesyMode }"
+             @click="isCourtesyMode = !isCourtesyMode"
+           >
+             <i class="fa-solid fa-gift"></i>
+             {{ isCourtesyMode ? 'Modo Cortesía ACTIVO' : 'Activar Modo Cortesía' }}
+           </button>
+           <div v-if="isCourtesyMode" class="courtesy-banner">
+             <small>Los productos agregados tendrán costo $0.00</small>
+           </div>
+        </div>
+        <OrderProductSelector @add-to-cart="addToCart" />
+      </section>
 
       <!-- Right Column: Order Details & Cart -->
       <section class="order-form-section">
@@ -221,5 +243,50 @@ const sendWhatsApp = () => {
   .container {
     padding: 0 1rem;
   }
+}
+
+.mode-toggle-container {
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.btn-courtesy-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 2px solid $NICOLE-PURPLE;
+  background-color: transparent;
+  color: $NICOLE-PURPLE;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: $font-principal;
+  font-size: 1rem;
+
+  &:hover {
+    background-color: rgba($NICOLE-PURPLE, 0.1);
+  }
+
+  &.active {
+    background-color: $NICOLE-PURPLE;
+    color: white;
+    box-shadow: 0 4px 12px rgba($NICOLE-PURPLE, 0.4);
+  }
+}
+
+.courtesy-banner {
+  background-color: #e0f2fe; // Light blue
+  border: 1px solid #bae6fd;
+  color: #0369a1;
+  padding: 0.5rem;
+  border-radius: 6px;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 600;
 }
 </style>
