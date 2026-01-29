@@ -234,7 +234,7 @@ const submitPayment = async () => {
     color: white;
 
     &:hover {
-      background: darken($NICOLE-PURPLE, 10%);
+      background: darken-color($NICOLE-PURPLE, 10%);
     }
 
     &:disabled {
