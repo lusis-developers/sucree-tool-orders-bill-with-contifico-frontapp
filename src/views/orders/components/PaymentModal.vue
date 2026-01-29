@@ -124,7 +124,11 @@ const submitPayment = async () => {
       </div>
 
       <div class="modal-body">
-        <PaymentFields v-model="formData" :is-loading="isSubmitting" />
+        <PaymentFields 
+          v-model="formData" 
+          :is-loading="isSubmitting" 
+          :totalToPay="props.defaultAmount"
+        />
       </div>
 
       <div class="modal-footer">
