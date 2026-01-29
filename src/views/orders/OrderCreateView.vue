@@ -196,31 +196,55 @@ const sendWhatsApp = () => {
 </template>
 
 <style lang="scss" scoped>
+.order-page {
+  background-color: #f8fafc; // Light background for the whole page
+  min-height: 100vh;
+}
+
 .app-header {
-  // Keeping header styles locally or global as needed, but for scoped:
   background-color: white;
   border-bottom: 1px solid $border-light;
   padding: 1rem 0;
-  margin-bottom: 2rem;
+  // margin-bottom removed to merge with page-header nicely
 }
 
 .page-header {
-  margin-bottom: 2rem;
-  margin-top: 1.5rem;
+  padding: 2rem 0;
+  margin-bottom: 1rem;
 
   h1 {
     margin: 0;
     font-family: $font-principal;
     color: $NICOLE-PURPLE;
-    font-size: 1.8rem;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -1px;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    &::before {
+      content: '';
+      display: block;
+      width: 6px;
+      height: 32px;
+      background: $NICOLE-PURPLE;
+      border-radius: 4px;
+    }
   }
 }
 
 .main-content {
   display: grid;
-  grid-template-columns: 1fr 400px;
-  gap: 2rem;
+  grid-template-columns: 1fr 450px; // Slightly wider right column
+  gap: 2.5rem;
   padding-bottom: 4rem;
+  align-items: start; // Important for sticky
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr 400px;
+    gap: 1.5rem;
+  }
 
   @media (max-width: 900px) {
     grid-template-columns: 1fr;
@@ -229,9 +253,9 @@ const sendWhatsApp = () => {
 
 .container {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1400px; // Wider container
   margin: 0 auto;
-  padding: 0 1.5rem;
+  padding: 0 2rem;
 }
 
 @media (max-width: 900px) {
@@ -245,48 +269,78 @@ const sendWhatsApp = () => {
   }
 }
 
+.order-form-section {
+  position: sticky;
+  top: 2rem;
+  height: max-content;
+  // Ensure it doesn't get cut off if too tall, though sticky works best for bounded content
+  // Adding max-height and overflow if needed, but form might be long.
+  // For now, let's keep basic sticky. 
+}
+
 .mode-toggle-container {
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  align-items: center;
+  justify-content: space-between;
+  background: white;
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid $border-light;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .btn-courtesy-toggle {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
+  gap: 0.6rem;
+  padding: 0.75rem 1.25rem;
   border-radius: 8px;
   border: 2px solid $NICOLE-PURPLE;
-  background-color: transparent;
+  background-color: white;
   color: $NICOLE-PURPLE;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
   font-family: $font-principal;
-  font-size: 1rem;
+  font-size: 0.95rem;
 
   &:hover {
-    background-color: rgba($NICOLE-PURPLE, 0.1);
+    background-color: rgba($NICOLE-PURPLE, 0.05);
+    transform: translateY(-1px);
   }
 
   &.active {
     background-color: $NICOLE-PURPLE;
     color: white;
-    box-shadow: 0 4px 12px rgba($NICOLE-PURPLE, 0.4);
+    box-shadow: 0 4px 12px rgba($NICOLE-PURPLE, 0.3);
+  }
+
+  i {
+    font-size: 1.1rem;
   }
 }
 
 .courtesy-banner {
-  background-color: #e0f2fe; // Light blue
+  background-color: #f0f9ff; // Light blue
   border: 1px solid #bae6fd;
   color: #0369a1;
-  padding: 0.5rem;
+  padding: 0.5rem 1rem;
   border-radius: 6px;
   text-align: center;
   font-size: 0.9rem;
   font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  &::before {
+    content: '\f05a'; // Info circle
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+  }
 }
 </style>
