@@ -39,6 +39,7 @@ const formData = reactive<OrderFormData>({
     email: '',
     address: ''
   },
+  totalValue: 0,
   // Default Payment at Creation
   registerPaymentNow: false,
   paymentDetails: {
@@ -252,7 +253,6 @@ const sendWhatsApp = () => {
 }
 
 .container {
-  width: 100%;
   max-width: 1400px; // Wider container
   margin: 0 auto;
   padding: 0 2rem;
