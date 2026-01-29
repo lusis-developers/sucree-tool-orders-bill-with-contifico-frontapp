@@ -151,6 +151,7 @@ const executeOrderCreation = async () => {
     const response = await OrderService.createOrder(payload)
 
     generatedWhatsAppMessage.value = response.whatsappMessage
+    resetForm()
     showWhatsAppModal.value = true
   } catch (e: any) {
     alert(e.response?.data?.message || 'Error creating order. Please try again.')
@@ -160,12 +161,49 @@ const executeOrderCreation = async () => {
   }
 }
 
+const resetForm = () => {
+  // Reset Form Data
+  Object.assign(formData, {
+    customerName: '',
+    customerPhone: '',
+    deliveryDate: '',
+    deliveryTime: '',
+    deliveryType: 'pickup',
+    branch: 'San Marino',
+    deliveryAddress: '',
+    googleMapsLink: '',
+    invoiceNeeded: false,
+    comments: '',
+    responsible: 'Web',
+    salesChannel: 'Web',
+    paymentMethod: 'Por confirmar',
+    invoiceData: { ruc: '', businessName: '', email: '', address: '' },
+    totalValue: 0,
+    registerPaymentNow: false,
+    paymentDetails: {
+      forma_cobro: 'TRA',
+      monto: 0,
+      fecha: new Date().toISOString().split('T')[0] || '',
+      numero_comprobante: '',
+      numero_tarjeta: '',
+      cuenta_bancaria_id: '',
+      tipo_ping: 'D'
+    }
+  })
+
+  // Clear Cart & State
+  cart.value = []
+  isCourtesyMode.value = false
+  // generatedWhatsAppMessage.value = '' // Keep message for modal
+
+  // Scroll to top
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
 const sendWhatsApp = () => {
   const encoded = encodeURIComponent(generatedWhatsAppMessage.value)
   window.open(`https://wa.me/?text=${encoded}`, '_blank')
   showWhatsAppModal.value = false
-  cart.value = []
-  router.push('/orders/new')
 }
 </script>
 
