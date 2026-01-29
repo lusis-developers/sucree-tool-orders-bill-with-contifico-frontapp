@@ -12,12 +12,14 @@ import OrderProductsList from './components/OrderProductsList.vue'
 import OrderPaymentsList from './components/OrderPaymentsList.vue'
 import OrderClientInfo from './components/OrderClientInfo.vue'
 import OrderInvoiceInfo from './components/OrderInvoiceInfo.vue'
+import InvoiceGenerationModal from './components/InvoiceGenerationModal.vue'
 
 const route = useRoute()
 const order = ref<any>(null)
 const isLoading = ref(false)
 const showInvoiceModal = ref(false)
 const showPaymentModal = ref(false)
+const showInvoiceConfirmModal = ref(false)
 
 const fetchOrder = async () => {
   const id = route.params.id as string
@@ -78,6 +80,47 @@ const registerCollection = async (payload: any) => {
   }
 }
 
+const handleGenerateInvoice = () => {
+  if (!order.value) return
+  showInvoiceConfirmModal.value = true
+}
+
+const executeInvoiceGeneration = async () => {
+  showInvoiceConfirmModal.value = false
+  isLoading.value = true
+  try {
+    await OrderService.generateInvoice(order.value._id)
+    success("Factura generada y autorizada exitosamente.")
+    fetchOrder()
+  } catch (e: any) {
+    showError(e.response?.data?.message || "Error al generar factura")
+  } finally {
+    isLoading.value = false
+  }
+}
+
+const handleViewInvoice = async () => {
+  if (!order.value) return
+  isLoading.value = true
+  try {
+    const response = await OrderService.getInvoicePdf(order.value._id)
+    const doc = response.document
+    // Confirmed 'url_ride' is the PDF link based on user feedback
+    const link = doc.url_ride || doc.pdf_link || doc.descargar_pdf || doc.url || doc.mensaje
+
+    if (link && typeof link === 'string' && link.startsWith('http')) {
+      window.open(link, '_blank')
+    } else {
+      showError("No se encontró enlace PDF. Revise la consola.")
+      console.log("Full Doc:", doc)
+    }
+  } catch (e: any) {
+    showError("Error al obtener PDF de la factura.")
+  } finally {
+    isLoading.value = false
+  }
+}
+
 onMounted(() => {
   fetchOrder()
 })
@@ -129,8 +172,11 @@ onMounted(() => {
             :invoiceStatus="order.invoiceStatus"
             :invoiceNeeded="order.invoiceNeeded"
             :invoiceData="order.invoiceData"
+            :generatedInvoice="order.invoiceInfo"
             @open-invoice-modal="showInvoiceModal = true"
             @open-payment-modal="showPaymentModal = true"
+            @generate-invoice="handleGenerateInvoice"
+            @view-invoice="handleViewInvoice"
           />
         </section>
       </div>
@@ -152,6 +198,15 @@ onMounted(() => {
       :default-amount="outstandingBalance"
       @close="showPaymentModal = false"
       @submit="registerCollection"
+    />
+
+    <InvoiceGenerationModal
+      v-if="order && showInvoiceConfirmModal"
+      :is-open="showInvoiceConfirmModal"
+      :invoice-data="order.invoiceData"
+      :total-value="computedTotal"
+      @close="showInvoiceConfirmModal = false"
+      @confirm="executeInvoiceGeneration"
     />
     </main>
 

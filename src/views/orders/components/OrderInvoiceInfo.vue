@@ -2,10 +2,11 @@
 const props = defineProps<{
   invoiceStatus: string,
   invoiceNeeded: boolean,
-  invoiceData: any
+  invoiceData: any,
+  generatedInvoice?: any
 }>()
 
-const emit = defineEmits(['open-invoice-modal', 'open-payment-modal'])
+const emit = defineEmits(['open-invoice-modal', 'open-payment-modal', 'generate-invoice', 'view-invoice'])
 </script>
 
 <template>
@@ -13,7 +14,9 @@ const emit = defineEmits(['open-invoice-modal', 'open-payment-modal'])
      <div class="card-header-row">
        <h2>Datos Facturación</h2>
        <div style="display: flex; gap: 0.5rem;" class="actions">
+         <button v-if="invoiceStatus === 'PROCESSED'" @click="emit('view-invoice')" class="btn-xs">Ver Factura</button>
          <button v-if="invoiceStatus === 'PROCESSED'" @click="emit('open-payment-modal')" class="btn-xs btn-primary">Cobrar</button>
+         <button v-if="invoiceNeeded && invoiceStatus !== 'PROCESSED'" @click="emit('generate-invoice')" class="btn-xs btn-primary">Generar</button>
          <button v-if="invoiceStatus !== 'PROCESSED'" @click="emit('open-invoice-modal')" class="btn-xs">Editar</button>
        </div>
      </div>
