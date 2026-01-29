@@ -49,8 +49,12 @@ const onDecrease = (item: CartItem, index: number) => {
     <div class="cart-items">
       <div v-for="(item, index) in cart" :key="index" class="cart-item">
         <div class="item-details">
-          <span class="item-name">{{ item.name }}</span>
-          <span class="item-price">${{ item.price.toFixed(2) }}</span>
+          <span class="item-name">
+            {{ item.name }}
+            <span v-if="item.isCourtesy" class="badge-courtesy">Cortesía</span>
+          </span>
+          <span class="item-price" v-if="!item.isCourtesy">${{ item.price.toFixed(2) }}</span>
+          <span class="item-price free" v-else>$0.00</span>
         </div>
         <div class="item-controls">
           <button @click="onDecrease(item, index)">-</button>
@@ -128,11 +132,26 @@ const onDecrease = (item: CartItem, index: number) => {
       display: block;
       font-size: 0.9rem;
       font-weight: 500;
+
+      .badge-courtesy {
+        background-color: #e0f2fe;
+        color: #0369a1;
+        font-size: 0.7rem;
+        padding: 2px 6px;
+        border-radius: 4px;
+        margin-left: 4px;
+        vertical-align: middle;
+      }
     }
 
     .item-price {
       font-size: 0.85rem;
       color: $text-light;
+
+      &.free {
+        color: #0369a1; // Match badge color or green
+        font-weight: 600;
+      }
     }
   }
 
