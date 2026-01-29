@@ -124,6 +124,8 @@ const isCreditCard = computed(() => localData.value.forma_cobro === 'TC')
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  width: 90%;
+  box-sizing: border-box;
 }
 
 .abono-section {
