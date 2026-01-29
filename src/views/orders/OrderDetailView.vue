@@ -83,12 +83,12 @@ onMounted(() => {
 <template>
   <div class="order-detail-page">
     <header class="app-header">
-       <div class="container">
-         <div class="header-left">
-           <router-link to="/orders" class="back-link">← Volver</router-link>
-           <h1>Detalle del Pedido</h1>
-         </div>
-       </div>
+      <div class="container">
+        <div class="header-left">
+          <router-link to="/orders" class="back-link">← Volver</router-link>
+          <h1>Detalle del Pedido</h1>
+        </div>
+      </div>
     </header>
 
     <main class="container" v-if="order">
