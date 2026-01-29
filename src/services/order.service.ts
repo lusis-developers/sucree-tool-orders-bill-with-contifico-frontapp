@@ -84,6 +84,26 @@ class OrderService extends APIBase {
       throw error
     }
   }
+
+  async generateInvoice(id: string): Promise<any> {
+    try {
+      const response = await this.post<any>(`orders/${id}/invoice/generate`, {})
+      return response.data
+    } catch (error) {
+      console.error('Error generating invoice:', error)
+      throw error
+    }
+  }
+
+  async getInvoicePdf(id: string): Promise<any> {
+    try {
+      const response = await this.get<any>(`orders/${id}/invoice-pdf`)
+      return response.data
+    } catch (error) {
+      console.error('Error fetching invoice PDF:', error)
+      throw error
+    }
+  }
 }
 
 export default new OrderService()
