@@ -124,7 +124,11 @@ const submitPayment = async () => {
       </div>
 
       <div class="modal-body">
-        <PaymentFields v-model="formData" :is-loading="isSubmitting" />
+        <PaymentFields 
+          v-model="formData" 
+          :is-loading="isSubmitting" 
+          :totalToPay="props.defaultAmount"
+        />
       </div>
 
       <div class="modal-footer">
@@ -193,6 +197,10 @@ const submitPayment = async () => {
   input,
   select {
     width: 100%;
+    /* Ensure padding doesn't add to width */
+    box-sizing: border-box;
+    max-width: 100%;
+
     padding: 0.5rem;
     border: 1px solid $border-light;
     border-radius: 6px;
@@ -201,6 +209,7 @@ const submitPayment = async () => {
     &:focus {
       outline: none;
       border-color: $NICOLE-PURPLE;
+      box-shadow: 0 0 0 3px rgba($NICOLE-PURPLE, 0.1);
     }
   }
 }
@@ -234,7 +243,7 @@ const submitPayment = async () => {
     color: white;
 
     &:hover {
-      background: darken($NICOLE-PURPLE, 10%);
+      background: darken-color($NICOLE-PURPLE, 10%);
     }
 
     &:disabled {

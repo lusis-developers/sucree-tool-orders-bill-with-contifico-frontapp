@@ -2,6 +2,7 @@
 import { RouterView, useRoute } from 'vue-router'
 import NavBar from './components/NavBar.vue'
 import ProductionNavBar from './components/ProductionNavBar.vue'
+import ToastContainer from './components/ToastContainer.vue'
 
 const route = useRoute()
 </script>
@@ -11,6 +12,7 @@ const route = useRoute()
     <ProductionNavBar v-if="route.meta.role === 'production'" />
     <NavBar v-else-if="route.name !== 'login'" />
     <RouterView />
+    <ToastContainer />
   </div>
 </template>
 

@@ -1,34 +1,35 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import OrderService from '@/services/order.service'
 import { generateOrderSummary } from '@/utils/orderSummary'
-import ToastNotification from '@/components/ToastNotification.vue'
+import { useToast } from '@/composables/useToast'
+
+// Components
 import OrderWhatsAppModal from './components/OrderWhatsAppModal.vue'
 import PaymentModal from './components/PaymentModal.vue'
 import InvoiceEditModal from './components/InvoiceEditModal.vue'
+import CustomDatePicker from '@/components/ui/CustomDatePicker.vue'
+
+const router = useRouter()
+const { success, error: showError, info } = useToast()
 
 const orders = ref<any[]>([])
 const isLoading = ref(false)
 
-// Toast State
-const toast = ref({
-  show: false,
-  message: '',
-  type: 'success' as 'success' | 'error' | 'info'
-})
+// Filter State
+const filterMode = ref<'today' | 'yesterday' | 'all' | 'custom'>('today')
+const customDate = ref('')
 
-// Modal State
+// Modal States
 const showWhatsAppModal = ref(false)
 const whatsAppModalMessage = ref('')
-
-// Payment Modal State
 const showPaymentModal = ref(false)
 const selectedOrderForPayment = ref<any>(null)
-
-// Invoice Edit Modal State
 const showInvoiceEditModal = ref(false)
 const selectedOrderForInvoice = ref<any>(null)
 
+// --- FETCHING ---
 const fetchOrders = async () => {
   isLoading.value = true
   try {
@@ -36,40 +37,70 @@ const fetchOrders = async () => {
     orders.value = data
   } catch (error) {
     console.error('Error fetching orders:', error)
+    showError('Error al cargar los pedidos')
   } finally {
     isLoading.value = false
   }
 }
 
+// --- FILTERING ---
+const isSameDay = (d1: Date, d2: Date) => {
+  return d1.getFullYear() === d2.getFullYear() &&
+    d1.getMonth() === d2.getMonth() &&
+    d1.getDate() === d2.getDate()
+}
+
+const filteredOrders = computed(() => {
+  if (filterMode.value === 'all') return orders.value
+
+  const now = new Date()
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+
+  return orders.value.filter(o => {
+    const dDate = new Date(o.deliveryDate) // Filter by Delivery Date
+
+    if (filterMode.value === 'today') {
+      return isSameDay(dDate, today)
+    }
+    if (filterMode.value === 'yesterday') {
+      const yesterday = new Date(today)
+      yesterday.setDate(yesterday.getDate() - 1)
+      return isSameDay(dDate, yesterday)
+    }
+    if (filterMode.value === 'custom' && customDate.value) {
+      // customDate is YYYY-MM-DD
+      const parts = customDate.value.split('-')
+      if (parts.length !== 3) return false
+
+      const y = Number(parts[0])
+      const m = Number(parts[1])
+      const d = Number(parts[2])
+
+      if (!y || !m || !d) return false
+
+      const cDate = new Date(y, m - 1, d)
+      return isSameDay(dDate, cDate)
+    }
+    return true
+  })
+})
+
+// --- ACTIONS ---
 const copySummary = async (order: any) => {
   const text = generateOrderSummary(order)
   whatsAppModalMessage.value = text
 
   try {
     await navigator.clipboard.writeText(text)
-
-    // Show Toast Feedback
-    toast.value = {
-      show: true,
-      message: 'Copiado! Verificando contenido...',
-      type: 'success'
-    }
-
-    // Open Modal to show what was copied
+    success('Copiado! Verificando contenido...')
     showWhatsAppModal.value = true
   } catch (err) {
     console.error('Failed to copy: ', err);
-    toast.value = {
-      show: true,
-      message: 'Error al copiar resumen.',
-      type: 'error'
-    }
+    showError('Error al copiar resumen.')
   }
 }
 
 const openWhatsApp = () => {
-  // Encode and open - reuse logic or simple open
-  // For now, simpler is creating a link 
   const text = encodeURIComponent(whatsAppModalMessage.value)
   window.open(`https://wa.me/?text=${text}`, '_blank')
 }
@@ -81,7 +112,7 @@ const openPaymentModal = (order: any) => {
 
 const openInvoiceEditModal = (order: any) => {
   if (order.invoiceStatus === 'PROCESSED') {
-    toast.value = { show: true, message: 'Factura ya procesada, no se puede editar.', type: 'info' }
+    info('Factura ya procesada, no se puede editar.')
     return
   }
   selectedOrderForInvoice.value = order
@@ -89,138 +120,180 @@ const openInvoiceEditModal = (order: any) => {
 }
 
 const handleInvoiceSaved = (updatedOrder: any) => {
-  // Update local list
   const index = orders.value.findIndex(o => o._id === updatedOrder._id)
-  if (index !== -1) {
-    orders.value[index] = updatedOrder
-  }
-  toast.value = { show: true, message: 'Datos de facturación actualizados.', type: 'success' }
-  // Refetch to be sure of statuses
+  if (index !== -1) orders.value[index] = updatedOrder
+  success('Datos de facturación actualizados.')
   fetchOrders()
 }
 
 const handlePaymentRegister = async (payload: any) => {
   if (!selectedOrderForPayment.value) return
-
-  // Optimistic UI or wait for reload? 
-  // Let's reload to be safe and ensure status is updated if backend changes it
   try {
     await OrderService.registerCollection(selectedOrderForPayment.value._id, payload)
-
-    toast.value = {
-      show: true,
-      message: 'Cobro registrado exitosamente',
-      type: 'success'
-    }
+    success('Cobro registrado exitosamente')
     showPaymentModal.value = false
-    // Refresh orders to see any status updates (future proof)
     fetchOrders()
   } catch (error: any) {
     console.error("Payment error", error)
-    toast.value = {
-      show: true,
-      message: error.response?.data?.message || 'Error registrando cobro',
-      type: 'error'
-    }
+    showError(error.response?.data?.message || 'Error registrando cobro')
   }
+}
+
+const goToDetail = (id: string) => {
+  router.push(`/orders/${id}`)
 }
 
 onMounted(() => {
   fetchOrders()
 })
-
 </script>
 
 <template>
   <div class="orders-list-page">
-    <main class="container">
+    <div class="container-constrained">
+      <!-- Header -->
       <div class="page-header">
-        <h1>Lista de Pedidos</h1>
+        <div class="title-group">
+          <h1>Lista de Pedidos</h1>
+          <p>Gestiona, factura y controla tus entregas</p>
+        </div>
+        <button @click="fetchOrders" class="btn-refresh" :disabled="isLoading">
+           <i class="fas fa-sync-alt" :class="{ 'fa-spin': isLoading }"></i>
+        </button>
       </div>
 
-      <div v-if="isLoading" class="loading-state">
+      <!-- Filter Bar -->
+      <div class="filter-bar">
+        <div class="quick-filters">
+           <button 
+             class="filter-pill" 
+             :class="{ active: filterMode === 'yesterday' }"
+             @click="filterMode = 'yesterday'"
+           >
+             Ayer
+           </button>
+           <button 
+             class="filter-pill" 
+             :class="{ active: filterMode === 'today' }"
+             @click="filterMode = 'today'"
+           >
+             Hoy
+           </button>
+           <button 
+             class="filter-pill" 
+             :class="{ active: filterMode === 'all' }"
+             @click="filterMode = 'all'"
+           >
+             Todas
+           </button>
+           <button 
+             class="filter-pill" 
+             :class="{ active: filterMode === 'custom' }"
+             @click="filterMode = 'custom'"
+           >
+             Fecha...
+           </button>
+        </div>
+
+        <div class="date-picker-wrapper" v-if="filterMode === 'custom'">
+           <CustomDatePicker 
+              v-model="customDate" 
+              placeholder="Seleccionar Fecha"
+           />
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div v-if="isLoading && orders.length === 0" class="loading-state">
         <div class="spinner"></div>
         <span>Cargando pedidos...</span>
       </div>
 
-      <div v-else class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>Fecha Entrega</th>
-              <th>Cliente</th>
-              <th>Tipo</th>
-              <th>Responsable</th>
-              <th>Total</th>
-              <th>Facturación</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="order in orders" :key="order._id" @click="$router.push(`/orders/${order._id}`)" class="clickable-row">
-               <td>{{ new Date(order.deliveryDate).toLocaleDateString() }} {{ new Date(order.deliveryDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }}</td>
-               <td>
-                 <div class="client-column">
-                   <span class="name">{{ order.customerName }}</span>
-                   <span class="phone">{{ order.customerPhone }}</span>
-                 </div>
-               </td>
-               <td>
-                 <span class="badge" :class="order.deliveryType">
-                    {{ order.deliveryType === 'delivery' ? 'Delivery' : 'Retiro' }}
-                 </span>
-               </td>
-               <td>{{ order.responsible }}</td>
-               <td class="total">${{ order.totalValue.toFixed(2) }}</td>
-               <td>
-                  <span v-if="order.invoiceNeeded" class="status-badge" :class="order.invoiceStatus">
-                    {{ order.invoiceStatus }}
-                  </span>
-                  <span v-else class="status-text">-</span>
-               </td>
-               <td class="actions-cell" @click.stop>
-                  <button class="btn-icon" @click="copySummary(order)" title="Copiar Resumen WhatsApp">
-                    <i class="fa-regular fa-copy"></i>
-                  </button>
-                  
-                  <!-- Payment Action -->
-                  <button 
+      <!-- Orders Grid -->
+      <div v-else-if="filteredOrders.length > 0" class="orders-grid">
+         <article 
+            v-for="order in filteredOrders" 
+            :key="order._id" 
+            class="order-card"
+            @click="goToDetail(order._id)"
+         >
+            <!-- Card Header: Time & Type -->
+            <div class="card-header">
+               <div class="date-badge">
+                 <i class="far fa-clock"></i>
+                 {{ new Date(order.deliveryDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }}
+               </div>
+               <span class="type-badge" :class="order.deliveryType">
+                  {{ order.deliveryType === 'delivery' ? 'Delivery' : 'Retiro' }}
+               </span>
+            </div>
+
+            <!-- Client Info -->
+            <div class="client-section">
+               <h3 class="client-name" :title="order.customerName">{{ order.customerName }}</h3>
+               <p class="client-detail">
+                  <i class="fas fa-user-circle"></i> {{ order.responsible }}
+               </p>
+               
+               <!-- Comments Preview -->
+               <div v-if="order.comments" class="order-comments" :title="order.comments">
+                  <i class="far fa-comment-dots"></i>
+                  <span>{{ order.comments }}</span>
+               </div>
+            </div>
+
+            <!-- Financials -->
+            <div class="financial-row">
+               <div class="amount-group">
+                  <span class="label">Total</span>
+                  <span class="amount">${{ order.totalValue.toFixed(2) }}</span>
+               </div>
+               <div class="status-group">
+                  <!-- Payment Icon -->
+                  <div class="payment-status" :class="{ paid: order.paymentDetails?.monto }" title="Estado Pago">
+                     <i :class="order.paymentDetails?.monto ? 'fas fa-check-circle' : 'far fa-circle'"></i>
+                     {{ order.paymentDetails?.monto ? 'Pagado' : 'Pendiente' }}
+                  </div>
+               </div>
+            </div>
+
+            <!-- Actions Footer -->
+            <div class="card-actions" @click.stop>
+               <button class="btn-whatsapp-copy" @click="copySummary(order)" title="Copiar Resumen para WhatsApp">
+                  <i class="fa-brands fa-whatsapp"></i> Copiar Pedido
+               </button>
+              
+               <div class="icon-actions">
+                 <button 
                     class="btn-icon" 
-                    :class="order.paymentDetails?.monto ? 'paid-icon' : 'pay-icon'" 
-                    @click="openPaymentModal(order)" 
-                    :title="order.paymentDetails?.monto ? 'Ver/Editar Cobro' : 'Registrar Cobro'"
-                  >
-                    <i :class="order.paymentDetails?.monto ? 'fa-solid fa-file-invoice-dollar' : 'fa-solid fa-dollar-sign'"></i>
-                  </button>
-
-                  <!-- Invoice Edit Action -->
-                  <button 
-                    v-if="order.invoiceStatus !== 'PROCESSED'"
-                    class="btn-icon edit-icon" 
-                    @click="openInvoiceEditModal(order)" 
-                    title="Editar Datos Facturación"
-                  >
-                    <i class="fa-solid fa-pen-to-square"></i>
-                  </button>
-               </td>
-            </tr>
-            <tr v-if="orders.length === 0">
-              <td colspan="6" class="empty-cell">No hay pedidos registrados</td>
-            </tr>
-          </tbody>
-        </table>
+                    @click="openPaymentModal(order)"
+                    :class="{ 'is-paid': order.paymentDetails?.monto }"
+                    title="Registrar Cobro"
+                 >
+                    <i class="fa-solid fa-dollar-sign"></i>
+                 </button>
+                 <button 
+                  v-if="order.invoiceStatus !== 'PROCESSED'"
+                  class="btn-icon" 
+                  @click="openInvoiceEditModal(order)"
+                  title="Facturación"
+                 >
+                    <i class="fa-solid fa-file-invoice"></i>
+                 </button>
+              </div>
+            </div>
+         </article>
       </div>
-    </main>
 
-    <!-- Feedback Notification -->
-    <ToastNotification 
-      :show="toast.show" 
-      :message="toast.message" 
-      :type="toast.type"
-      @close="toast.show = false"
-    />
+      <!-- Empty State -->
+      <div v-else class="empty-state">
+         <i class="fas fa-box-open"></i>
+         <p>No se encontraron pedidos para esta fecha.</p>
+      </div>
 
-    <!-- Copy Confirmation Modal -->
+    </div>
+
+    <!-- Modals -->
     <OrderWhatsAppModal
       :is-open="showWhatsAppModal"
       :message="whatsAppModalMessage"
@@ -228,7 +301,6 @@ onMounted(() => {
       @send="openWhatsApp"
     />
 
-    <!-- Payment Modal -->
     <PaymentModal
       v-if="selectedOrderForPayment"
       :is-open="showPaymentModal"
@@ -239,7 +311,6 @@ onMounted(() => {
       @submit="handlePaymentRegister"
     />
 
-    <!-- Invoice Edit Modal -->
     <InvoiceEditModal
       v-if="selectedOrderForInvoice"
       :is-open="showInvoiceEditModal"
@@ -253,180 +324,360 @@ onMounted(() => {
 </template>
 
 <style lang="scss" scoped>
-.app-header {
-  background-color: white;
-  border-bottom: 1px solid $border-light;
-  padding: 1rem 0;
+.orders-list-page {
+  min-height: 100vh;
+  background-color: #f8fafc;
+  padding-bottom: 3rem;
+}
+
+.container-constrained {
+  width: 100%;
+  max-width: 1000px;
+  /* Constrained max-width as requested */
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+/* Header */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 2rem;
 
-  .container {
+  h1 {
+    font-size: 1.6rem;
+    color: $NICOLE-PURPLE;
+    /** Theme Color */
+    font-family: $font-principal;
+    margin: 0;
+    font-weight: 700;
+  }
+
+  p {
+    margin: 0.25rem 0 0;
+    color: $text-light;
+    font-size: 0.9rem;
+  }
+
+  .btn-refresh {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid $border-light;
+    background: white;
+    color: $text-light;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      color: $NICOLE-PURPLE;
+      border-color: $NICOLE-PURPLE;
+    }
+  }
+}
+
+/* Filter Bar */
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  align-items: center;
+
+  .quick-filters {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding-bottom: 4px;
+
+    .filter-pill {
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      border: 1px solid $border-light;
+      background: white;
+      color: $text-light;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+
+      &:hover {
+        background: $gray-50;
+        color: $text-dark;
+      }
+
+      &.active {
+        background: $NICOLE-PURPLE;
+        color: white;
+        border-color: $NICOLE-PURPLE;
+        box-shadow: 0 4px 10px rgba($NICOLE-PURPLE, 0.2);
+      }
+    }
+  }
+
+  .date-picker-wrapper {
+    flex: 1;
+    min-width: 200px;
+    max-width: 300px;
+  }
+}
+
+/* Grid Layout */
+.orders-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  /* Mobile First: 1 Col */
+  gap: 1rem;
+
+  @media (min-width: 640px) {
+    grid-template-columns: repeat(2, 1fr);
+    /* Tablet: 2 Cols */
+  }
+
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(3, 1fr);
+    /* Desktop: 3 Cols */
+  }
+}
+
+/* Card Styles */
+.order-card {
+  background: white;
+  border-radius: 16px;
+  border: 1px solid $border-light;
+  padding: 1.25rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  overflow: hidden;
+  /* Added to contain long content */
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+    border-color: rgba($NICOLE-PURPLE, 0.3);
+  }
+
+  /* Header */
+  .card-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+
+    .date-badge {
+      font-size: 0.85rem;
+      color: $text-light;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .type-badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 4px 8px;
+      border-radius: 6px;
+
+      &.delivery {
+        background: #fee2e2;
+        color: #b91c1c;
+      }
+
+      &.retiro {
+        background: #e0f2fe;
+        color: #0369a1;
+      }
+    }
   }
 
-  .actions {
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-  }
+  /* Client */
+  .client-section {
+    min-width: 0;
 
-  h1 {
-    margin: 0;
-    font-family: $font-principal;
-    color: $NICOLE-PURPLE;
-  }
-}
+    .client-name {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: $text-dark;
+      margin: 0 0 0.25rem 0;
 
-.table-container {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  border: 1px solid $border-light;
-  overflow-x: auto;
+      /* Strict Truncation */
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: block;
+      max-width: 100%;
+    }
 
-  table {
-    width: 100%;
-    border-collapse: collapse;
+    .client-detail {
+      font-size: 0.85rem;
+      color: $text-light;
+      margin: 0 0 0.5rem 0;
+    }
 
-    thead {
+    .order-comments {
+      font-size: 0.8rem;
+      color: $text-light;
       background: $gray-50;
+      padding: 0.4rem 0.6rem;
+      border-radius: 6px;
 
-      th {
-        padding: 1rem;
-        text-align: left;
-        font-family: $font-secondary;
-        font-weight: 600;
+      /* Line Clamping */
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+
+      margin-top: 0.5rem;
+      border: 1px solid $border-light;
+
+      i {
+        color: $NICOLE-PURPLE;
+        margin-right: 0.3rem;
+      }
+    }
+  }
+
+  /* Info Row */
+  .financial-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding-top: 0.5rem;
+    border-top: 1px dashed $gray-100;
+
+    .amount-group {
+      display: flex;
+      flex-direction: column;
+
+      .label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
         color: $text-light;
-        font-size: 0.9rem;
-        border-bottom: 1px solid $border-light;
+        font-weight: 700;
+      }
+
+      .amount {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: $NICOLE-PURPLE;
+        font-family: $font-principal;
       }
     }
 
-    tbody {
-      tr {
-        border-bottom: 1px solid $border-light;
+    .payment-status {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: $error;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
 
-        &:last-child {
-          border-bottom: none;
-        }
+      &.paid {
+        color: $success;
+      }
+    }
+  }
+
+  /* Actions */
+  /* Actions */
+  .card-actions {
+    margin-top: auto;
+    /* Push to bottom */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding-top: 1rem;
+
+    .btn-whatsapp-copy {
+      flex: 1;
+      /* Take available space */
+      background: #25D366;
+      color: white;
+      border: none;
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 2px 4px rgba(37, 211, 102, 0.2);
+
+      &:hover {
+        background: #128c7e;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(37, 211, 102, 0.3);
+      }
+    }
+
+    .icon-actions {
+      display: flex;
+      gap: 0.5rem;
+
+      .btn-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid $border-light;
+        background: white;
+        color: $text-light;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 1rem;
 
         &:hover {
-          background-color: $gray-50;
+          border-color: $NICOLE-PURPLE;
+          color: $NICOLE-PURPLE;
+          background: $gray-50;
         }
 
-        &.clickable-row {
-          cursor: pointer;
-          transition: background-color 0.2s;
-
-          &:hover {
-            background-color: rgba($NICOLE-PURPLE, 0.05);
-          }
+        &.is-paid {
+          color: $success;
+          border-color: $success;
+          background: #f0fdf4;
         }
-      }
-
-      td {
-        padding: 1rem;
-        font-size: 0.9rem;
-        color: $text-dark;
       }
     }
   }
 }
 
-.client-column {
-  display: flex;
-  flex-direction: column;
-
-  .name {
-    font-weight: 500;
-  }
-
-  .phone {
-    font-size: 0.8rem;
-    color: $text-light;
-  }
-}
-
-.badge {
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  font-weight: 500;
-  text-transform: capitalize;
-
-  &.delivery {
-    background-color: rgba($NICOLE-PURPLE, 0.1);
-    color: $NICOLE-PURPLE;
-  }
-
-  &.retiro {
-    background-color: $gray-200;
-    color: $text-dark;
-  }
-}
-
-.status-badge {
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 600;
-
-  &.PENDING {
-    background-color: rgba($warning, 0.1);
-    color: $warning;
-  }
-
-  &.PROCESSED {
-    background-color: rgba($success, 0.1);
-    color: $success;
-  }
-
-  &.ERROR {
-    background-color: rgba($error, 0.1);
-    color: $error;
-  }
-}
-
-.status-text {
-  color: $gray-400;
-}
-
-.total {
-  font-weight: 600;
-  color: $NICOLE-SECONDARY;
-}
-
-.btn-primary {
-  background-color: $NICOLE-PURPLE;
-  color: white;
-  padding: 0.6rem 1.2rem;
-  border-radius: 8px;
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 0.9rem;
-
-  &:hover {
-    background-color: $purple-hover;
-  }
-}
-
-.loading-state {
+/* Loading & Empty */
+.loading-state,
+.empty-state {
+  text-align: center;
+  padding: 4rem 1rem;
+  color: $text-light;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 4rem;
   gap: 1rem;
-  color: $text-light;
+
+  i {
+    font-size: 2rem;
+    opacity: 0.5;
+  }
 
   .spinner {
-    width: 30px;
-    height: 30px;
-    border: 3px solid rgba($NICOLE-PURPLE, 0.3);
-    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba($NICOLE-PURPLE, 0.2);
     border-top-color: $NICOLE-PURPLE;
-    animation: spin 1s ease-in-out infinite;
+    border-radius: 50%;
+    animation: spin 1s infinite linear;
   }
 }
 
@@ -434,67 +685,5 @@ onMounted(() => {
   to {
     transform: rotate(360deg);
   }
-}
-
-.empty-cell {
-  text-align: center;
-  color: $text-light;
-  padding: 2rem !important;
-}
-
-.actions-cell {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-.btn-icon {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 1.1rem;
-  padding: 0.5rem;
-  border-radius: 6px;
-  color: $text-light;
-  transition: all 0.2s;
-
-  &:hover {
-    background-color: rgba($NICOLE-PURPLE, 0.1);
-    color: $NICOLE-PURPLE;
-    transform: scale(1.05);
-  }
-
-  &.pay-icon {
-    color: $success;
-
-    &:hover {
-      background-color: rgba($success, 0.1);
-      color: darken($success, 10%);
-    }
-  }
-
-  &.paid-icon {
-    color: $NICOLE-PURPLE;
-    background-color: rgba($NICOLE-PURPLE, 0.1);
-
-    &:hover {
-      background-color: rgba($NICOLE-PURPLE, 0.2);
-    }
-  }
-
-  &.edit-icon {
-    color: $text-light;
-
-    &:hover {
-      background-color: $gray-200;
-      color: $text-dark;
-    }
-  }
-}
-
-.container {
-  width: 100%;
-  max-width: 100%;
-  padding: 0 2rem;
 }
 </style>

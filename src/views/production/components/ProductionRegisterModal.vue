@@ -123,7 +123,7 @@ $border-light: #f1f2f6;
   .icon-wrapper {
     width: 60px;
     height: 60px;
-    background: linear-gradient(135deg, $NICOLE-PURPLE, lighten($NICOLE-PURPLE, 20%));
+    background: linear-gradient(135deg, $NICOLE-PURPLE, lighten-color($NICOLE-PURPLE, 20%));
     border-radius: 50%;
     margin: 0 auto 1rem;
     display: flex;
@@ -263,7 +263,7 @@ $border-light: #f1f2f6;
     box-shadow: 0 4px 15px rgba($NICOLE-PURPLE, 0.3);
 
     &:hover {
-      background: darken($NICOLE-PURPLE, 5%);
+      background: darken-color($NICOLE-PURPLE, 5%);
     }
   }
 }
