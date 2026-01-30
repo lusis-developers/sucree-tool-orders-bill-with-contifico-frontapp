@@ -46,9 +46,9 @@ class OrderService extends APIBase {
     }
   }
 
-  async getOrders(): Promise<any[]> {
+  async getOrders(filters?: { search?: string, startDate?: string, endDate?: string, dateType?: 'deliveryDate' | 'createdAt' }): Promise<any[]> {
     try {
-      const response = await this.get<any[]>('orders')
+      const response = await this.get<any[]>('orders', undefined, { params: filters })
       return response.data
     } catch (error) {
       console.error('Error fetching orders:', error)
