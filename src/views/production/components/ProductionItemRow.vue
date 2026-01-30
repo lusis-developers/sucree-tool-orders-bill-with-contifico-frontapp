@@ -25,7 +25,7 @@ const props = defineProps<{
   urgencyType: string // 'delayed' | 'today' | 'tomorrow' | 'future'
 }>()
 
-const emit = defineEmits(['register', 'toggle-expand'])
+const emit = defineEmits(['register', 'toggle-expand', 'void-item'])
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString)
@@ -38,9 +38,13 @@ const formatDate = (dateString: string) => {
 }
 
 const formatClient = (clientName: string) => {
-  if (!clientName) return 'Cliente'
   const parts = clientName.split(' ')
   return parts.slice(0, 2).join(' ')
+}
+
+const handleVoidTrigger = () => {
+  console.log('ProductionItemRow: Void trigger activated for item', props.item._id)
+  emit('void-item', props.item)
 }
 
 const setMode = (mode: 'all' | 'custom') => {
@@ -99,6 +103,16 @@ const toggleExpand = () => {
 
             <!-- Right: Action -->
             <div class="action-col">
+                <!-- Void Button (Left side of actions) -->
+                 <div class="void-btn-wrapper" v-if="urgencyType === 'delayed'">
+                    <ActionHoldButton 
+                        label="Anular" 
+                        color="#c0392b"
+                        :hold-duration="1500"
+                        @trigger="handleVoidTrigger"
+                    />
+                </div>
+
                 <div class="mode-toggles">
                     <button 
                         class="mode-btn" 
@@ -134,12 +148,17 @@ const toggleExpand = () => {
 
                 <div class="hold-btn-wrapper">
                     <ActionHoldButton 
-                        label="Mantener" 
+                        v-if="urgencyType === 'today' || urgencyType === 'delayed'"
+                        label="Completar" 
                         :color="urgencyType === 'today' || urgencyType === 'delayed' ? '#e74c3c' : '#2ecc71'"
                         :disabled="!item.currentInput"
                         @trigger="triggerRegister"
                     />
+                    <div v-else class="view-only-badge">
+                        Solo Visualización
+                    </div>
                 </div>
+
             </div>
         </div>
 
@@ -329,6 +348,41 @@ $color-info: #3498db;
 
     .hold-btn-wrapper {
       width: 140px;
+    }
+
+    .view-only-badge {
+      font-size: 0.7rem;
+      color: #95a5a6;
+      background: #f1f2f6;
+      padding: 4px 8px;
+      border-radius: 4px;
+      text-align: center;
+      font-weight: 600;
+      width: 100%;
+    }
+
+    .void-btn-wrapper {
+      margin-left: 0.5rem;
+
+      .btn-void {
+        background: #ffebee;
+        color: #c0392b;
+        border: 1px solid rgba(192, 57, 43, 0.2);
+        padding: 0.4rem 0.8rem;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        transition: all 0.2s;
+
+        &:hover {
+          background: #c0392b;
+          color: white;
+        }
+      }
     }
   }
 }

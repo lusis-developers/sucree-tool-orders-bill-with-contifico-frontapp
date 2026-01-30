@@ -190,6 +190,23 @@ export function useProductionSummary() {
     item.isExpanded = !item.isExpanded
   }
 
+  const voidItem = async (item: SummaryItem) => {
+    if (!confirm(`¿Estás seguro de ANULAR todo el pendiente de "${item._id}"?`)) return
+
+    try {
+      isLoading.value = true
+      // Void item by item (or batch if service supported it, but we have strict orders)
+      const voidPromises = item.orders.map(o => ProductionService.voidOrder(o.id))
+      await Promise.all(voidPromises)
+
+      await fetchSummary()
+    } catch (err) {
+      console.error(err)
+      error.value = 'Error al anular item'
+      isLoading.value = false
+    }
+  }
+
   return {
     isLoading,
     error,
@@ -202,6 +219,7 @@ export function useProductionSummary() {
     fetchSummary,
     toggleCategory,
     toggleExpand,
+    voidItem,
     showHistory, // History logic to be implemented fully if needed or kept separate
     completedItems
   }

@@ -32,7 +32,7 @@ defineProps<{
   urgencyType: string
 }>()
 
-const emit = defineEmits(['toggle-category', 'toggle-item', 'register-item'])
+const emit = defineEmits(['toggle-category', 'toggle-item', 'register-item', 'void-item'])
 
 const enter = (el: Element) => {
   const element = el as HTMLElement
@@ -56,6 +56,11 @@ const leave = (el: Element) => {
   element.style.transition = 'height 0.3s ease-in, opacity 0.3s ease-in'
   element.style.height = '0'
   element.style.opacity = '0'
+}
+
+const handleVoidItem = (itm: Item) => {
+  console.log('CategoryGroup: Re-emitting void-item via handler', itm._id)
+  emit('void-item', itm)
 }
 </script>
 
@@ -87,6 +92,7 @@ const leave = (el: Element) => {
                     :urgency-type="urgencyType"
                     @toggle-expand="(itm) => emit('toggle-item', itm)"
                     @register="(itm) => emit('register-item', itm)"
+                    @void-item="handleVoidItem"
                 />
             </div>
         </Transition>

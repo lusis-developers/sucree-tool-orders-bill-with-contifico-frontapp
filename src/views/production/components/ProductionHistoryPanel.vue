@@ -23,6 +23,7 @@ const emit = defineEmits(['close'])
 const isLoading = ref(true)
 const historyItems = ref<HistoryItem[]>([])
 const error = ref('')
+const filterMode = ref<'FINISHED' | 'VOID'>('FINISHED')
 
 const fetchHistory = async () => {
   try {
@@ -30,11 +31,11 @@ const fetchHistory = async () => {
     error.value = ''
     const allOrders = await ProductionService.getAllOrders()
 
-    // Filter: Finished AND Updated Today (Strict Local)
+    // Filter: Finished/Void AND Updated Today (Strict Local)
     const todayStr = new Date().toISOString().split('T')[0]
 
-    const finishedToday = allOrders.filter(o =>
-      o.productionStage === 'FINISHED' &&
+    const filteredOrders = allOrders.filter(o =>
+      o.productionStage === filterMode.value &&
       o.updatedAt &&
       o.updatedAt.startsWith(todayStr)
     )
@@ -42,7 +43,7 @@ const fetchHistory = async () => {
     // Group by Product Name
     const groupedMap = new Map<string, { total: number, ids: string[], lastUpdate: string }>()
 
-    finishedToday.forEach(o => {
+    filteredOrders.forEach(o => {
       o.products.forEach(p => {
         const key = p.name
         if (!groupedMap.has(key)) {
@@ -81,8 +82,14 @@ const fetchHistory = async () => {
   }
 }
 
+const setFilter = (mode: 'FINISHED' | 'VOID') => {
+  filterMode.value = mode
+  fetchHistory()
+}
+
 const handleRevert = async (item: HistoryItem) => {
-  if (!confirm(`¿Estás seguro de devolver ${item.totalQuantity} unidades de "${item._id}" a producción?`)) return
+  const action = filterMode.value === 'FINISHED' ? 'devolver a producción' : 'restaurar item anulado'
+  if (!confirm(`¿Estás seguro de ${action}: "${item._id}"?`)) return
 
   try {
     isLoading.value = true
@@ -90,7 +97,16 @@ const handleRevert = async (item: HistoryItem) => {
 
     if (idsToRevert.length === 0) return
 
-    await ProductionService.batchUpdate(idsToRevert, 'PENDING')
+    if (idsToRevert.length === 0) return
+
+    if (filterMode.value === 'VOID') {
+      // Use strict restore endpoint for voided items
+      const restorePromises = idsToRevert.map(id => ProductionService.restoreOrder(id))
+      await Promise.all(restorePromises)
+    } else {
+      // Standard revert for finished items
+      await ProductionService.batchUpdate(idsToRevert, 'PENDING')
+    }
 
     await fetchHistory()
 
@@ -102,6 +118,21 @@ const handleRevert = async (item: HistoryItem) => {
   }
 }
 
+const canRevert = (item: HistoryItem): boolean => {
+  // If it's FINISHED, maybe we allow revert always (or standard rule)
+  // If it's VOID, strict 1 hour rule from the 'urgency' timestamp (which is updatedAt)
+
+  if (filterMode.value === 'FINISHED') return true // Or apply rule if needed
+
+  if (filterMode.value === 'VOID') {
+    const voidTime = new Date(item.urgency).getTime()
+    const now = new Date().getTime()
+    const diffHours = (now - voidTime) / (1000 * 60 * 60)
+    return diffHours < 1
+  }
+  return false
+}
+
 onMounted(() => {
   fetchHistory()
 })
@@ -111,8 +142,15 @@ onMounted(() => {
   <div class="history-panel">
       <div class="panel-header">
           <div class="title-group">
-               <h2><i class="fas fa-check-circle"></i> Producción Finalizada</h2>
-               <span class="subtitle">Items completados hoy {{ new Date().toLocaleDateString() }}</span>
+                <div class="toggle-group">
+                    <button :class="{ active: filterMode === 'FINISHED' }" @click="setFilter('FINISHED')">
+                        <i class="fas fa-check-circle"></i> Completados
+                    </button>
+                    <button :class="{ active: filterMode === 'VOID' }" @click="setFilter('VOID')">
+                        <i class="fas fa-ban"></i> Anulados
+                    </button>
+                </div>
+               <span class="subtitle">Items {{ filterMode === 'FINISHED' ? 'completados' : 'anulados' }} hoy</span>
           </div>
           <button class="btn-close" @click="emit('close')">
               <i class="fas fa-times"></i> Cerrar
@@ -210,6 +248,48 @@ $color-danger: #e74c3c;
       display: flex;
       align-items: center;
       gap: 0.8rem;
+    }
+
+    .toggle-group {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+      background: #f1f2f6;
+      padding: 4px;
+      border-radius: 12px;
+      display: inline-flex;
+
+      button {
+        border: none;
+        background: transparent;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: 700;
+        color: #95a5a6;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        i {
+          font-size: 0.9rem;
+        }
+
+        &.active {
+          background: white;
+          color: $color-text;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+
+          i {
+            color: $color-success;
+          }
+        }
+
+        &:last-child.active i {
+          color: $color-danger;
+        }
+      }
     }
 
     .subtitle {

@@ -62,6 +62,7 @@ const loop = () => {
   progress.value = p * 100
 
   if (p >= 1) {
+    console.log('ActionHoldButton: Hold complete, emitting trigger')
     emit('trigger')
     endHold()
   } else {
@@ -85,6 +86,8 @@ onUnmounted(() => {
     @touchstart.passive="startHold"
     @touchend="endHold"
     @touchcancel="endHold"
+    @touchmove="endHold"
+    @contextmenu.prevent
   >
     <div class="bg-fill" :style="{ width: `${progress}%`, background: color }"></div>
     <span class="label-text">

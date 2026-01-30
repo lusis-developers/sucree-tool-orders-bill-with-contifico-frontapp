@@ -16,13 +16,39 @@ const {
   fetchSummary,
   toggleCategory,
   toggleExpand,
+  voidItem,
   showHistory
 } = useProductionSummary()
 
 const isRegisterModalOpen = ref(false)
 const selectedItem = ref<SummaryItem | null>(null)
 
+// Void Modal State
+const isVoidModalOpen = ref(false)
+const itemToVoid = ref<SummaryItem | null>(null)
+const voidConfirmationInput = ref('')
+
 // Actions
+const openVoidModal = (item: SummaryItem) => {
+  itemToVoid.value = item
+  voidConfirmationInput.value = ''
+  isVoidModalOpen.value = true
+}
+
+const closeVoidModal = () => {
+  isVoidModalOpen.value = false
+  itemToVoid.value = null
+  voidConfirmationInput.value = ''
+}
+
+const confirmVoidAction = async () => {
+  if (!itemToVoid.value) return
+  if (voidConfirmationInput.value.toLowerCase() !== 'anular') return
+
+  await voidItem(itemToVoid.value)
+  closeVoidModal()
+}
+
 const handleRegisterItem = async (item: SummaryItem) => {
   const qty = item.currentInput
   if (!qty || qty <= 0) {
@@ -56,6 +82,14 @@ const toggleHistoryPanel = () => {
 
 onMounted(async () => {
   await fetchSummary()
+})
+
+import { onUpdated } from 'vue'
+onUpdated(() => {
+  // Debug: Check if modal is trying to open
+  if (isVoidModalOpen.value) {
+    console.log('ProductionItemsSummaryView: Modal State is OPEN (true)')
+  }
 })
 </script>
 
@@ -124,6 +158,7 @@ onMounted(async () => {
               @toggle-category="toggleCategory"
               @toggle-item="toggleExpand"
               @register-item="handleRegisterItem"
+              @void-item="openVoidModal"
             />
           </div>
 
@@ -137,6 +172,43 @@ onMounted(async () => {
         <span>Buen trabajo, el tablero está limpio.</span>
       </div>
     </div>
+
+    <!-- Void Confirmation Modal -->
+    <div v-if="isVoidModalOpen" class="modal-overlay">
+      <div class="modal-content danger">
+        <div class="modal-header">
+           <i class="fas fa-exclamation-triangle"></i>
+           <h2>Confirmar Anulación</h2>
+        </div>
+        
+        <p v-if="itemToVoid">
+            Estás a punto de anular el pedido de <strong>{{ itemToVoid._id }}</strong> ({{ itemToVoid.totalQuantity }} unids).
+            Esta acción no se puede deshacer fácilmente y requiere re-ingreso manual.
+        </p>
+
+        <div class="input-group">
+            <label>Escribe "anular" para confirmar:</label>
+            <input 
+              v-model="voidConfirmationInput" 
+              type="text" 
+              placeholder="anular"
+              class="confirm-input"
+            />
+        </div>
+
+        <div class="modal-actions">
+           <button class="btn-cancel" @click="closeVoidModal">Cancelar</button>
+           <button 
+             class="btn-confirm-void" 
+             :disabled="voidConfirmationInput.toLowerCase() !== 'anular'"
+             @click="confirmVoidAction"
+            >
+             <i class="fas fa-ban"></i> Confirmar Anulación
+           </button>
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
 
