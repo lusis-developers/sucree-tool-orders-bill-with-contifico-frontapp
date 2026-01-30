@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ActionHoldButton from '@/components/common/ActionHoldButton.vue'
+import { parseECTDate } from '@/utils/dateUtils'
 
 interface OrderDetail {
   id: string
@@ -27,14 +28,28 @@ const props = defineProps<{
 
 const emit = defineEmits(['register', 'toggle-expand', 'void-item'])
 
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString)
-  return new Intl.DateTimeFormat('es-EC', {
+const formatDisplayDate = (dateString: string) => {
+  if (!dateString) return '-'
+  const date = parseECTDate(dateString)
+
+  // Check if it's a date-only order (stored as 00:00 UTC)
+  // Our parseECTDate handles this by making it 00:00 in local-like components
+  const isMidnight = date.getHours() === 0 && date.getMinutes() === 0
+
+  const options: Intl.DateTimeFormatOptions = {
     weekday: 'short',
     day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  }).format(date)
+    month: 'short'
+  }
+
+  // If order has a specific hour, show it. If not, don't show "00:00"
+  if (!isMidnight) {
+    options.hour = '2-digit'
+    options.minute = '2-digit'
+    options.hour12 = true
+  }
+
+  return new Intl.DateTimeFormat('es-EC', options).format(date).toUpperCase()
 }
 
 const formatClient = (clientName: string) => {
@@ -87,7 +102,7 @@ const toggleExpand = () => {
             <div class="info-col" @click="toggleExpand">
                 <div class="urgency-tag" :class="urgencyType">
                     <i class="far fa-clock"></i>
-                    {{ formatDate(item.urgency) }}
+                    {{ formatDisplayDate(item.urgency) }}
                 </div>
                 <h3 class="product-name">{{ item._id }}</h3>
                 <button class="btn-expand-mobile" @click.stop="toggleExpand">
@@ -168,7 +183,7 @@ const toggleExpand = () => {
             <div class="orders-list">
                 <div v-for="order in item.orders" :key="order.id" class="order-pill">
                     <b>{{ formatClient(order.client) }}</b>
-                    <span>x{{ order.quantity }}</span> ({{ formatDate(order.delivery) }})
+                    <span>x{{ order.quantity }}</span> ({{ formatDisplayDate(order.delivery) }})
                 </div>
             </div>
         </div>
