@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import OrderService from '@/services/order.service'
 import { generateOrderSummary } from '@/utils/orderSummary'
 import { useToast } from '@/composables/useToast'
+import { getECTTodayString } from '@/utils/dateUtils'
 
 // Components
 import OrderWhatsAppModal from './components/OrderWhatsAppModal.vue'
@@ -18,8 +19,10 @@ const orders = ref<any[]>([])
 const isLoading = ref(false)
 
 // Filter State
-const filterMode = ref<'today' | 'yesterday' | 'all' | 'custom'>('today')
+const filterMode = ref<'today' | 'yesterday' | 'tomorrow' | 'all' | 'custom'>('today')
+const dateType = ref<'deliveryDate' | 'createdAt'>('deliveryDate')
 const customDate = ref('')
+const searchQuery = ref('')
 
 // Modal States
 const showWhatsAppModal = ref(false)
@@ -33,7 +36,44 @@ const selectedOrderForInvoice = ref<any>(null)
 const fetchOrders = async () => {
   isLoading.value = true
   try {
-    const data = await OrderService.getOrders()
+    const filters: any = {
+      dateType: dateType.value
+    }
+
+    // 1. Search filter
+    if (searchQuery.value) {
+      filters.search = searchQuery.value
+    }
+
+    // 2. Date filters
+    const todayStr = getECTTodayString()
+    const [y, m, d] = todayStr.split('-').map(Number) as [number, number, number]
+
+    if (filterMode.value !== 'all') {
+      let targetDate: Date
+
+      if (filterMode.value === 'today') {
+        filters.startDate = todayStr
+        filters.endDate = todayStr
+      } else if (filterMode.value === 'yesterday') {
+        targetDate = new Date(y, m - 1, d)
+        targetDate.setDate(targetDate.getDate() - 1)
+        const dateStr = `${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, '0')}-${String(targetDate.getDate()).padStart(2, '0')}`
+        filters.startDate = dateStr
+        filters.endDate = dateStr
+      } else if (filterMode.value === 'tomorrow') {
+        targetDate = new Date(y, m - 1, d)
+        targetDate.setDate(targetDate.getDate() + 1)
+        const dateStr = `${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, '0')}-${String(targetDate.getDate()).padStart(2, '0')}`
+        filters.startDate = dateStr
+        filters.endDate = dateStr
+      } else if (filterMode.value === 'custom' && customDate.value) {
+        filters.startDate = customDate.value
+        filters.endDate = customDate.value
+      }
+    }
+
+    const data = await OrderService.getOrders(filters)
     orders.value = data
   } catch (error) {
     console.error('Error fetching orders:', error)
@@ -43,46 +83,29 @@ const fetchOrders = async () => {
   }
 }
 
+// Watchers for filtering
+import { watch } from 'vue'
+watch([filterMode, customDate, dateType], () => {
+  if (filterMode.value !== 'custom' || customDate.value) {
+    fetchOrders()
+  }
+})
+
+// Debounced search could be better, but for now simple button or enter is fine.
+// Or just watch and fetch.
+let searchTimeout: any = null
+watch(searchQuery, () => {
+  clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(() => {
+    fetchOrders()
+  }, 500)
+})
+
 // --- FILTERING ---
-const isSameDay = (d1: Date, d2: Date) => {
-  return d1.getFullYear() === d2.getFullYear() &&
-    d1.getMonth() === d2.getMonth() &&
-    d1.getDate() === d2.getDate()
-}
-
 const filteredOrders = computed(() => {
-  if (filterMode.value === 'all') return orders.value
-
-  const now = new Date()
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-
-  return orders.value.filter(o => {
-    const dDate = new Date(o.deliveryDate) // Filter by Delivery Date
-
-    if (filterMode.value === 'today') {
-      return isSameDay(dDate, today)
-    }
-    if (filterMode.value === 'yesterday') {
-      const yesterday = new Date(today)
-      yesterday.setDate(yesterday.getDate() - 1)
-      return isSameDay(dDate, yesterday)
-    }
-    if (filterMode.value === 'custom' && customDate.value) {
-      // customDate is YYYY-MM-DD
-      const parts = customDate.value.split('-')
-      if (parts.length !== 3) return false
-
-      const y = Number(parts[0])
-      const m = Number(parts[1])
-      const d = Number(parts[2])
-
-      if (!y || !m || !d) return false
-
-      const cDate = new Date(y, m - 1, d)
-      return isSameDay(dDate, cDate)
-    }
-    return true
-  })
+  // Since we now filter on server-side, filteredOrders is just orders.value
+  // We keep the computed property in case we want to add extra client-side logic later
+  return orders.value
 })
 
 // --- ACTIONS ---
@@ -164,42 +187,82 @@ onMounted(() => {
 
       <!-- Filter Bar -->
       <div class="filter-bar">
-        <div class="quick-filters">
-           <button 
-             class="filter-pill" 
-             :class="{ active: filterMode === 'yesterday' }"
-             @click="filterMode = 'yesterday'"
-           >
-             Ayer
-           </button>
-           <button 
-             class="filter-pill" 
-             :class="{ active: filterMode === 'today' }"
-             @click="filterMode = 'today'"
-           >
-             Hoy
-           </button>
-           <button 
-             class="filter-pill" 
-             :class="{ active: filterMode === 'all' }"
-             @click="filterMode = 'all'"
-           >
-             Todas
-           </button>
-           <button 
-             class="filter-pill" 
-             :class="{ active: filterMode === 'custom' }"
-             @click="filterMode = 'custom'"
-           >
-             Fecha...
-           </button>
+        <div class="filter-upper-row">
+          <!-- Search Input -->
+          <div class="search-wrapper">
+            <i class="fas fa-search"></i>
+            <input 
+              type="text" 
+              v-model="searchQuery" 
+              placeholder="Nombre, RUC o email..."
+              @keyup.enter="fetchOrders"
+            />
+          </div>
+
+          <!-- Date Type Selector -->
+          <div class="date-type-selector">
+            <button 
+              class="type-btn" 
+              :class="{ active: dateType === 'deliveryDate' }" 
+              @click="dateType = 'deliveryDate'"
+            >
+              Entrega
+            </button>
+            <button 
+              class="type-btn" 
+              :class="{ active: dateType === 'createdAt' }" 
+              @click="dateType = 'createdAt'"
+            >
+              Registro
+            </button>
+          </div>
         </div>
 
-        <div class="date-picker-wrapper" v-if="filterMode === 'custom'">
-           <CustomDatePicker 
-              v-model="customDate" 
-              placeholder="Seleccionar Fecha"
-           />
+        <div class="filter-lower-row">
+          <div class="quick-filters">
+             <button 
+               class="filter-pill" 
+               :class="{ active: filterMode === 'yesterday' }"
+               @click="filterMode = 'yesterday'"
+             >
+               Ayer
+             </button>
+             <button 
+               class="filter-pill" 
+               :class="{ active: filterMode === 'today' }"
+               @click="filterMode = 'today'"
+             >
+               Hoy
+             </button>
+             <button 
+               class="filter-pill" 
+               :class="{ active: filterMode === 'tomorrow' }"
+               @click="filterMode = 'tomorrow'"
+             >
+               Mañana
+             </button>
+             <button 
+               class="filter-pill" 
+               :class="{ active: filterMode === 'all' }"
+               @click="filterMode = 'all'"
+             >
+               Todas
+             </button>
+             <button 
+               class="filter-pill" 
+               :class="{ active: filterMode === 'custom' }"
+               @click="filterMode = 'custom'"
+             >
+               Fecha...
+             </button>
+          </div>
+
+          <div class="date-picker-wrapper" v-if="filterMode === 'custom'">
+             <CustomDatePicker 
+                v-model="customDate" 
+                placeholder="Seleccionar Fecha"
+             />
+          </div>
         </div>
       </div>
 
@@ -221,7 +284,7 @@ onMounted(() => {
             <div class="card-header">
                <div class="date-badge">
                  <i class="far fa-clock"></i>
-                 {{ new Date(order.deliveryDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }}
+                 {{ order.deliveryTime || '--:--' }}
                </div>
                <span class="type-badge" :class="order.deliveryType">
                   {{ order.deliveryType === 'delivery' ? 'Delivery' : 'Retiro' }}
@@ -380,25 +443,115 @@ onMounted(() => {
 /* Filter Bar */
 .filter-bar {
   display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  align-items: center;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-bottom: 2.5rem;
+  background: white;
+  padding: 1.25rem;
+  border-radius: 16px;
+  border: 1px solid $border-light;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+
+  .filter-upper-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .filter-lower-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    padding-top: 1rem;
+    border-top: 1px solid $gray-50;
+  }
+
+  .search-wrapper {
+    position: relative;
+    flex: 2;
+    min-width: 260px;
+
+    i {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: $text-light;
+      font-size: 0.9rem;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.75rem 1rem 0.75rem 2.5rem;
+      border-radius: 12px;
+      border: 1px solid $border-light;
+      background: $gray-50;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+      outline: none;
+
+      &:focus {
+        background: white;
+        border-color: $NICOLE-PURPLE;
+        box-shadow: 0 0 0 4px rgba($NICOLE-PURPLE, 0.1);
+      }
+
+      &::placeholder {
+        color: #94a3b8;
+      }
+    }
+  }
+
+  .date-type-selector {
+    display: flex;
+    background: $gray-100;
+    padding: 0.3rem;
+    border-radius: 12px;
+    gap: 0.2rem;
+    flex: 1;
+    min-width: 200px;
+
+    .type-btn {
+      flex: 1;
+      border: none;
+      background: transparent;
+      padding: 0.5rem;
+      border-radius: 9px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: $text-light;
+      cursor: pointer;
+      transition: all 0.2s;
+
+      &.active {
+        background: white;
+        color: $NICOLE-PURPLE;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      }
+
+      &:hover:not(.active) {
+        color: $text-dark;
+      }
+    }
+  }
 
   .quick-filters {
     display: flex;
     gap: 0.5rem;
     overflow-x: auto;
-    padding-bottom: 4px;
+    padding-bottom: 2px;
+    flex: 1;
 
     .filter-pill {
-      padding: 0.5rem 1rem;
+      padding: 0.5rem 1.25rem;
       border-radius: 20px;
       border: 1px solid $border-light;
       background: white;
       color: $text-light;
-      font-weight: 600;
-      font-size: 0.9rem;
+      font-weight: 700;
+      font-size: 0.85rem;
       cursor: pointer;
       white-space: nowrap;
       transition: all 0.2s;
@@ -412,15 +565,14 @@ onMounted(() => {
         background: $NICOLE-PURPLE;
         color: white;
         border-color: $NICOLE-PURPLE;
-        box-shadow: 0 4px 10px rgba($NICOLE-PURPLE, 0.2);
+        box-shadow: 0 4px 12px rgba($NICOLE-PURPLE, 0.25);
       }
     }
   }
 
   .date-picker-wrapper {
-    flex: 1;
     min-width: 200px;
-    max-width: 300px;
+    max-width: 100%;
   }
 }
 
