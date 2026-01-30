@@ -101,6 +101,16 @@ class ProductionService extends APIBase {
     const response = await this.patch(`production/${orderId}/product-status`, { productName, status, notes })
     return response.data
   }
+
+  async voidOrder(orderId: string) {
+    const response = await this.patch(`production/${orderId}/void`, {})
+    return response.data
+  }
+
+  async restoreOrder(orderId: string) {
+    const response = await this.patch(`production/${orderId}/restore`, {})
+    return response.data
+  }
 }
 
 export default new ProductionService()

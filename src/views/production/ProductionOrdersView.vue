@@ -2,8 +2,11 @@
 import { ref, onMounted, computed } from 'vue'
 import ProductionService from '@/services/production.service'
 import DispatchReportModal from './components/DispatchReportModal.vue'
+import DispatchByDestinationModal from './components/DispatchByDestinationModal.vue'
+import ToastNotification from '@/components/ToastNotification.vue'
 
 interface Order {
+  // ... (Order interface content is unchanged, omitted for brevity if tool allows partial match but using full replacement block for safety in this tool usually)
   _id: string
   orderDate: string
   deliveryDate: string
@@ -38,8 +41,14 @@ const filterMode = ref('today') // Default to Today for focus
 
 // Modal State
 const showDispatchModal = ref(false)
+const showGlobalBatchModal = ref(false)
 const selectedOrder = ref<Order | null>(null)
 const dispatchDestination = ref('')
+
+// Toast State
+const showToast = ref(false)
+const toastMessage = ref('')
+const toastType = ref<'success' | 'error'>('success')
 
 // Batch Selection
 const selectedIds = ref<string[]>([])
@@ -69,13 +78,26 @@ const handleBatchDispatch = async () => {
     await ProductionService.registerBatchDispatch(selectedIds.value)
     selectedIds.value = [] // clear selection
     await fetchOrders()
-    alert('Envíos masivos registrados correctamente.')
+    // Using Toast instead of alert
+    toastMessage.value = 'Envíos masivos registrados correctamente.'
+    toastType.value = 'success'
+    showToast.value = true
   } catch (err) {
     console.error(err)
-    alert('Hubo un error al procesar los envíos masivos.')
+    // Alert used here as fallback or update to toast? Let's keep consistent
+    toastMessage.value = 'Hubo un error al procesar los envíos masivos.'
+    toastType.value = 'error'
+    showToast.value = true
   } finally {
     isLoading.value = false
   }
+}
+
+const handleGlobalBatchSuccess = async () => {
+  await fetchOrders()
+  toastMessage.value = '¡Envío masivo registrado con éxito!'
+  toastType.value = 'success'
+  showToast.value = true
 }
 
 const openDispatchModal = (order: Order) => {
@@ -102,13 +124,18 @@ const handleDispatchConfirm = async (payload: any) => {
     })
     showDispatchModal.value = false
     await fetchOrders() // Refresh to show new status
+    toastMessage.value = 'Envío registrado.'
+    toastType.value = 'success'
+    showToast.value = true
   } catch (err: any) {
-    alert('Error registrando envío: ' + (err.response?.data?.message || err.message))
+    toastMessage.value = 'Error registrando envío: ' + (err.response?.data?.message || err.message)
+    toastType.value = 'error'
+    showToast.value = true
   } finally {
     isLoading.value = false
   }
 }
-
+// ... (rest of utils same)
 // Helper to strip time for date comparison
 const isSameDay = (d1: Date, d2: Date) => {
   return d1.getFullYear() === d2.getFullYear() &&
@@ -266,9 +293,14 @@ const getDispatchBadge = (status?: string) => {
         <h1>Órdenes de Producción</h1>
         <p>Listado general - Ventas WhatsApp y Local</p>
       </div>
-      <button @click="fetchOrders" class="btn-refresh" :disabled="isLoading">
-        <i class="fas fa-sync-alt" :class="{ 'fa-spin': isLoading }"></i>
-      </button>
+      <div class="actions-header">
+        <button class="btn-primary" @click="showGlobalBatchModal = true">
+           <i class="fas fa-shipping-fast"></i> Nuevo Envío Masivo
+        </button>
+        <button @click="fetchOrders" class="btn-refresh" :disabled="isLoading">
+          <i class="fas fa-sync-alt" :class="{ 'fa-spin': isLoading }"></i>
+        </button>
+      </div>
     </div>
 
     <!-- Stats Summary -->
@@ -440,6 +472,19 @@ const getDispatchBadge = (status?: string) => {
       @close="showDispatchModal = false"
       @confirm="handleDispatchConfirm"
     />
+
+    <DispatchByDestinationModal 
+      :is-open="showGlobalBatchModal"
+      @close="showGlobalBatchModal = false"
+      @success="handleGlobalBatchSuccess"
+    />
+
+    <ToastNotification 
+       :show="showToast"
+       :message="toastMessage"
+       :type="toastType"
+       @close="showToast = false"
+    />
   </div>
 </template>
 
@@ -472,6 +517,34 @@ $color-primary: #8e44ad;
     color: #7f8c8d;
     margin: 0.2rem 0 0 0;
     font-size: 0.9rem;
+  }
+
+  .actions-header {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+
+    .btn-primary {
+      background: #8e44ad;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+      box-shadow: 0 2px 5px rgba(142, 68, 173, 0.2);
+
+      &:hover {
+        background: #9b59b6;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(142, 68, 173, 0.3);
+      }
+    }
   }
 
   .btn-refresh {
