@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import OrderService from '@/services/order.service'
 import { generateOrderSummary } from '@/utils/orderSummary'
 import { useToast } from '@/composables/useToast'
-import { getECTTodayString } from '@/utils/dateUtils'
+import { getECTTodayString, parseECTDate } from '@/utils/dateUtils'
 
 // Components
 import OrderWhatsAppModal from './components/OrderWhatsAppModal.vue'
@@ -166,6 +166,25 @@ const goToDetail = (id: string) => {
   router.push(`/orders/${id}`)
 }
 
+const formatOrderTime = (order: any) => {
+  if (order.deliveryTime && order.deliveryTime.includes(':')) {
+    return order.deliveryTime
+  }
+  if (!order.deliveryDate) return '--:--'
+
+  const date = parseECTDate(order.deliveryDate)
+  const isMidnight = date.getHours() === 0 && date.getMinutes() === 0
+
+  if (isMidnight) return '--:--'
+
+  const timeOpts: Intl.DateTimeFormatOptions = {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  }
+  return new Intl.DateTimeFormat('es-EC', timeOpts).format(date).toUpperCase()
+}
+
 onMounted(() => {
   fetchOrders()
 })
@@ -284,7 +303,7 @@ onMounted(() => {
             <div class="card-header">
                <div class="date-badge">
                  <i class="far fa-clock"></i>
-                 {{ order.deliveryTime || '--:--' }}
+                 {{ formatOrderTime(order) }}
                </div>
                <span class="type-badge" :class="order.deliveryType">
                   {{ order.deliveryType === 'delivery' ? 'Delivery' : 'Retiro' }}
