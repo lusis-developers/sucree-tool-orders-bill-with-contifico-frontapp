@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import ProductionService from '@/services/production.service'
+import { parseECTDate } from '@/utils/dateUtils'
 import DispatchReportModal from './components/DispatchReportModal.vue'
 import DispatchByDestinationModal from './components/DispatchByDestinationModal.vue'
 import ToastNotification from '@/components/ToastNotification.vue'
@@ -23,6 +24,7 @@ interface Order {
   deliveryType: string
   branch?: string
   deliveryAddress?: string
+  deliveryTime?: string
 
   // Dispatch
   dispatchStatus?: string
@@ -168,12 +170,16 @@ const filteredOrders = computed(() => {
   if (filterMode.value === 'all') return orders.value
 
   const now = new Date()
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  // Normalizing "today" to EC midnight
+  const ecToday = new Date(now.getTime() - (5 * 3600 * 1000))
+  const today = new Date(ecToday.getFullYear(), ecToday.getMonth(), ecToday.getDate())
+
   const tomorrow = new Date(today)
   tomorrow.setDate(tomorrow.getDate() + 1)
 
   return orders.value.filter(o => {
-    const dDate = new Date(o.deliveryDate)
+    // Crucial: Use parseECTDate to treat UTC midnight as EC midnight
+    const dDate = parseECTDate(o.deliveryDate)
 
     if (filterMode.value === 'today') {
       return isSameDay(dDate, today)
@@ -182,9 +188,6 @@ const filteredOrders = computed(() => {
       return isSameDay(dDate, tomorrow)
     }
     if (filterMode.value === 'yesterday') {
-      // Strictly yesterday? Or overdue? 
-      // User asked for "Ayer", usually implying "What happened yesterday" or "Overdue from yesterday". 
-      // Given it's a list, probably strictly yesterday's delivery date.
       const yesterday = new Date(today)
       yesterday.setDate(yesterday.getDate() - 1)
       return isSameDay(dDate, yesterday)
@@ -193,7 +196,6 @@ const filteredOrders = computed(() => {
       return dDate > tomorrow
     }
     if (filterMode.value === 'overdue') {
-      // Extra utility: things due before today
       return dDate < today
     }
     return true
@@ -245,15 +247,39 @@ const fetchOrders = async () => {
   }
 }
 
-const formatDate = (dateString: string) => {
+const formatDate = (dateString: string, timeString?: string) => {
   if (!dateString) return '-'
-  const date = new Date(dateString)
-  return new Intl.DateTimeFormat('es-EC', {
+  const date = parseECTDate(dateString)
+
+  const options: Intl.DateTimeFormatOptions = {
+    weekday: 'short',
     month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  }).format(date)
+    day: 'numeric'
+  }
+
+  const formattedDate = new Intl.DateTimeFormat('es-EC', options).format(date)
+
+  // Logic for Time:
+  // 1. If we have a explicit deliveryTime (HH:mm), use it.
+  // 2. If not, and date has a time that isn't midnight, use that.
+  // 3. Otherwise, just show the date.
+
+  if (timeString && timeString.includes(':')) {
+    return `${formattedDate}, ${timeString}`
+  }
+
+  const isMidnight = date.getHours() === 0 && date.getMinutes() === 0
+  if (!isMidnight) {
+    const timeOpts: Intl.DateTimeFormatOptions = {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    }
+    const timePart = new Intl.DateTimeFormat('es-EC', timeOpts).format(date)
+    return `${formattedDate}, ${timePart.toUpperCase()}`
+  }
+
+  return formattedDate
 }
 
 const getChannelParams = (channel: string) => {
@@ -428,7 +454,7 @@ const getDispatchBadge = (status?: string) => {
             <td class="col-date">
               <div class="delivery-date">
                 <i class="far fa-calendar-alt"></i>
-                {{ formatDate(order.deliveryDate) }}
+                {{ formatDate(order.deliveryDate, order.deliveryTime) }}
               </div>
               
               <div class="destination-box" :class="getDestination(order).class">

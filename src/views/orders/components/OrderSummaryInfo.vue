@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { formatECT } from '@/utils/dateUtils'
+import { formatECT, parseECTDate } from '@/utils/dateUtils'
 
 const props = defineProps({
   order: {
@@ -11,9 +11,31 @@ const props = defineProps({
 
 const displayDate = computed(() => {
   if (!props.order.deliveryDate) return 'N/A'
-  // If we have a deliveryTime, we use it for display
+
+  const date = parseECTDate(props.order.deliveryDate)
+  const isMidnight = date.getHours() === 0 && date.getMinutes() === 0
+
+  // Use formatECT for the date part (DD/MMM/YYYY)
   const datePart = formatECT(props.order.deliveryDate, false)
-  return `${datePart} ${props.order.deliveryTime || ''}`
+
+  // 1. Explicit deliveryTime takes priority (e.g. "12:30")
+  if (props.order.deliveryTime && props.order.deliveryTime.includes(':')) {
+    return `${datePart} ${props.order.deliveryTime}`
+  }
+
+  // 2. If no deliveryTime but the date has a specific time (not 00:00), show it
+  if (!isMidnight) {
+    const timeOpts: Intl.DateTimeFormatOptions = {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    }
+    const timePart = new Intl.DateTimeFormat('es-EC', timeOpts).format(date)
+    return `${datePart} ${timePart.toUpperCase()}`
+  }
+
+  // 3. Just the date for midnight orders
+  return datePart
 })
 
 const isDelivery = computed(() => props.order.deliveryType === 'delivery')
