@@ -5,6 +5,7 @@ interface Product {
   _id: string
   name: string
   quantity: number
+  produced: number
   quantitySent: number // Form state
 }
 
@@ -12,7 +13,7 @@ const props = defineProps<{
   isOpen: boolean
   orderId: string
   destination: string
-  products: { _id: string, name: string, quantity: number }[]
+  products: { _id: string, name: string, quantity: number, produced?: number }[]
 }>()
 
 const emit = defineEmits(['close', 'confirm'])
@@ -24,34 +25,48 @@ const notes = ref('')
 watch(() => props.isOpen, (val) => {
   if (val) {
     items.value = props.products.map(p => ({
-      ...p,
-      quantitySent: p.quantity // Default to full shipment
+      _id: p._id,
+      name: p.name,
+      quantity: p.quantity,
+      produced: p.produced || 0,
+      quantitySent: p.produced || 0 // Default to what is physically produced
     }))
     notes.value = ''
   }
-})
+}, { immediate: true })
 
 const totalStatus = computed(() => {
   let excess = false
   let partial = false
+  let producedSync = true
 
   items.value.forEach(i => {
     if (i.quantitySent > i.quantity) excess = true
     if (i.quantitySent < i.quantity) partial = true
+    if (i.quantitySent > i.produced) producedSync = false
   })
 
-  if (excess) return { label: 'EXCESO DETECTADO', class: 'status-excess' }
+  if (!producedSync) return { label: 'AVISO: ENVIANDO MÁS DE LO PRODUCIDO', class: 'status-excess' }
+  if (excess) return { label: 'EXCESO DETECTADO (VS PEDIDO)', class: 'status-excess' }
   if (partial) return { label: 'ENVÍO PARCIAL', class: 'status-partial' }
-  return { label: 'ENVÍO COMPLETO', class: 'status-ok' }
+  return { label: 'ENVÍO COMPLETO SEGÚN PRODUCCIÓN', class: 'status-ok' }
+})
+
+const canConfirm = computed(() => {
+  return items.value.some(i => i.quantitySent > 0)
 })
 
 const handleConfirm = () => {
+  if (!canConfirm.value) return
+
   const payload = {
-    items: items.value.map(i => ({
-      productId: i._id,
-      name: i.name,
-      quantitySent: i.quantitySent
-    })),
+    items: items.value
+      .filter(i => i.quantitySent > 0)
+      .map(i => ({
+        productId: i._id,
+        name: i.name,
+        quantitySent: i.quantitySent
+      })),
     notes: notes.value,
     destination: props.destination
   }
@@ -75,17 +90,22 @@ const handleConfirm = () => {
         <div v-for="item in items" :key="item._id" class="item-row">
           <div class="item-info">
             <span class="name">{{ item.name }}</span>
-            <span class="req">Pedido: {{ item.quantity }}</span>
+            <div class="metrics">
+                <span class="req">Pedido: {{ item.quantity }}</span>
+                <span class="produced" :class="{ 'warning': item.produced < item.quantity }">
+                    Producido: {{ item.produced }}
+                </span>
+            </div>
           </div>
           <div class="item-input">
-            <label>Enviado:</label>
+            <label>A Enviar:</label>
             <input 
               type="number" 
               v-model.number="item.quantitySent" 
               min="0"
               :class="{
-                'input-excess': item.quantitySent > item.quantity,
-                'input-partial': item.quantitySent < item.quantity
+                'input-excess': item.quantitySent > item.produced,
+                'input-partial': item.quantitySent < item.produced && item.quantitySent > 0
               }"
             />
           </div>
@@ -100,7 +120,7 @@ const handleConfirm = () => {
 
       <div class="actions">
         <button class="btn-cancel" @click="$emit('close')">Cancelar</button>
-        <button class="btn-confirm" @click="handleConfirm">Registrar Envío</button>
+        <button class="btn-confirm" @click="handleConfirm" :disabled="!canConfirm">Registrar Envío</button>
       </div>
     </div>
   </div>
@@ -206,9 +226,29 @@ header {
       color: #2c3e50;
     }
 
-    .req {
-      font-size: 0.75rem;
-      color: #7f8c8d;
+    .metrics {
+      display: flex;
+      gap: 0.8rem;
+      align-items: center;
+
+      .req {
+        font-size: 0.75rem;
+        color: #7f8c8d;
+      }
+
+      .produced {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #2ecc71;
+        background: rgba(46, 204, 113, 0.1);
+        padding: 1px 6px;
+        border-radius: 4px;
+
+        &.warning {
+          color: #e67e22;
+          background: rgba(230, 126, 34, 0.1);
+        }
+      }
     }
   }
 

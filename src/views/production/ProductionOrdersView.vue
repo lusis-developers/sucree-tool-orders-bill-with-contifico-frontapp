@@ -7,7 +7,6 @@ import DispatchByDestinationModal from './components/DispatchByDestinationModal.
 import ToastNotification from '@/components/ToastNotification.vue'
 
 interface Order {
-  // ... (Order interface content is unchanged, omitted for brevity if tool allows partial match but using full replacement block for safety in this tool usually)
   _id: string
   orderDate: string
   deliveryDate: string
@@ -19,6 +18,7 @@ interface Order {
     name: string
     quantity: number
     productionStatus: string
+    produced?: number
   }[]
   productionStage: string
   deliveryType: string
@@ -41,6 +41,10 @@ const isLoading = ref(true)
 const error = ref('')
 const filterMode = ref('today') // Default to Today for focus
 
+// Collapse State
+const isPendingExpanded = ref(true)
+const isSentExpanded = ref(true)
+
 // Modal State
 const showDispatchModal = ref(false)
 const showGlobalBatchModal = ref(false)
@@ -54,6 +58,15 @@ const toastType = ref<'success' | 'error'>('success')
 
 // Batch Selection
 const selectedIds = ref<string[]>([])
+const expandedOrders = ref<string[]>([])
+
+const toggleProducts = (id: string) => {
+  if (expandedOrders.value.includes(id)) {
+    expandedOrders.value = expandedOrders.value.filter(i => i !== id)
+  } else {
+    expandedOrders.value.push(id)
+  }
+}
 
 const toggleSelection = (id: string) => {
   if (selectedIds.value.includes(id)) {
@@ -158,7 +171,31 @@ const handleRevert = async (order: Order) => {
   }
 }
 
-// ... (rest of utils same)
+const handleReturn = async (order: Order) => {
+  const notes = prompt(`Motivo de la devolución para "${order.customerName}":\n(El pedido regresará a la lista de pendientes para enviar)`)
+  if (notes === null) return // Cancelled
+  if (!notes.trim()) {
+    alert("Debes ingresar un motivo para la devolución.")
+    return
+  }
+
+  try {
+    isLoading.value = true
+    await ProductionService.returnOrder(order._id, notes)
+    await fetchOrders()
+    toastMessage.value = 'Pedido devuelto. Regresó a pendientes por enviar.'
+    toastType.value = 'success'
+    showToast.value = true
+  } catch (err: any) {
+    console.error(err)
+    toastMessage.value = 'Error al registrar devolución: ' + (err.response?.data?.message || err.message)
+    toastType.value = 'error'
+    showToast.value = true
+  } finally {
+    isLoading.value = false
+  }
+}
+
 // Helper to strip time for date comparison
 const isSameDay = (d1: Date, d2: Date) => {
   return d1.getFullYear() === d2.getFullYear() &&
@@ -171,7 +208,7 @@ const filteredOrders = computed(() => {
 
   const now = new Date()
   // Normalizing "today" to EC midnight
-  const ecToday = new Date(now.getTime() - (5 * 3600 * 1000))
+  const ecToday = new Date(now.toLocaleString('en-US', { timeZone: 'America/Guayaquil' }))
   const today = new Date(ecToday.getFullYear(), ecToday.getMonth(), ecToday.getDate())
 
   const tomorrow = new Date(today)
@@ -200,6 +237,14 @@ const filteredOrders = computed(() => {
     }
     return true
   })
+})
+
+const pendingDispatchOrders = computed(() => {
+  return filteredOrders.value.filter(o => !o.dispatchStatus || o.dispatchStatus === 'NOT_SENT' || o.dispatchStatus === 'PARTIAL')
+})
+
+const dispatchedOrders = computed(() => {
+  return filteredOrders.value.filter(o => o.dispatchStatus === 'SENT' || o.dispatchStatus === 'PROBLEM')
 })
 
 const stats = computed(() => {
@@ -342,7 +387,7 @@ const getDispatchBadge = (status?: string) => {
       </div>
       <div class="actions-header">
         <button class="btn-primary" @click="showGlobalBatchModal = true">
-           <i class="fas fa-shipping-fast"></i> Nuevo Envío Masivo
+          <i class="fas fa-shipping-fast"></i> Nuevo Envío Masivo
         </button>
         <button @click="fetchOrders" class="btn-refresh" :disabled="isLoading">
           <i class="fas fa-sync-alt" :class="{ 'fa-spin': isLoading }"></i>
@@ -383,20 +428,22 @@ const getDispatchBadge = (status?: string) => {
     </div>
 
     <!-- Filter Bar -->
-    <div class="filter-bar">
-      <button 
-        v-for="mode in ['yesterday', 'today', 'tomorrow', 'future', 'all']" 
-        :key="mode"
-        class="filter-pill"
-        :class="{ active: filterMode === mode }"
-        @click="filterMode = mode"
-      >
-        <span v-if="mode === 'yesterday'">Ayer</span>
-        <span v-else-if="mode === 'today'">Hoy</span>
-        <span v-else-if="mode === 'tomorrow'">Mañana</span>
-        <span v-else-if="mode === 'future'">Próximos Días</span>
-        <span v-else>Todos</span>
-      </button>
+    <div class="filter-bar-container">
+      <div class="filter-bar">
+        <button 
+          v-for="mode in ['yesterday', 'today', 'tomorrow', 'future', 'all']" 
+          :key="mode"
+          class="filter-pill"
+          :class="{ active: filterMode === mode }"
+          @click="filterMode = mode"
+        >
+          <span v-if="mode === 'yesterday'">Ayer</span>
+          <span v-else-if="mode === 'today'">Hoy</span>
+          <span v-else-if="mode === 'tomorrow'">Mañana</span>
+          <span v-else-if="mode === 'future'">Próximos Días</span>
+          <span v-else>Todos</span>
+        </button>
+      </div>
     </div>
 
     <div v-if="isLoading && orders.length === 0" class="loading">
@@ -404,112 +451,258 @@ const getDispatchBadge = (status?: string) => {
       <p>Cargando órdenes...</p>
     </div>
 
-    <div v-else-if="filteredOrders.length > 0" class="table-container">
+    <div v-else-if="filteredOrders.length > 0" class="sections-container">
       
-      <!-- Bulk Actions Bar -->
-      <div class="bulk-actions" v-if="selectedIds.length > 0">
-        <span class="count">{{ selectedIds.length }} seleccionados</span>
-        <button class="btn-bulk" @click="handleBatchDispatch">
-          <i class="fas fa-shipping-fast"></i> Reportar {{ selectedIds.length }} Envíos
-        </button>
+      <!-- Section: Pending Dispatch -->
+      <div class="order-section" :class="{ 'collapsed': !isPendingExpanded }">
+        <div class="section-header" @click="isPendingExpanded = !isPendingExpanded">
+          <div class="header-main">
+            <i class="fas fa-chevron-right chevron"></i>
+            <h3>Pedidos por enviar</h3>
+            <span class="badge pending">{{ pendingDispatchOrders.length }}</span>
+          </div>
+          <div class="header-actions" v-if="isPendingExpanded && selectedIds.length > 0">
+            <button class="btn-bulk" @click.stop="handleBatchDispatch">
+              <i class="fas fa-shipping-fast"></i> Reportar {{ selectedIds.length }} Envíos
+            </button>
+          </div>
+        </div>
+        
+        <div class="section-content" v-show="isPendingExpanded">
+          <div class="table-container">
+            <table class="orders-table">
+              <thead>
+                <tr>
+                  <th class="col-check">
+                    <input 
+                      type="checkbox" 
+                      :checked="selectedIds.length === pendingDispatchOrders.length && pendingDispatchOrders.length > 0"
+                      @change="toggleSelectAll"
+                    >
+                  </th>
+                  <th>Cliente</th>
+                  <th>Canal</th>
+                  <th>Destino / Entrega</th>
+                  <th>Items</th>
+                  <th>Estado y Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="order in pendingDispatchOrders" :key="order._id" :class="{ selected: selectedIds.includes(order._id) }">
+                  <td class="col-check">
+                     <input 
+                      type="checkbox" 
+                      :checked="selectedIds.includes(order._id)"
+                      @change="toggleSelection(order._id)"
+                    >
+                  </td>
+                  <td class="col-client">
+                    <span class="name">{{ order.customerName }}</span>
+                    <span class="phone" v-if="order.customerPhone"><i class="fas fa-phone-alt"></i> {{ order.customerPhone }}</span>
+                    <span class="date-created">Creado: {{ formatDate(order.orderDate) }}</span>
+                  </td>
+                  <td>
+                    <div class="channel-badge" :class="getChannelParams(order.salesChannel).class">
+                      <i :class="getChannelParams(order.salesChannel).icon"></i>
+                      <span>{{ getChannelParams(order.salesChannel).label }}</span>
+                    </div>
+                  </td>
+                  <td class="col-date">
+                    <div class="delivery-date">
+                      <i class="far fa-calendar-alt"></i>
+                      {{ formatDate(order.deliveryDate, order.deliveryTime) }}
+                    </div>
+                    
+                    <div class="destination-box" :class="getDestination(order).class">
+                      <div class="dest-header">
+                        <i :class="getDestination(order).icon"></i>
+                        <span>{{ getDestination(order).label }}</span>
+                      </div>
+                      <small class="dest-detail" v-if="getDestination(order).detail">{{ getDestination(order).detail }}</small>
+                    </div>
+                  </td>
+                  <td class="col-items">
+                    <div class="items-dropdown" :class="{ 'is-expanded': expandedOrders.includes(order._id) }">
+                      <div class="items-summary" @click="toggleProducts(order._id)">
+                        <span class="main-item">
+                          <strong>x{{ order.products[0]?.quantity || 0 }}</strong> {{ order.products[0]?.name || 'Sin items' }}
+                        </span>
+                        <span v-if="order.products.length > 1" class="more-count">
+                          +{{ order.products.length - 1 }} más
+                        </span>
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                      </div>
+                      
+                      <div class="items-expanded-list" v-if="expandedOrders.includes(order._id)">
+                        <div v-for="(prod, idx) in order.products" :key="idx" class="expanded-item">
+                           <div class="item-meta">
+                             <strong>x{{ prod.quantity }}</strong>
+                             <span>{{ prod.name }}</span>
+                           </div>
+                           <i 
+                            v-if="prod.productionStatus === 'COMPLETED'" 
+                            class="fas fa-check-circle" 
+                            style="color: #2ecc71;"
+                          ></i>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="status-action-row">
+                      <div class="status-col">
+                        <span class="status-pill" :class="getStatusBadge(order.productionStage).class">
+                          {{ getStatusBadge(order.productionStage).label }}
+                        </span>
+                        <span 
+                          class="dispatch-badge" 
+                          :class="getDispatchBadge(order.dispatchStatus).class"
+                          v-if="order.dispatchStatus && order.dispatchStatus !== 'NOT_SENT'"
+                        >
+                          <i class="fas fa-truck"></i> {{ getDispatchBadge(order.dispatchStatus).label }}
+                        </span>
+                      </div>
+                      <div class="action-col">
+                        <button class="btn-dispatch" @click="openDispatchModal(order)">
+                          <i class="fas fa-paper-plane"></i> Reportar Envío
+                        </button>
+                        <button 
+                          v-if="order.productionStage === 'FINISHED'"
+                          class="btn-revert-inline" 
+                          @click="handleRevert(order)"
+                        >
+                          <i class="fas fa-undo-alt"></i> Devolver
+                        </button>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr v-if="pendingDispatchOrders.length === 0">
+                  <td colspan="6" class="empty-row">No hay pedidos pendientes por enviar</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
 
-      <table class="orders-table">
-        <thead>
-          <tr>
-            <th class="col-check">
-              <input 
-                type="checkbox" 
-                :checked="selectedIds.length === filteredOrders.length && filteredOrders.length > 0"
-                @change="toggleSelectAll"
-              >
-            </th>
-            <th>Cliente</th>
-            <th>Canal</th>
-            <th>Destino / Entrega</th>
-            <th>Items</th>
-            <th>Estado</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="order in filteredOrders" :key="order._id" :class="{ selected: selectedIds.includes(order._id) }">
-            <td class="col-check">
-               <input 
-                type="checkbox" 
-                :checked="selectedIds.includes(order._id)"
-                @change="toggleSelection(order._id)"
-              >
-            </td>
-            <td class="col-client">
-              <span class="name">{{ order.customerName }}</span>
-              <span class="phone" v-if="order.customerPhone"><i class="fas fa-phone-alt"></i> {{ order.customerPhone }}</span>
-              <span class="date-created">Creado: {{ formatDate(order.orderDate) }}</span>
-            </td>
-            <td>
-              <div class="channel-badge" :class="getChannelParams(order.salesChannel).class">
-                <i :class="getChannelParams(order.salesChannel).icon"></i>
-                <span>{{ getChannelParams(order.salesChannel).label }}</span>
-              </div>
-            </td>
-            <td class="col-date">
-              <div class="delivery-date">
-                <i class="far fa-calendar-alt"></i>
-                {{ formatDate(order.deliveryDate, order.deliveryTime) }}
-              </div>
-              
-              <div class="destination-box" :class="getDestination(order).class">
-                <div class="dest-header">
-                  <i :class="getDestination(order).icon"></i>
-                  <span>{{ getDestination(order).label }}</span>
-                </div>
-                <small class="dest-detail" v-if="getDestination(order).detail">{{ getDestination(order).detail }}</small>
-              </div>
-            </td>
-            <td class="col-items">
-              <ul class="items-list">
-                <li v-for="(prod, idx) in order.products" :key="idx">
-                  <strong>x{{ prod.quantity }}</strong> {{ prod.name }}
-                  <i 
-                    v-if="prod.productionStatus === 'COMPLETED'" 
-                    class="fas fa-check-circle" 
-                    title="Terminado"
-                    style="color: #2ecc71; margin-left: 4px;"
-                  ></i>
-                </li>
-              </ul>
-            </td>
-            <td>
-              <div class="status-stack">
-                <span class="status-pill" :class="getStatusBadge(order.productionStage).class">
-                  {{ getStatusBadge(order.productionStage).label }}
-                </span>
-                
-                <div class="dispatch-group">
-                  <span 
-                    class="dispatch-badge" 
-                    :class="getDispatchBadge(order.dispatchStatus).class"
-                    v-if="order.dispatchStatus && order.dispatchStatus !== 'NOT_SENT'"
-                  >
-                    <i class="fas fa-truck"></i> {{ getDispatchBadge(order.dispatchStatus).label }}
-                  </span>
-                  
-                  <button class="btn-dispatch" @click="openDispatchModal(order)">
-                    <i class="fas fa-paper-plane"></i> Reportar Envío
-                  </button>
+      <!-- Section: Dispatched -->
+      <div class="order-section dispatched" :class="{ 'collapsed': !isSentExpanded }">
+        <div class="section-header" @click="isSentExpanded = !isSentExpanded">
+          <div class="header-main">
+            <i class="fas fa-chevron-right chevron"></i>
+            <h3>Pedidos enviados</h3>
+            <span class="badge sent">{{ dispatchedOrders.length }}</span>
+          </div>
+        </div>
+        
+        <div class="section-content" v-show="isSentExpanded">
+          <div class="table-container">
+            <table class="orders-table">
+              <thead>
+                <tr>
+                  <th>Cliente</th>
+                  <th>Canal</th>
+                  <th>Destino / Entrega</th>
+                  <th>Items</th>
+                  <th>Estado y Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="order in dispatchedOrders" :key="order._id">
+                  <td class="col-client">
+                    <span class="name">{{ order.customerName }}</span>
+                    <span class="phone" v-if="order.customerPhone"><i class="fas fa-phone-alt"></i> {{ order.customerPhone }}</span>
+                    <span class="date-created">Creado: {{ formatDate(order.orderDate) }}</span>
+                  </td>
+                  <td>
+                    <div class="channel-badge" :class="getChannelParams(order.salesChannel).class">
+                      <i :class="getChannelParams(order.salesChannel).icon"></i>
+                      <span>{{ getChannelParams(order.salesChannel).label }}</span>
+                    </div>
+                  </td>
+                  <td class="col-date">
+                    <div class="delivery-date">
+                      <i class="far fa-calendar-alt"></i>
+                      {{ formatDate(order.deliveryDate, order.deliveryTime) }}
+                    </div>
+                    
+                    <div class="destination-box" :class="getDestination(order).class">
+                      <div class="dest-header">
+                        <i :class="getDestination(order).icon"></i>
+                        <span>{{ getDestination(order).label }}</span>
+                      </div>
+                      <small class="dest-detail" v-if="getDestination(order).detail">{{ getDestination(order).detail }}</small>
+                    </div>
+                  </td>
+                  <td class="col-items">
+                    <div class="items-dropdown" :class="{ 'is-expanded': expandedOrders.includes(order._id) }">
+                      <div class="items-summary" @click="toggleProducts(order._id)">
+                        <span class="main-item">
+                          <strong>x{{ order.products[0]?.quantity || 0 }}</strong> {{ order.products[0]?.name || 'Sin items' }}
+                        </span>
+                        <span v-if="order.products.length > 1" class="more-count">
+                          +{{ order.products.length - 1 }} más
+                        </span>
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                      </div>
+                      
+                      <div class="items-expanded-list" v-if="expandedOrders.includes(order._id)">
+                        <div v-for="(prod, idx) in order.products" :key="idx" class="expanded-item">
+                           <div class="item-meta">
+                             <strong>x{{ prod.quantity }}</strong>
+                             <span>{{ prod.name }}</span>
+                           </div>
+                           <i 
+                            v-if="prod.productionStatus === 'COMPLETED'" 
+                            class="fas fa-check-circle" 
+                            style="color: #2ecc71;"
+                          ></i>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="status-action-row">
+                      <div class="status-col">
+                        <span class="status-pill" :class="getStatusBadge(order.productionStage).class">
+                          {{ getStatusBadge(order.productionStage).label }}
+                        </span>
+                        <span 
+                          class="dispatch-badge" 
+                          :class="getDispatchBadge(order.dispatchStatus).class"
+                        >
+                          <i class="fas fa-truck-loading"></i> {{ getDispatchBadge(order.dispatchStatus).label }}
+                        </span>
+                      </div>
+                      <div class="action-col">
+                        <button 
+                          v-if="order.dispatchStatus === 'SENT'"
+                          class="btn-return-inline" 
+                          @click="handleReturn(order)"
+                        >
+                          <i class="fas fa-undo"></i> Devolución
+                        </button>
+                        <button 
+                          v-if="order.productionStage === 'FINISHED'"
+                          class="btn-revert-inline" 
+                          @click="handleRevert(order)"
+                        >
+                          <i class="fas fa-redo"></i> Rehacer Prod.
+                        </button>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr v-if="dispatchedOrders.length === 0">
+                  <td colspan="5" class="empty-row">No hay pedidos enviados</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
 
-                  <button 
-                    v-if="order.productionStage === 'FINISHED'"
-                    class="btn-revert-inline" 
-                    @click="handleRevert(order)"
-                  >
-                    <i class="fas fa-undo-alt"></i> Devolver
-                  </button>
-                </div>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
     </div>
 
     <div v-else class="empty-state">
@@ -547,6 +740,10 @@ const getDispatchBadge = (status?: string) => {
 $font-stack: 'Inter', system-ui, sans-serif;
 $color-whatsapp: #25D366;
 $color-primary: #8e44ad;
+$color-pending: #3498db;
+$color-success: #2ecc71;
+$color-warning: #f1c40f;
+$color-danger: #e74c3c;
 
 .orders-view {
   padding: 1.5rem;
@@ -580,107 +777,100 @@ $color-primary: #8e44ad;
     align-items: center;
 
     .btn-primary {
-      background: #8e44ad;
+      background: $color-primary;
       color: white;
       border: none;
-      padding: 0.5rem 1rem;
-      border-radius: 8px;
+      padding: 0.6rem 1.2rem;
+      border-radius: 10px;
       font-weight: 700;
       font-size: 0.85rem;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 6px;
-      transition: all 0.2s;
-      box-shadow: 0 2px 5px rgba(142, 68, 173, 0.2);
+      gap: 8px;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 6px rgba($color-primary, 0.15);
 
       &:hover {
-        background: #9b59b6;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 8px rgba(142, 68, 173, 0.3);
+        background: lighten($color-primary, 5%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba($color-primary, 0.25);
+      }
+
+      &:active {
+        transform: translateY(0);
       }
     }
-  }
 
-  .btn-refresh {
-    background: white;
-    border: 1px solid #dfe6e9;
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    cursor: pointer;
-    color: #7f8c8d;
-    transition: all 0.2s;
+    .btn-refresh {
+      background: white;
+      border: 1px solid #dfe6e9;
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      cursor: pointer;
+      color: #7f8c8d;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
 
-    &:hover {
-      border-color: #bdc3c7;
-      color: #2c3e50;
-    }
-  }
-
-  .btn-revert-inline {
-    background: white;
-    border: 1px solid #ffecec;
-    color: #e74c3c;
-    padding: 0.3rem 0.6rem;
-    border-radius: 6px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    transition: all 0.2s;
-    margin-top: 4px;
-
-    &:hover {
-      background: #fff5f5;
-      border-color: #e74c3c;
+      &:hover {
+        border-color: #bdc3c7;
+        color: #2c3e50;
+        background: #f8f9fa;
+      }
     }
   }
 }
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 1rem;
   margin-bottom: 2rem;
 
   .stat-card {
     background: white;
-    padding: 1rem;
-    border-radius: 12px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    padding: 1.25rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
     display: flex;
     align-items: center;
     gap: 1rem;
-    border: 1px solid rgba(0, 0, 0, 0.02);
+    border: 1px solid rgba(0, 0, 0, 0.03);
+    transition: transform 0.2s;
+
+    &:hover {
+      transform: translateY(-3px);
+    }
 
     .icon-box {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 1.2rem;
 
       &.sm {
-        background: #eaf2f8;
-        color: #3498db;
+        background: rgba($color-pending, 0.1);
+        color: $color-pending;
       }
 
       &.mds {
-        background: #fef5e7;
-        color: #f1c40f;
+        background: rgba($color-warning, 0.1);
+        color: #d4ac0d;
       }
 
       &.cp {
-        background: #e8daef;
-        color: #9b59b6;
+        background: rgba($color-primary, 0.1);
+        color: $color-primary;
       }
 
       &.del {
-        background: #fae5d3;
+        background: rgba(#e67e22, 0.1);
         color: #e67e22;
       }
     }
@@ -690,82 +880,197 @@ $color-primary: #8e44ad;
       flex-direction: column;
 
       .count {
-        font-size: 1.4rem;
+        font-size: 1.5rem;
         font-weight: 800;
         color: #2c3e50;
-        line-height: 1;
+        line-height: 1.1;
       }
 
       .label {
-        font-size: 0.7rem;
+        font-size: 0.75rem;
         color: #95a5a6;
         font-weight: 600;
         text-transform: uppercase;
+        letter-spacing: 0.5px;
       }
     }
   }
 }
 
-.filter-bar {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-  overflow-x: auto;
-  padding-bottom: 4px; // scrollbar spacing
+.filter-bar-container {
+  margin-bottom: 2rem;
+  background: white;
+  padding: 0.5rem;
+  border-radius: 14px;
+  display: inline-flex;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+  border: 1px solid #f1f2f6;
 
-  .filter-pill {
-    background: white;
-    border: 1px solid #e1e8ed;
-    color: #7f8c8d;
-    padding: 0.5rem 1.2rem;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: 600;
+  .filter-bar {
+    display: flex;
+    gap: 0.25rem;
+
+    .filter-pill {
+      background: transparent;
+      border: none;
+      color: #7f8c8d;
+      padding: 0.6rem 1.4rem;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+
+      &:hover {
+        background: #f8f9fa;
+        color: #2c3e50;
+      }
+
+      &.active {
+        background: #2c3e50;
+        color: white;
+        box-shadow: 0 4px 10px rgba(52, 73, 94, 0.15);
+      }
+    }
+  }
+}
+
+.sections-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.order-section {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  border: 1px solid #f1f2f6;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &.collapsed {
+    .section-header .chevron {
+      transform: rotate(0deg);
+    }
+  }
+
+  &.dispatched {
+    border-top: 4px solid #bdc3c7;
+
+    .section-header {
+      background: #fdfdfd;
+
+      h3 {
+        color: #7f8c8d;
+      }
+    }
+  }
+
+  .section-header {
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     cursor: pointer;
-    transition: all 0.2s;
-    white-space: nowrap;
+    user-select: none;
+    border-bottom: 1px solid transparent;
+    transition: background 0.2s;
 
     &:hover {
-      background: #f8f9fa;
-      color: #34495e;
+      background: #fafafa;
     }
 
-    &.active {
-      background: #34495e;
-      color: white;
-      border-color: #34495e;
-      box-shadow: 0 4px 10px rgba(52, 73, 94, 0.2);
+    .header-main {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+
+      .chevron {
+        font-size: 0.9rem;
+        color: #bdc3c7;
+        transform: rotate(90deg);
+        transition: transform 0.3s;
+      }
+
+      h3 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #2c3e50;
+      }
+
+      .badge {
+        font-size: 0.8rem;
+        padding: 2px 10px;
+        border-radius: 20px;
+        font-weight: 800;
+
+        &.pending {
+          background: rgba($color-pending, 0.1);
+          color: $color-pending;
+        }
+
+        &.sent {
+          background: rgba(#bdc3c7, 0.2);
+          color: #7f8c8d;
+        }
+      }
     }
+
+    .header-actions {
+      .btn-bulk {
+        background: $color-success;
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.8rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        animation: pulse 2s infinite;
+
+        &:hover {
+          background: darken($color-success, 5%);
+        }
+      }
+    }
+  }
+
+  .section-content {
+    border-top: 1px solid #f1f2f6;
   }
 }
 
 .table-container {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   overflow-x: auto;
 }
 
 .orders-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 800px; // Ensure horizontal scroll on mobile
+  min-width: 900px;
 
   th {
-    background: #fdfdfd;
+    background: #fcfcfc;
     text-align: left;
-    padding: 1rem;
-    font-size: 0.75rem;
+    padding: 1rem 1.5rem;
+    font-size: 0.7rem;
     text-transform: uppercase;
     color: #95a5a6;
-    font-weight: 700;
-    border-bottom: 1px solid #f1f2f6;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #f8f9fa;
   }
 
   td {
-    padding: 1rem;
-    border-bottom: 1px solid #f5f6fa;
-    vertical-align: top;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #f8f9fa;
+    vertical-align: middle;
     font-size: 0.9rem;
     color: #2c3e50;
   }
@@ -777,21 +1082,53 @@ $color-primary: #8e44ad;
   tr:hover td {
     background: #fafbfc;
   }
+
+  .empty-row {
+    text-align: center;
+    padding: 3rem;
+    color: #bdc3c7;
+    font-style: italic;
+  }
+}
+
+.col-check {
+  width: 40px;
+
+  input {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+  }
 }
 
 .col-client {
   display: flex;
   flex-direction: column;
+  gap: 0.15rem;
 
   .name {
-    font-weight: 600;
+    font-weight: 700;
     font-size: 1rem;
-    margin-bottom: 0.2rem;
+  }
+
+  .phone {
+    font-size: 0.85rem;
+    color: #7f8c8d;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    i {
+      color: $color-whatsapp;
+      font-size: 0.75rem;
+    }
   }
 
   .date-created {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: #bdc3c7;
+    text-transform: uppercase;
+    font-weight: 600;
   }
 }
 
@@ -799,43 +1136,65 @@ $color-primary: #8e44ad;
   .delivery-date {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
-    font-weight: 500;
-    margin-bottom: 0.2rem;
+    gap: 0.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
 
     i {
       color: #95a5a6;
     }
   }
+}
 
-  .delivery-type {
+.destination-box {
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  max-width: 220px;
+
+  &.dest-delivery {
+    background: #fef5e7;
+    border: 1px solid rgba(#e67e22, 0.1);
+  }
+
+  &.dest-pickup {
+    background: #eaf2f8;
+    border: 1px solid rgba($color-pending, 0.1);
+  }
+
+  .dest-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
     font-size: 0.75rem;
-    background: #f1f2f6;
-    padding: 2px 6px;
-    border-radius: 4px;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+
+  .dest-detail {
+    display: block;
+    font-size: 0.7rem;
     color: #7f8c8d;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 
-/* Channel Badges */
 .channel-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.3rem 0.6rem;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 700;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 800;
   text-transform: uppercase;
 
   &.whatsapp {
     background: rgba($color-whatsapp, 0.1);
-    color: shade($color-whatsapp, 20%);
-    border: 1px solid rgba($color-whatsapp, 0.2);
-
-    i {
-      font-size: 0.9rem;
-    }
+    color: darken($color-whatsapp, 10%);
   }
 
   &.default {
@@ -844,31 +1203,147 @@ $color-primary: #8e44ad;
   }
 }
 
-/* Items List */
-.items-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+.items-dropdown {
+  position: relative;
+  min-width: 180px;
 
-  li {
-    margin-bottom: 0.3rem;
-    font-size: 0.85rem;
-    line-height: 1.4;
+  &.is-expanded {
+    .toggle-icon {
+      transform: rotate(180deg);
+    }
+  }
 
-    strong {
-      color: #8e44ad;
-      font-weight: 700;
+  .items-summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 6px 10px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+    width: fit-content;
+
+    &:hover {
+      background: #f1f2f6;
+      border-color: #dfe6e9;
+    }
+
+    .main-item {
+      font-size: 0.85rem;
+      color: #2c3e50;
+      white-space: nowrap;
+
+      strong {
+        color: $color-primary;
+      }
+    }
+
+    .more-count {
+      background: #34495e;
+      color: white;
+      font-size: 0.65rem;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 5px;
+      text-transform: uppercase;
+    }
+
+    .toggle-icon {
+      font-size: 0.7rem;
+      color: #95a5a6;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+  }
+
+  .items-expanded-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 100;
+    margin-top: 6px;
+    background: white;
+    min-width: 250px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+    border: 1px solid #f1f2f6;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    animation: slideDown 0.2s cubic-bezier(0, 0, 0.2, 1);
+
+    .expanded-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 8px;
+      border-radius: 6px;
+      transition: background 0.15s;
+
+      &:hover {
+        background: #f8f9fa;
+      }
+
+      .item-meta {
+        display: flex;
+        gap: 8px;
+        font-size: 0.85rem;
+        color: #2c3e50;
+
+        strong {
+          color: $color-primary;
+          min-width: 25px;
+        }
+      }
+
+      i {
+        font-size: 0.9rem;
+      }
     }
   }
 }
 
-/* Status Pills */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Redesigned Status Action Row */
+.status-action-row {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.status-col {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 100px;
+}
+
+.action-col {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
 .status-pill {
-  padding: 0.3rem 0.6rem;
+  padding: 4px 10px;
   border-radius: 6px;
-  font-size: 0.7rem;
-  font-weight: 700;
-  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-align: center;
+  letter-spacing: 0.3px;
 
   &.status-pending {
     background: #ebf5fb;
@@ -876,84 +1351,117 @@ $color-primary: #8e44ad;
   }
 
   &.status-process {
-    background: #fef9e7;
-    color: #f1c40f;
+    background: #fff8e1;
+    color: #f39c12;
   }
 
   &.status-finished {
-    background: #eafaf1;
+    background: #e8f5e9;
     color: #2ecc71;
   }
 
   &.status-delayed {
-    background: #fdedec;
+    background: #ffebee;
     color: #e74c3c;
   }
 }
 
-.status-stack {
+.dispatch-badge {
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  align-items: flex-start;
-}
-
-.dispatch-group {
-  display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: 4px;
-  margin-top: 4px;
 
-  .dispatch-badge {
-    font-size: 0.7rem;
-    font-weight: 700;
-    padding: 2px 6px;
-    border-radius: 4px;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-
-    &.disp-sent {
-      color: #2ecc71;
-      background: #eafaf1;
-    }
-
-    &.disp-partial {
-      color: #f1c40f;
-      background: #fef9e7;
-    }
-
-    &.disp-problem {
-      color: #e74c3c;
-      background: #fdedec;
-    }
+  &.disp-sent {
+    color: $color-success;
+    background: rgba($color-success, 0.1);
   }
 
-  .btn-dispatch {
-    font-size: 0.8rem;
-    padding: 6px 12px;
-    background: #8e44ad;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    color: white;
-    font-weight: 600;
-    transition: all 0.2s;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    box-shadow: 0 2px 4px rgba(142, 68, 173, 0.2);
-    margin-top: 4px;
+  &.disp-partial {
+    color: $color-warning;
+    background: rgba($color-warning, 0.1);
+  }
 
-    &:hover {
-      background: #9b59b6;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 8px rgba(142, 68, 173, 0.3);
-    }
+  &.disp-problem {
+    color: $color-danger;
+    background: rgba($color-danger, 0.1);
+  }
 
-    i {
-      font-size: 0.9rem;
-    }
+  &.disp-none {
+    color: #95a5a6;
+    background: #f1f2f6;
+  }
+}
+
+.btn-dispatch {
+  background: $color-primary;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.75rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+  box-shadow: 0 4px 8px rgba($color-primary, 0.1);
+
+  &:hover {
+    background: lighten($color-primary, 5%);
+    transform: translateX(2px);
+  }
+}
+
+.btn-revert-inline,
+.btn-return-inline {
+  background: white;
+  border: 1px solid #ffecec;
+  color: $color-danger;
+  padding: 7px 12px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #fff5f5;
+    border-color: $color-danger;
+  }
+}
+
+.btn-return-inline {
+  border-color: #e8f5e9;
+  color: #2ecc71;
+
+  &:hover {
+    background: #f1f9f2;
+    border-color: #2ecc71;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba($color-success, 0.4);
+  }
+
+  70% {
+    transform: scale(1.02);
+    box-shadow: 0 0 0 10px rgba($color-success, 0);
+  }
+
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba($color-success, 0);
   }
 }
 
@@ -963,30 +1471,53 @@ $color-primary: #8e44ad;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  text-align: center;
-  padding: 4rem;
+  padding: 6rem 2rem;
   color: #bdc3c7;
 
   i {
-    font-size: 3rem;
-    margin-bottom: 1rem;
+    font-size: 4rem;
+    margin-bottom: 1.5rem;
+    opacity: 0.3;
   }
 
   .loader {
-    /* ... spinner css ... */
-    width: 30px;
-    height: 30px;
-    border: 3px solid #eee;
-    border-top-color: #8e44ad;
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f1f2f6;
+    border-top-color: $color-primary;
     border-radius: 50%;
     animation: spin 1s infinite linear;
-    margin: 0 auto 1rem auto;
+    margin-bottom: 2rem;
   }
 }
 
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* Mobile Adaptations */
+@media (max-width: 768px) {
+  .orders-view {
+    padding: 1rem;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .status-action-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .filter-bar-container {
+    width: 100%;
+    overflow-x: auto;
   }
 }
 </style>
