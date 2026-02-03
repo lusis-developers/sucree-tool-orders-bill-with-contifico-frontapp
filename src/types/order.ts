@@ -75,6 +75,7 @@ export interface OrderFormData {
   invoiceData: InvoiceData
   // New Payment Fields
   registerPaymentNow?: boolean
+  isCredit?: boolean
   paymentDetails?: {
     forma_cobro: string
     monto: number
