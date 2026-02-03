@@ -45,6 +45,8 @@ const formData = reactive<OrderFormData>({
   // Default Payment at Creation
   registerPaymentNow: false,
   isCredit: false,
+  settledInIsland: false,
+  settledIslandName: 'San Marino',
   paymentDetails: {
     forma_cobro: 'TRA',
     monto: 0,
@@ -129,6 +131,11 @@ const onCartSubmit = () => {
     if (!formData.invoiceData.ruc) { alert("RUC/Cédula es obligatorio para factura"); return; }
   }
 
+  if (formData.settledInIsland && !formData.settledIslandName) {
+    alert("Debe seleccionar la isla donde se facturó.");
+    return;
+  }
+
   // Show Confirmation Modal
   showConfirmationModal.value = true
 }
@@ -192,6 +199,8 @@ const resetForm = () => {
     totalValue: 0,
     registerPaymentNow: false,
     isCredit: false,
+    settledInIsland: false,
+    settledIslandName: 'San Marino',
     paymentDetails: {
       forma_cobro: 'TRA',
       monto: 0,
