@@ -9,6 +9,18 @@ const props = defineProps<{
   modelValue: OrderFormData
 }>()
 
+const toggleCredit = () => {
+  if (props.modelValue.isCredit) {
+    props.modelValue.registerPaymentNow = false
+  }
+}
+
+const togglePayment = () => {
+  if (props.modelValue.registerPaymentNow) {
+    props.modelValue.isCredit = false
+  }
+}
+
 const BRANCHES = ['San Marino', 'Mall del Sol', 'Centro de Producción'] as const
 
 const isDelivery = computed(() => props.modelValue.deliveryType === 'delivery')
@@ -215,12 +227,23 @@ const selectTime = (time: string) => {
       </div>
     </div>
 
-    <!-- Payment at Creation Section -->
-    <div class="payment-toggle">
-        <label>
-            <input type="checkbox" v-model="props.modelValue.registerPaymentNow" />
-             Registrar Cobro Ahora
-        </label>
+    <!-- Payment Options -->
+    <div class="payment-options-row">
+        <!-- Credit Toggle -->
+        <div class="payment-toggle credit" :class="{ active: props.modelValue.isCredit }">
+            <label>
+                <input type="checkbox" v-model="props.modelValue.isCredit" @change="toggleCredit" />
+                 Venta a Crédito (Pendiente)
+            </label>
+        </div>
+
+        <!-- Payment Toggle -->
+        <div class="payment-toggle success" :class="{ active: props.modelValue.registerPaymentNow }">
+            <label>
+                <input type="checkbox" v-model="props.modelValue.registerPaymentNow" @change="togglePayment" />
+                 Registrar Cobro Ahora
+            </label>
+        </div>
     </div>
     
     <div v-if="props.modelValue.registerPaymentNow" class="payment-fields-section">
@@ -229,6 +252,11 @@ const selectTime = (time: string) => {
           v-model="props.modelValue.paymentDetails" 
           :totalToPay="props.modelValue.totalValue"
         />
+    </div>
+
+    <div v-if="props.modelValue.isCredit" class="credit-info-box">
+       <i class="fa-solid fa-circle-info"></i>
+       <p>Se registrará como una venta a crédito por el total de <strong>${{ props.modelValue.totalValue?.toFixed(2) }}</strong>.</p>
     </div>
   </div>
 </template>
@@ -406,8 +434,7 @@ const selectTime = (time: string) => {
   }
 }
 
-.invoice-toggle,
-.payment-toggle {
+.invoice-toggle {
   margin: 2rem 0 1rem;
   padding: 1rem;
   background: white;
@@ -438,21 +465,97 @@ const selectTime = (time: string) => {
   }
 }
 
+.payment-options-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin: 1.5rem 0;
+
+  @media(max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+}
+
 .payment-toggle {
-  background: rgba($success, 0.05);
-  border-color: rgba($success, 0.3);
+  padding: 1.25rem;
+  background: white;
+  border: 2px solid $border-light;
+  border-radius: 12px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
 
   &:hover {
-    border-color: $success;
-    background: rgba($success, 0.1);
+    border-color: darken-color($border-light, 10%);
+  }
+
+  &.active {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
   }
 
   label {
-    color: darken-color($success, 15%);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: $text-dark;
+    width: 100%;
 
     input[type="checkbox"] {
-      accent-color: $success;
+      width: 1.25rem;
+      height: 1.25rem;
+      cursor: pointer;
     }
+  }
+
+  &.credit {
+    &.active {
+      background: #f8fafc;
+      border-color: #64748b;
+
+      label {
+        color: #334155;
+      }
+    }
+  }
+
+  &.success {
+    &.active {
+      background: rgba($success, 0.03);
+      border-color: $success;
+
+      label {
+        color: darken-color($success, 10%);
+      }
+    }
+  }
+}
+
+.credit-info-box {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: #f1f5f9;
+  border-radius: 10px;
+  color: #475569;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+  border: 1px solid #e2e8f0;
+  animation: slideDown 0.3s ease;
+
+  i {
+    font-size: 1.1rem;
+    color: #64748b;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  strong {
+    color: $text-dark;
   }
 }
 
