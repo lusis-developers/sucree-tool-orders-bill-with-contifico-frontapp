@@ -115,10 +115,15 @@ const formatMoney = (val: number) => `$${val.toFixed(2)}`
          
          <div class="divider"></div>
          
-         <div class="row highlight">
-            <span>Pago Inicial:</span>
-            <strong :class="{ 'text-success': orderData.registerPaymentNow, 'text-warning': !orderData.registerPaymentNow }">
-               {{ orderData.registerPaymentNow ? formatMoney(Number(orderData.paymentDetails?.monto || 0)) : '$0.00 (Pendiente)' }}
+         <div class="row highlight" :class="{ 'is-credit': orderData.isCredit }">
+            <span v-if="orderData.isCredit">Venta a Crédito:</span>
+            <span v-else>Pago Inicial:</span>
+
+            <strong v-if="orderData.isCredit" class="text-danger">
+               {{ formatMoney(orderData.totalValue || 0) }} (Pendiente)
+            </strong>
+            <strong v-else :class="{ 'text-success': orderData.registerPaymentNow, 'text-warning': !orderData.registerPaymentNow }">
+               {{ orderData.registerPaymentNow ? formatMoney(Number(orderData.paymentDetails?.monto || 0)) : '$0.00 (Por confirmar)' }}
             </strong>
          </div>
          
@@ -316,8 +321,13 @@ const formatMoney = (val: number) => `$${val.toFixed(2)}`
     color: $success;
   }
 
-  .text-warning {
-    color: $warning;
+  .text-danger {
+    color: #dc2626;
+  }
+
+  .is-credit {
+    background: #fff1f2 !important;
+    border-color: #fecaca !important;
   }
 }
 
