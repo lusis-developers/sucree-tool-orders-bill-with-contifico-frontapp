@@ -125,6 +125,26 @@ class OrderService extends APIBase {
     }
   }
 
+  async bulkAssign(orderIds: string[], deliveryPerson: any): Promise<any> {
+    try {
+      const response = await this.post<any>('orders/bulk-assign', { orderIds, deliveryPerson })
+      return response.data
+    } catch (error) {
+      console.error('Error bulk assigning orders:', error)
+      throw error
+    }
+  }
+
+  async reassignDelivery(oldPersonId: string, newPerson: any): Promise<any> {
+    try {
+      const response = await this.post<any>('orders/reassign-delivery', { oldPersonId, newPerson })
+      return response.data
+    } catch (error) {
+      console.error('Error reassigning delivery:', error)
+      throw error
+    }
+  }
+
   async deleteOrder(id: string): Promise<any> {
     try {
       const response = await this.delete<any>(`orders/${id}`)
