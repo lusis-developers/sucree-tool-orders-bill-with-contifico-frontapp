@@ -245,13 +245,13 @@ const displayValue = computed(() => {
   animation: slideDown 0.2s ease;
 
   @media(max-width: 500px) {
-    width: 100%;
-    position: fixed;
-    top: auto;
-    bottom: 0;
-    left: 0;
-    border-radius: 16px 16px 0 0;
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+    width: 300px;
+    left: 50%;
+    transform: translateX(-50%);
+    // position: fixed; // Removed to prevent blocking
+    // top: auto;
+    // bottom: 0;
+    // border-radius: 16px 16px 0 0; 
   }
 }
 
