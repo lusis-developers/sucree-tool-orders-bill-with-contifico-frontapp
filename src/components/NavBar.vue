@@ -35,7 +35,8 @@ const logout = () => {
       <div class="nav-links" :class="{ 'is-open': isMenuOpen }">
         <router-link to="/orders" active-class="active" @click="closeMenu">Pedidos</router-link>
         <router-link to="/orders/new" active-class="active" @click="closeMenu">Nuevo Pedido</router-link>
-        <router-link to="/reports/sales-by-responsible" active-class="active" @click="closeMenu">Reportes</router-link>
+        <router-link to="/reports/sales-by-responsible" active-class="active" @click="closeMenu">Ventas</router-link>
+        <router-link to="/reports/delivery" active-class="active" @click="closeMenu">Reporte Transporte</router-link>
         
         <div class="mobile-only">
            <button @click="logout" class="btn-logout-mobile">Cerrar Sesión</button>
