@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import type { OrderFormData } from '@/types/order'
-import { computed } from 'vue'
+import { computed, ref, onMounted } from 'vue'
+import { deliveryService, type DeliveryPerson } from '@/services/delivery.service'
 import PaymentFields from './PaymentFields.vue'
 import CustomDatePicker from '@/components/ui/CustomDatePicker.vue'
 import CustomTimeSelect from '@/components/ui/CustomTimeSelect.vue'
 import OrderPaymentSelector from './OrderPaymentSelector.vue'
+import DeliveryPersonFormModal from '@/components/modals/DeliveryPersonFormModal.vue'
 
 const props = defineProps<{
   modelValue: OrderFormData
@@ -13,6 +15,59 @@ const props = defineProps<{
 const BRANCHES = ['San Marino', 'Mall del Sol', 'Centro de Producción'] as const
 
 const isDelivery = computed(() => props.modelValue.deliveryType === 'delivery')
+
+// --- Delivery Personnel Logic ---
+const riders = ref<DeliveryPerson[]>([])
+const isRiderModalOpen = ref(false)
+
+const fetchRiders = async () => {
+  try {
+    riders.value = await deliveryService.getPersonnel()
+  } catch (error) {
+    console.error('Error fetching delivery personnel:', error)
+  }
+}
+
+onMounted(() => {
+  fetchRiders()
+})
+
+const handleRiderChange = (e: Event) => {
+  const target = e.target as HTMLSelectElement
+  if (target.value === 'new') {
+    isRiderModalOpen.value = true
+    // Reset selection to prevent staying on 'new'
+    target.value = ''
+  } else if (target.value === '') {
+    props.modelValue.deliveryPerson = undefined
+  } else {
+    const rider = riders.value.find(r => r._id === target.value)
+    if (rider) {
+      props.modelValue.deliveryPerson = {
+        name: rider.name,
+        identification: rider.identification,
+        personId: rider._id
+      }
+      props.modelValue.deliveryType = 'delivery'
+    }
+  }
+}
+
+const handleRiderSave = async (personData: Partial<DeliveryPerson>) => {
+  try {
+    const created = await deliveryService.createPerson(personData)
+    riders.value.push(created)
+    props.modelValue.deliveryPerson = {
+      name: created.name,
+      identification: created.identification,
+      personId: created._id
+    }
+    props.modelValue.deliveryType = 'delivery'
+    isRiderModalOpen.value = false
+  } catch (error) {
+    alert('Error al guardar motorizado o transporte.')
+  }
+}
 
 // --- Date & Time Logic ---
 
@@ -60,7 +115,7 @@ const quickTimes = [
 ]
 
 // 3. Time Slots Generator (15 min intervals)
-const timeOptions = computed(() => {
+const getTimeOptions = () => {
   const slots: string[] = []
   const startHour = 7 // 7 AM
   const endHour = 20 // 8 PM
@@ -73,13 +128,12 @@ const timeOptions = computed(() => {
     }
   }
   return slots
-})
+}
+const timeOptions = getTimeOptions()
 
 const selectTime = (time: string) => {
   props.modelValue.deliveryTime = time
 }
-
-
 </script>
 
 <template>
@@ -89,7 +143,7 @@ const selectTime = (time: string) => {
     </div>
 
     <div class="form-grid">
-      <!-- 1. Clasificación del Pedido (6 Opciones) -->
+      <!-- 1. Clasificación del Pedido -->
       <div class="form-group full-width">
         <label class="required-label">Sucursal de Origen / Retiro</label>
         <div class="radio-group">
@@ -127,7 +181,6 @@ const selectTime = (time: string) => {
            hint="Intervalos de 15 minutos."
         />
         
-        <!-- Quick Time Suggestions -->
         <div class="quick-times">
           <button 
             v-for="qt in quickTimes" 
@@ -144,24 +197,44 @@ const selectTime = (time: string) => {
         <small v-if="timeError" class="error-msg">
           <i class="fa-solid fa-triangle-exclamation"></i> {{ timeError }}
         </small>
-        <!-- Hint is now inside component, but keeping this validation msg -->
       </div>
       
-      <!-- 4. Ubicación (Solo Delivery) -->
-      
-      <!-- 4. Ubicación (Solo Delivery) -->
-      <div v-if="isDelivery" class="delivery-fields full-width">
-         <div class="form-group">
-            <label class="required-label">Dirección Escrita</label>
-            <input v-model="props.modelValue.deliveryAddress" placeholder="Ciudadela, Calle, Villa..." />
-         </div>
-         <div class="form-group">
-            <label class="required-label">Link Google Maps (Obligatorio)</label>
-            <input v-model="props.modelValue.googleMapsLink" placeholder="https://maps.app.goo.gl/..." />
-         </div>
-      </div>
+      <!-- 3. Datos de Envío (Solo Delivery) -->
+      <template v-if="isDelivery">
+        <div class="form-section-title full-width">
+          <i class="fa-solid fa-truck-fast"></i>
+          <h3>Datos de Envío / Transporte</h3>
+        </div>
 
-      <!-- 3. Datos Cliente -->
+        <div class="form-group">
+          <label class="required-label">Dirección Escrita</label>
+          <input v-model="props.modelValue.deliveryAddress" placeholder="Ciudadela, Calle, Villa..." />
+        </div>
+        <div class="form-group">
+          <label class="required-label">Link Google Maps (Obligatorio)</label>
+          <input v-model="props.modelValue.googleMapsLink" placeholder="https://maps.app.goo.gl/..." />
+        </div>
+
+        <div class="form-group">
+          <label class="required-label">Motorizado o Transporte</label>
+          <div class="rider-select-wrapper">
+            <select @change="handleRiderChange" :value="props.modelValue.deliveryPerson?.personId || ''">
+              <option value="">Seleccione motorizado o transporte...</option>
+              <option v-for="rider in riders" :key="rider._id" :value="rider._id">
+                {{ rider.name }} ({{ rider.identification }})
+              </option>
+              <option value="new">+ Agregar nuevo transporte...</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="required-label">Valor de Envío ($)</label>
+          <input type="number" v-model.number="props.modelValue.deliveryValue" step="0.01" placeholder="0.00" />
+        </div>
+      </template>
+
+      <!-- 4. Datos Cliente -->
       <div class="form-group">
         <label class="required-label">Nombre Cliente</label>
         <input v-model="props.modelValue.customerName" required />
@@ -183,11 +256,17 @@ const selectTime = (time: string) => {
       </div>
     </div>
 
-    <div class="form-group" style="margin-top: 1rem;">
+    <!-- Modal para nuevo motorizado -->
+    <DeliveryPersonFormModal 
+      :is-open="isRiderModalOpen"
+      @close="isRiderModalOpen = false"
+      @save="handleRiderSave"
+    />
+
+    <div class="form-group" style="margin-top: 1.5rem;">
       <label>Notas Especiales (Comentarios)</label>
       <textarea v-model="props.modelValue.comments" rows="3" placeholder="Detalles adicionales del pedido..."></textarea>
     </div>
-
 
     <div class="invoice-toggle">
       <label>
@@ -216,7 +295,6 @@ const selectTime = (time: string) => {
       </div>
     </div>
 
-    <!-- Refactored Payment Options -->
     <OrderPaymentSelector 
       v-model="props.modelValue" 
       :branches="BRANCHES"

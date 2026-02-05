@@ -14,6 +14,7 @@ import OrderClientInfo from './components/OrderClientInfo.vue'
 import OrderInvoiceInfo from './components/OrderInvoiceInfo.vue'
 import InvoiceGenerationModal from './components/InvoiceGenerationModal.vue'
 import OrderDeleteModal from './components/OrderDeleteModal.vue'
+import OrderDeliveryAssign from './components/OrderDeliveryAssign.vue'
 import { useRouter } from 'vue-router'
 
 const route = useRoute()
@@ -180,6 +181,12 @@ onMounted(() => {
 
         <!-- Details Sidebar -->
         <section class="side-info">
+          <OrderDeliveryAssign
+            v-if="order.deliveryType === 'delivery'"
+            :order="order"
+            @updated="handleOrderUpdated"
+          />
+
           <OrderClientInfo
             :customerName="order.customerName"
             :customerPhone="order.customerPhone"
