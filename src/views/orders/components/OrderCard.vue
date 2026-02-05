@@ -109,20 +109,37 @@ const handleRetry = () => emit('retry-invoice')
              <i class="fas fa-store"></i>
              <span>{{ order.settledIslandName }}</span>
           </div>
-          <!-- Payment Icon -->
-          <div v-else class="payment-status" :class="getPaymentStatus(order)" title="Estado Pago">
+
+          <!-- Invoice Processed Badge (Explicit) -->
+          <div v-else-if="order.invoiceStatus === 'PROCESSED'" class="invoice-badge" title="Factura Generada y Enviada">
+             <i class="fas fa-file-invoice-dollar"></i>
+             <span>Facturado</span>
+          </div>
+
+          <!-- Payment Icon if not settled (or keep logic separate?) -->
+          <!-- The previous logic showed Payment Status IF NOT Settled. 
+               Now we might have Invoice Processed AND Payment Status (e.g. Paid).
+               User wants clear indication of invoice. Let's show BOTH if possible, 
+               or Stack them. Flex-col or simple stacking in status-group. -->
+          
+          <div class="payment-status" :class="getPaymentStatus(order)" title="Estado Pago">
              <i :class="{
               'fas fa-check-circle': getPaymentStatus(order) === 'paid',
               'fas fa-adjust': getPaymentStatus(order) === 'partial',
               'far fa-circle': getPaymentStatus(order) === 'pending'
             }"></i>
-             {{
-              getPaymentStatus(order) === 'paid' ? 'Pagado' :
-                getPaymentStatus(order) === 'partial' ? 'Pago Parcial' : 'Pendiente'
-            }}
+             <span v-if="!order.invoiceStatus || order.invoiceStatus !== 'PROCESSED'"> 
+                <!-- Hide text if Facturado to save space? Or keep? User wants CLARITY. Keep. -->
+                {{
+                  getPaymentStatus(order) === 'paid' ? 'Pagado' :
+                    getPaymentStatus(order) === 'partial' ? 'Parcial' : 'Pendiente'
+                }}
+             </span>
+             <span v-else>{{ getPaymentStatus(order) === 'paid' ? 'Pagado' : 'Pendiente' }}</span>
           </div>
        </div>
     </div>
+
 
     <!-- Actions Footer -->
     <div class="card-actions" @click.stop>
@@ -327,7 +344,29 @@ const handleRetry = () => emit('retry-invoice')
       }
     }
 
+    .status-group {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.25rem;
+    }
+
+    .invoice-badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #15803d; // Green-700
+      background: #dcfce7; // Green-100
+      border: 1px solid #86efac; // Green-300
+      padding: 2px 8px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      cursor: help;
+    }
+
     .payment-status {
+
       font-size: 0.8rem;
       font-weight: 600;
       color: #ef4444; // error

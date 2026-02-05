@@ -145,6 +145,7 @@ const emit = defineEmits<{
     flex-wrap: wrap;
     gap: 1rem;
     align-items: center;
+    width: 100%; // Ensure it takes full width
   }
 
   .filter-lower-row {
@@ -154,12 +155,20 @@ const emit = defineEmits<{
     align-items: center;
     padding-top: 1rem;
     border-top: 1px solid #f8fafc;
+    width: 100%;
   }
 
   .search-wrapper {
     position: relative;
-    flex: 2;
-    min-width: 260px;
+    flex: 2; // Grow to fill space
+    min-width: 280px; // Ensure reasonable minimum
+    width: 100%; // Fallback for small screens
+
+    @media (max-width: 640px) {
+      flex: 1 1 100%; // Full width on mobile
+      order: 1; // Ensure search is first
+    }
+
 
     i {
       position: absolute;
@@ -171,7 +180,7 @@ const emit = defineEmits<{
     }
 
     input {
-      width: 100%;
+      width: 80%;
       padding: 0.75rem 1rem 0.75rem 2.5rem;
       border-radius: 12px;
       border: 1px solid #e2e8f0;
@@ -200,6 +209,13 @@ const emit = defineEmits<{
     gap: 0.2rem;
     flex: 1;
     min-width: 200px;
+    white-space: nowrap; // Prevent button text wrapping
+
+    @media (max-width: 640px) {
+      flex: 1 1 100%; // Full width on mobile
+      order: 2;
+    }
+
 
     .type-btn {
       flex: 1;
@@ -229,10 +245,21 @@ const emit = defineEmits<{
     display: flex;
     gap: 0.5rem;
     overflow-x: auto;
-    padding-bottom: 2px;
-    flex: 1;
+    padding-bottom: 4px; // Slight padding for scrollbar
+    flex: 1 1 auto; // Flex grow/shrink
+    width: 100%; // Take full width if needed to scroll
+    -webkit-overflow-scrolling: touch; // Smooth scroll iOS
+    scrollbar-width: none; // Hides scrollbar Firefox
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    // Hides scrollbar Chrome/Safari
 
     .filter-pill {
+      flex: 0 0 auto; // Prevent shrinking
+
       padding: 0.5rem 1.25rem;
       border-radius: 20px;
       border: 1px solid #e2e8f0;
@@ -259,12 +286,25 @@ const emit = defineEmits<{
   }
 
   .date-picker-wrapper {
-    min-width: 200px;
+    min-width: 180px;
     max-width: 100%;
+
+    @media (max-width: 640px) {
+      width: 100%; // Full width on mobile
+      flex: 1 1 100%;
+    }
   }
 
   .batch-select-actions {
     margin-left: auto;
+
+    @media (max-width: 640px) {
+      width: 100%;
+      margin-left: 0;
+      text-align: center;
+      padding-top: 0.5rem;
+    }
+
 
     .btn-text {
       background: none;

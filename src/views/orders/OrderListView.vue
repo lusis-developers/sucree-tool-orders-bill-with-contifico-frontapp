@@ -346,7 +346,6 @@ onMounted(() => {
 }
 
 .container-constrained {
-  width: 100%;
   max-width: 1000px;
   margin: 0 auto;
   padding: 1.5rem;

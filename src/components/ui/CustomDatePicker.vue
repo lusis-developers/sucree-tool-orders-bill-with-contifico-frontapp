@@ -248,11 +248,13 @@ const displayValue = computed(() => {
     width: 300px;
     left: 50%;
     transform: translateX(-50%);
-    // position: fixed; // Removed to prevent blocking
-    // top: auto;
-    // bottom: 0;
-    // border-radius: 16px 16px 0 0; 
+    position: fixed; // Fixed position to avoid parent clipping
+    top: 50%;
+    transform: translate(-50%, -50%); // Center exactly
+    z-index: 9999;
+    box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.4); // Poor man's backdrop
   }
+
 }
 
 .calendar-header {
