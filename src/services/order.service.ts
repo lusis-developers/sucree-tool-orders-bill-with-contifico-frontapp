@@ -114,6 +114,26 @@ class OrderService extends APIBase {
       throw error
     }
   }
+
+  async updateOrder(id: string, data: any): Promise<any> {
+    try {
+      const response = await this.put<any>(`orders/${id}`, data)
+      return response.data
+    } catch (error) {
+      console.error('Error updating order:', error)
+      throw error
+    }
+  }
+
+  async deleteOrder(id: string): Promise<any> {
+    try {
+      const response = await this.delete<any>(`orders/${id}`)
+      return response.data
+    } catch (error) {
+      console.error('Error deleting order:', error)
+      throw error
+    }
+  }
 }
 
 export default new OrderService()
