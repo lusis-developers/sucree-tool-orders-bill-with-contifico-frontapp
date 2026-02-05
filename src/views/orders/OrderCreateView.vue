@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref, reactive, watch } from 'vue'
+import { ref, reactive, watch, onMounted } from 'vue'
 import OrderService from '@/services/order.service'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import type { Product, CartItem, OrderFormData } from '@/types/order'
+import { useToast } from '@/composables/useToast'
 
 // Components
 import OrderProductSelector from './components/OrderProductSelector.vue'
@@ -12,6 +13,8 @@ import OrderWhatsAppModal from './components/OrderWhatsAppModal.vue'
 import OrderConfirmationModal from './components/OrderConfirmationModal.vue'
 
 const router = useRouter()
+const route = useRoute()
+const { success, error: showError, info } = useToast()
 
 // UI State
 const isSubmitting = ref(false)
@@ -19,6 +22,8 @@ const showWhatsAppModal = ref(false)
 const showConfirmationModal = ref(false)
 const generatedWhatsAppMessage = ref('')
 const isCourtesyMode = ref(false)
+const isEditMode = ref(false)
+const editingOrderId = ref<string | null>(null)
 
 // Form Data - Strictly Typed
 const formData = reactive<OrderFormData>({
@@ -111,28 +116,28 @@ const updateQuantity = (index: number, change: number) => {
 
 const onCartSubmit = () => {
   if (cart.value.length === 0) {
-    alert("El carrito está vacío.")
+    info("El carrito está vacío.")
     return
   }
 
   // Frontend Validation
-  if (!formData.customerName) { alert("Nombre del cliente es obligatorio"); return; }
-  if (!formData.customerPhone) { alert("Teléfono del cliente es obligatorio"); return; }
-  if (!formData.deliveryDate) { alert("Fecha de entrega es obligatoria"); return; }
-  if (!formData.deliveryTime) { alert("Hora de entrega es obligatoria"); return; }
-  if (!formData.branch) { alert("Sucursal de origen es obligatoria"); return; }
+  if (!formData.customerName) { showError("Nombre del cliente es obligatorio"); return; }
+  if (!formData.customerPhone) { showError("Teléfono del cliente es obligatorio"); return; }
+  if (!formData.deliveryDate) { showError("Fecha de entrega es obligatoria"); return; }
+  if (!formData.deliveryTime) { showError("Hora de entrega es obligatoria"); return; }
+  if (!formData.branch) { showError("Sucursal de origen es obligatoria"); return; }
 
   if (formData.deliveryType === 'delivery') {
-    if (!formData.deliveryAddress) { alert("Dirección de entrega es obligatoria para Delivery"); return; }
-    if (!formData.googleMapsLink) { alert("Link de Google Maps es obligatorio para Delivery"); return; }
+    if (!formData.deliveryAddress) { showError("Dirección de entrega es obligatoria para Delivery"); return; }
+    if (!formData.googleMapsLink) { showError("Link de Google Maps es obligatorio para Delivery"); return; }
   }
 
   if (formData.invoiceNeeded) {
-    if (!formData.invoiceData.ruc) { alert("RUC/Cédula es obligatorio para factura"); return; }
+    if (!formData.invoiceData.ruc) { showError("RUC/Cédula es obligatorio para factura"); return; }
   }
 
   if (formData.settledInIsland && !formData.settledIslandName) {
-    alert("Debe seleccionar la isla donde se facturó.");
+    showError("Debe seleccionar la isla donde se facturó.");
     return;
   }
 
@@ -140,7 +145,7 @@ const onCartSubmit = () => {
   showConfirmationModal.value = true
 }
 
-const executeOrderCreation = async () => {
+const executeOrderAction = async () => {
   showConfirmationModal.value = false
   isSubmitting.value = true
 
@@ -166,13 +171,18 @@ const executeOrderCreation = async () => {
       })),
     }
 
-    const response = await OrderService.createOrder(payload)
-
-    generatedWhatsAppMessage.value = response.whatsappMessage
-    resetForm()
-    showWhatsAppModal.value = true
+    if (isEditMode.value && editingOrderId.value) {
+      await OrderService.updateOrder(editingOrderId.value, payload)
+      success('Pedido actualizado correctamente')
+      router.push('/orders')
+    } else {
+      const response = await OrderService.createOrder(payload)
+      generatedWhatsAppMessage.value = response.whatsappMessage
+      resetForm()
+      showWhatsAppModal.value = true
+    }
   } catch (e: any) {
-    alert(e.response?.data?.message || 'Error creating order. Please try again.')
+    showError(e.response?.data?.message || 'Error processing order. Please try again.')
     console.error(e)
   } finally {
     isSubmitting.value = false
@@ -226,12 +236,65 @@ const sendWhatsApp = () => {
   window.open(`https://wa.me/?text=${encoded}`, '_blank')
   showWhatsAppModal.value = false
 }
+
+onMounted(async () => {
+  const editId = route.query.edit as string
+  if (editId) {
+    isEditMode.value = true
+    editingOrderId.value = editId
+    try {
+      const order = await OrderService.getOrder(editId)
+
+      // Map back to formData
+      Object.assign(formData, {
+        customerName: order.customerName,
+        customerPhone: order.customerPhone,
+        deliveryDate: order.deliveryDate ? order.deliveryDate.split('T')[0] : '',
+        deliveryTime: order.deliveryTime,
+        deliveryType: order.deliveryType,
+        branch: order.branch,
+        deliveryAddress: order.deliveryAddress,
+        googleMapsLink: order.googleMapsLink,
+        invoiceNeeded: order.invoiceNeeded,
+        comments: order.comments,
+        responsible: order.responsible,
+        salesChannel: order.salesChannel,
+        paymentMethod: order.paymentMethod,
+        invoiceData: order.invoiceData || { ruc: '', businessName: '', email: '', address: '' },
+        totalValue: order.totalValue,
+        settledInIsland: order.settledInIsland || false,
+        settledIslandName: order.settledIslandName || 'San Marino'
+      })
+
+      // Map back to cart
+      cart.value = order.products.map((p: any) => ({
+        id: p.contifico_id,
+        contifico_id: p.contifico_id,
+        name: p.name,
+        price: p.price,
+        quantity: p.quantity,
+        isCourtesy: p.isCourtesy || false
+      }))
+
+    } catch (err) {
+      console.error('Error loading order for edit:', err)
+      showError('Error al cargar el pedido para editar.')
+      router.push('/orders')
+    }
+  }
+})
 </script>
 
 <template>
   <div class="order-page">
     <div class="container page-header">
-      <h1>Nuevo Pedido</h1>
+      <div class="header-content">
+        <h1>{{ isEditMode ? 'Editar Pedido' : 'Nuevo Pedido' }}</h1>
+        <div v-if="isEditMode" class="edit-badge">
+           <i class="fa-solid fa-pen-to-square"></i>
+           Modo Edición
+        </div>
+      </div>
     </div>
 
     <main class="container main-content">
@@ -273,7 +336,7 @@ const sendWhatsApp = () => {
       :order-data="formData"
       :cart="cart"
       @close="showConfirmationModal = false"
-      @confirm="executeOrderCreation"
+      @confirm="executeOrderAction"
     />
 
     <!-- WhatsApp Modal -->
@@ -322,6 +385,39 @@ const sendWhatsApp = () => {
       background: $NICOLE-PURPLE;
       border-radius: 4px;
     }
+  }
+
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+
+  .edit-badge {
+    background: #eff6ff;
+    color: #2563eb;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid #dbeafe;
+    animation: fadeIn 0.3s ease;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 

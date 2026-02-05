@@ -13,13 +13,17 @@ import OrderPaymentsList from './components/OrderPaymentsList.vue'
 import OrderClientInfo from './components/OrderClientInfo.vue'
 import OrderInvoiceInfo from './components/OrderInvoiceInfo.vue'
 import InvoiceGenerationModal from './components/InvoiceGenerationModal.vue'
+import OrderDeleteModal from './components/OrderDeleteModal.vue'
+import { useRouter } from 'vue-router'
 
 const route = useRoute()
+const router = useRouter()
 const order = ref<any>(null)
 const isLoading = ref(false)
 const showInvoiceModal = ref(false)
 const showPaymentModal = ref(false)
 const showInvoiceConfirmModal = ref(false)
+const showDeleteModal = ref(false)
 
 const fetchOrder = async () => {
   const id = route.params.id as string
@@ -121,6 +125,21 @@ const handleViewInvoice = async () => {
   }
 }
 
+const executeDeleteOrder = async () => {
+  if (!order.value) return
+  showDeleteModal.value = false
+  isLoading.value = true
+  try {
+    await OrderService.deleteOrder(order.value._id)
+    success("La orden ha sido eliminada permanentemente.")
+    router.push('/orders')
+  } catch (e: any) {
+    showError(e.response?.data?.message || "Error al eliminar la orden")
+  } finally {
+    isLoading.value = false
+  }
+}
+
 onMounted(() => {
   fetchOrder()
 })
@@ -180,6 +199,23 @@ onMounted(() => {
           />
         </section>
       </div>
+
+      <!-- Danger Zone -->
+      <section class="danger-zone-section" v-if="order && order.invoiceStatus !== 'PROCESSED' && !order.settledInIsland && outstandingBalance > 0.05">
+        <div class="danger-header">
+           <i class="fas fa-radiation"></i>
+           <h3>Zona de Peligro</h3>
+        </div>
+        <div class="danger-card">
+           <div class="danger-info">
+             <strong>Eliminar este pedido</strong>
+             <p>Una vez eliminado, no hay vuelta atrás. La orden y su historial desaparecerán.</p>
+           </div>
+           <button class="btn-danger-outline" @click="showDeleteModal = true">
+             Eliminar Pedido
+           </button>
+        </div>
+      </section>
       
     <!-- Modals -->
     <InvoiceEditModal
@@ -207,6 +243,15 @@ onMounted(() => {
       :total-value="computedTotal"
       @close="showInvoiceConfirmModal = false"
       @confirm="executeInvoiceGeneration"
+    />
+
+    <OrderDeleteModal
+      v-if="order"
+      :is-open="showDeleteModal"
+      :order-id="order._id"
+      :customer-name="order.customerName"
+      @close="showDeleteModal = false"
+      @confirm="executeDeleteOrder"
     />
     </main>
 
@@ -341,6 +386,85 @@ onMounted(() => {
   .side-info {
     position: sticky;
     top: 2rem;
+  }
+}
+
+/* Danger Zone Styles */
+.danger-zone-section {
+  margin-top: 4rem;
+  border-top: 1px solid #fee2e2;
+  padding-top: 2rem;
+  margin-bottom: 2rem;
+
+  .danger-header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: #dc2626;
+    margin-bottom: 1rem;
+
+    i {
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  }
+}
+
+.danger-card {
+  background: white;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
+
+  @media (max-width: 640px) {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .danger-info {
+    text-align: left;
+
+    strong {
+      display: block;
+      color: #111827;
+      font-size: 1rem;
+      margin-bottom: 0.25rem;
+    }
+
+    p {
+      margin: 0;
+      color: #6b7280;
+      font-size: 0.85rem;
+    }
+  }
+
+  .btn-danger-outline {
+    background: transparent;
+    border: 2px solid #ef4444;
+    color: #ef4444;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+
+    &:hover {
+      background: #ef4444;
+      color: white;
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+    }
   }
 }
 </style>
