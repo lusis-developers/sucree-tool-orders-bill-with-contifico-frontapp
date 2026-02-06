@@ -141,32 +141,35 @@ const executeDeleteOrder = async () => {
   }
 
 
-  const handleReturnOrder = async () => {
-    if (!order.value) return
 
-    const notes = prompt(`Motivo de la devolución para "${order.value.customerName}":\n(El pedido saldrá de producción y quedará marcado como devuelto)`)
-    if (notes === null) return // Cancel
-    if (!notes.trim()) {
-      alert("Debes ingresar un motivo.")
-      return
-    }
+}
 
-    isLoading.value = true
-    try {
-      await OrderService.returnOrder(order.value._id, notes)
-      success('Pedido marcado como devuelto.')
-      fetchOrder() // Refresh to update status
-    } catch (err: any) {
-      console.error('Return error', err)
-      showError(err.response?.data?.message || 'Error al devolver el pedido')
-    } finally {
-      isLoading.value = false
-    }
+const handleReturnOrder = async () => {
+  if (!order.value) return
+
+  const notes = prompt(`Motivo de la devolución para "${order.value.customerName}":\n(El pedido saldrá de producción y quedará marcado como devuelto)`)
+  if (notes === null) return // Cancel
+  if (!notes.trim()) {
+    alert("Debes ingresar un motivo.")
+    return
   }
 
-  onMounted(() => {
-    fetchOrder()
-  })
+  isLoading.value = true
+  try {
+    await OrderService.returnOrder(order.value._id, notes)
+    success('Pedido marcado como devuelto.')
+    fetchOrder() // Refresh to update status
+  } catch (err: any) {
+    console.error('Return error', err)
+    showError(err.response?.data?.message || 'Error al devolver el pedido')
+  } finally {
+    isLoading.value = false
+  }
+}
+
+onMounted(() => {
+  fetchOrder()
+})
 </script>
 
 <template>
