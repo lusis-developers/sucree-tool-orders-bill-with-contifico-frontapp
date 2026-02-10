@@ -35,7 +35,9 @@ const getDisplayQuantity = (quantity: number, unit: string) => {
   return quantity.toFixed(2)
 }
 
-const getStockStatus = (m: any) => {
+type Status = 'low' | 'warning' | 'optimal'
+
+const getStockStatus = (m: any): Status => {
   if (!m.minStock) return 'optimal'
   if (m.quantity < m.minStock) return 'low'
   if (m.quantity < m.minStock * 1.5) return 'warning'
@@ -43,9 +45,10 @@ const getStockStatus = (m: any) => {
 }
 
 const itemsByStatus = computed(() => {
-  const groups: Record<string, any[]> = { low: [], warning: [], optimal: [] }
+  const groups: Record<Status, any[]> = { low: [], warning: [], optimal: [] }
   materials.value.forEach(m => {
-    groups[getStockStatus(m)].push(m)
+    const status = getStockStatus(m)
+    groups[status].push(m)
   })
   return groups
 })
@@ -146,7 +149,7 @@ onMounted(fetchData)
                       <span class="val">{{ getDisplayQuantity(m.quantity, m.unit) }} {{ getDisplayUnit(m.unit) }}</span>
                    </div>
                    <div class="progress-bar-bg">
-                      <div class="progress-bar-fill" :style="{ width: Math.min((m.quantity / m.minStock) * 100, 100) + '%' }"></div>
+                      <div class="progress-bar-fill" :style="{ width: Math.min((m.quantity / (m.minStock || 1)) * 100, 100) + '%' }"></div>
                    </div>
                    <div class="min-line">Mínimo sugerido: {{ getDisplayQuantity(m.minStock, m.unit) }}{{ getDisplayUnit(m.unit) }}</div>
                 </div>
