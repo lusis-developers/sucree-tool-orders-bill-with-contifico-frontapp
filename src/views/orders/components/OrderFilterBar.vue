@@ -25,6 +25,8 @@ const emit = defineEmits<{
   (e: 'update:searchQuery', value: string): void
   (e: 'search'): void
   (e: 'toggle-select-all'): void
+  (e: 'export-production'): void
+  (e: 'export-dispatch'): void
 }>()
 </script>
 
@@ -60,6 +62,8 @@ const emit = defineEmits<{
           Registro
         </button>
       </div>
+
+      <!-- Export Buttons Removed -->
     </div>
 
     <div class="filter-lower-row">
@@ -131,6 +135,18 @@ const emit = defineEmits<{
           </button>
       </div>
     </div>
+
+    <!-- Export Row (Bottom) -->
+    <div class="filter-export-row">
+      <button class="btn-export production" @click="emit('export-production')">
+          <i class="fas fa-clipboard-list"></i> 
+          <span>Exportar Orden de Producción</span>
+      </button>
+      <button class="btn-export dispatch" @click="emit('export-dispatch')">
+          <i class="fas fa-truck-loading"></i> 
+          <span>Exportar Orden de Entrega</span>
+      </button>
+    </div>
   </div>
 </template>
 
@@ -168,7 +184,7 @@ const emit = defineEmits<{
   .search-wrapper {
     position: relative;
     flex: 2; // Grow to fill space
-    min-width: 280px; // Ensure reasonable minimum
+    min-width: 200px; // Ensure reasonable minimum
     width: 100%; // Fallback for small screens
 
     @media (max-width: 640px) {
@@ -214,8 +230,8 @@ const emit = defineEmits<{
     padding: 0.3rem;
     border-radius: 12px;
     gap: 0.2rem;
-    flex: 1;
-    min-width: 200px;
+    flex: 0 0 auto;
+    min-width: 160px;
     white-space: nowrap; // Prevent button text wrapping
 
     @media (max-width: 640px) {
@@ -244,6 +260,50 @@ const emit = defineEmits<{
 
       &:hover:not(.active) {
         color: #1e293b;
+      }
+    }
+  }
+
+  .export-actions {
+    display: flex;
+    gap: 0.5rem;
+
+    @media (max-width: 640px) {
+      flex: 1 1 100%;
+      order: 3;
+      justify-content: space-between;
+    }
+
+    .btn-export {
+      background: white;
+      border: 1px solid #e2e8f0;
+      color: #64748b;
+      padding: 0.6rem 1rem;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s;
+      font-size: 0.85rem;
+
+      &:hover {
+        border-color: #8b5cf6;
+        color: #8b5cf6;
+        background: #fdfbff;
+      }
+
+      i {
+        font-size: 1rem;
+      }
+
+      .label {
+        display: none;
+
+        @media (min-width: 450px) {
+          display: inline;
+        }
       }
     }
   }
@@ -323,6 +383,66 @@ const emit = defineEmits<{
 
       &:hover {
         text-decoration: underline;
+      }
+    }
+  }
+
+  .filter-export-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #f8fafc;
+    width: 100%;
+    justify-content: flex-end;
+
+    @media (max-width: 640px) {
+      flex-direction: column;
+
+      .btn-export {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    .btn-export {
+      padding: 0.75rem 1.5rem;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      transition: all 0.2s;
+      font-size: 0.9rem;
+      border: 1px solid transparent;
+
+      i {
+        font-size: 1.1rem;
+      }
+
+      &.production {
+        background: #f0f9ff; // Light Blue
+        color: #0284c7;
+        border-color: #e0f2fe;
+
+        &:hover {
+          background: #e0f2fe;
+          border-color: #bae6fd;
+          transform: translateY(-1px);
+        }
+      }
+
+      &.dispatch {
+        background: #f0fdf4; // Light Green
+        color: #16a34a;
+        border-color: #dcfce7;
+
+        &:hover {
+          background: #dcfce7;
+          border-color: #bbf7d0;
+          transform: translateY(-1px);
+        }
       }
     }
   }

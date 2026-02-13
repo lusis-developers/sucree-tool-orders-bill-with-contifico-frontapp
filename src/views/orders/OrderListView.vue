@@ -5,12 +5,14 @@ import { generateOrderSummary } from '@/utils/orderSummary'
 import { useToast } from '@/composables/useToast'
 import { useOrderFilters } from '@/composables/useOrderFilters'
 import { useBatchOrders } from '@/composables/useBatchOrders'
+import { useOrderExport } from '@/composables/useOrderExport'
 import OrderService from '@/services/order.service'
 
 // Components
 import OrderFilterBar from './components/OrderFilterBar.vue'
 import OrderBatchToolbar from './components/OrderBatchToolbar.vue'
 import OrderCard from './components/OrderCard.vue'
+import ExportProductionModal from './components/ExportProductionModal.vue'
 
 // Modals
 import OrderWhatsAppModal from './components/OrderWhatsAppModal.vue'
@@ -47,6 +49,34 @@ const {
   handleBatchRetry,
   executeBatchRetry
 } = useBatchOrders(orders, fetchOrders)
+
+// --- EXPORT LOGIC ---
+const { isExporting, exportProductionOrder, exportDispatchOrder } = useOrderExport()
+const showExportProductionModal = ref(false)
+
+const handleExportProductionClick = () => {
+  showExportProductionModal.value = true
+}
+
+const executeExportProduction = async (responsibleName: string) => {
+  try {
+    await exportProductionOrder(orders.value, responsibleName)
+    showExportProductionModal.value = false
+    success('Orden de Producción exportada')
+  } catch (err) {
+    showError('Error al exportar')
+  }
+}
+
+const handleExportDispatch = async () => {
+  try {
+    // Export currently loaded orders
+    await exportDispatchOrder(orders.value)
+    success('Reporte de Entregas exportado')
+  } catch (err) {
+    showError('Error al exportar')
+  }
+}
 
 // --- MODAL STATE ---
 const showWhatsAppModal = ref(false)
@@ -252,13 +282,21 @@ onMounted(() => {
         :is-select-all-active="selectedOrderIds.size === orders.length && orders.length > 0"
         @search="fetchOrders"
         @toggle-select-all="toggleSelectAll(orders)"
+        @export-production="handleExportProductionClick"
+        @export-dispatch="handleExportDispatch"
       />
+
+      <!-- Total Count -->
+      <div v-if="!isLoading && orders.length > 0" class="orders-summary-bar">
+         <span class="count-badge">Total de pedidos: {{ orders.length }}</span>
+      </div>
 
       <!-- Loading State -->
       <div v-if="isLoading" class="loading-state">
         <div class="spinner"></div>
         <span>Cargando pedidos...</span>
       </div>
+      
 
       <!-- Orders Grid -->
       <TransitionGroup 
@@ -339,6 +377,13 @@ onMounted(() => {
       @confirm="executeDeleteOrder"
     />
 
+    <ExportProductionModal
+      :is-open="showExportProductionModal"
+      :is-loading="isExporting"
+      @close="showExportProductionModal = false"
+      @confirm="executeExportProduction"
+    />
+
     <BatchRetryModal 
       :is-open="showBatchRetryModal"
       :count="batchValidCount"
@@ -398,6 +443,23 @@ onMounted(() => {
       color: #8b5cf6;
       border-color: #8b5cf6;
     }
+  }
+}
+
+/* Summary Bar */
+.orders-summary-bar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+  padding: 0 0.5rem;
+
+  .count-badge {
+    background: #e2e8f0;
+    color: #475569;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
   }
 }
 
