@@ -87,7 +87,8 @@ export function useOrderExport() {
           groupedProducts[cat] = []
         }
 
-        groupedProducts[cat].push({
+        const currentGroup = groupedProducts[cat] as any[]
+        currentGroup.push({
           name: item.name,
           unit: 'UNI',
           qty: item.qty,
