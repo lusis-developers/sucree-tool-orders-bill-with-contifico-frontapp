@@ -286,6 +286,11 @@ onMounted(() => {
         @export-dispatch="handleExportDispatch"
       />
 
+      <!-- Total Count -->
+      <div v-if="!isLoading && orders.length > 0" class="orders-summary-bar">
+         <span class="count-badge">Total de pedidos: {{ orders.length }}</span>
+      </div>
+
       <!-- Loading State -->
       <div v-if="isLoading" class="loading-state">
         <div class="spinner"></div>
@@ -438,6 +443,23 @@ onMounted(() => {
       color: #8b5cf6;
       border-color: #8b5cf6;
     }
+  }
+}
+
+/* Summary Bar */
+.orders-summary-bar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+  padding: 0 0.5rem;
+
+  .count-badge {
+    background: #e2e8f0;
+    color: #475569;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
   }
 }
 
