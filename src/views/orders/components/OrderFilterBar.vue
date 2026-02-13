@@ -63,15 +63,7 @@ const emit = defineEmits<{
         </button>
       </div>
 
-      <!-- Export Buttons -->
-      <div class="export-actions">
-        <button class="btn-export" @click="emit('export-production')" title="Exportar Orden de Producción">
-           <i class="fas fa-clipboard-list"></i> <span class="label">Prod.</span>
-        </button>
-        <button class="btn-export" @click="emit('export-dispatch')" title="Exportar Orden de Entrega">
-           <i class="fas fa-truck-loading"></i> <span class="label">Entregas</span>
-        </button>
-      </div>
+      <!-- Export Buttons Removed -->
     </div>
 
     <div class="filter-lower-row">
@@ -142,6 +134,18 @@ const emit = defineEmits<{
             {{ isSelectAllActive ? 'Deseleccionar' : 'Todos' }}
           </button>
       </div>
+    </div>
+
+    <!-- Export Row (Bottom) -->
+    <div class="filter-export-row">
+      <button class="btn-export production" @click="emit('export-production')">
+          <i class="fas fa-clipboard-list"></i> 
+          <span>Exportar Orden de Producción</span>
+      </button>
+      <button class="btn-export dispatch" @click="emit('export-dispatch')">
+          <i class="fas fa-truck-loading"></i> 
+          <span>Exportar Orden de Entrega</span>
+      </button>
     </div>
   </div>
 </template>
@@ -379,6 +383,66 @@ const emit = defineEmits<{
 
       &:hover {
         text-decoration: underline;
+      }
+    }
+  }
+
+  .filter-export-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #f8fafc;
+    width: 100%;
+    justify-content: flex-end;
+
+    @media (max-width: 640px) {
+      flex-direction: column;
+
+      .btn-export {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    .btn-export {
+      padding: 0.75rem 1.5rem;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      transition: all 0.2s;
+      font-size: 0.9rem;
+      border: 1px solid transparent;
+
+      i {
+        font-size: 1.1rem;
+      }
+
+      &.production {
+        background: #f0f9ff; // Light Blue
+        color: #0284c7;
+        border-color: #e0f2fe;
+
+        &:hover {
+          background: #e0f2fe;
+          border-color: #bae6fd;
+          transform: translateY(-1px);
+        }
+      }
+
+      &.dispatch {
+        background: #f0fdf4; // Light Green
+        color: #16a34a;
+        border-color: #dcfce7;
+
+        &:hover {
+          background: #dcfce7;
+          border-color: #bbf7d0;
+          transform: translateY(-1px);
+        }
       }
     }
   }

@@ -14,40 +14,44 @@ export function useOrderExport() {
 
   // --- Production Export ---
   const exportProductionOrder = async (
-    filterMode: 'yesterday' | 'today' | 'tomorrow' | 'future' | 'all',
+    orders: any[],
     responsibleName: string
   ) => {
     isExporting.value = true
     try {
-      // 1. Fetch Summary Data (Reusing ProductionService logic)
-      // We need to fetch specific bucket or all if "all" (though "all" might be heavy, let's stick to what view does or fetch all for report?)
-      // distinct buckets: delayed, today, tomorrow, future. 
-      // User likely wants "Today's Production" or "Tomorrow's". 
-      // If filterMode is 'all', we might need to fetch multiple.
-      // For now let's prioritize the current filterMode bucket.
+      // Aggregate products from the provided orders list
+      // We want to sum up quantities for each product across all selected orders.
+      const productAggregation: Record<string, { name: string, qty: number, category: string }> = {}
 
-      let items: any[] = []
-      if (filterMode === 'all') {
-        // Fetch all relevant buckets
-        const [d, t, tm, f] = await Promise.all([
-          ProductionService.getSummary('delayed'),
-          ProductionService.getSummary('today'),
-          ProductionService.getSummary('tomorrow'),
-          ProductionService.getSummary('future')
-        ])
-        items = [
-          ...(d?.delayed || []),
-          ...(t?.today || []),
-          ...(tm?.tomorrow || []),
-          ...(f?.future || [])
-        ]
-      } else {
-        const response = await ProductionService.getSummary(filterMode as any)
-        items = response ? response[filterMode] : []
-      }
+      orders.forEach(order => {
+        // Skip orders that shouldn't be in production? 
+        // Usually we export exactly what is filtered.
+        // If the user filtered by "Invoice Error", they still might want a production list for those.
+        // So we process all passed orders.
+
+        const products = order.products || []
+        products.forEach((p: any) => {
+          const name = p.name || 'Unknown'
+          const key = p._id || name // Use ID if available for uniqueness, else name
+          const qty = p.quantity || 0
+          const cat = p.category || ''
+
+          if (!productAggregation[key]) {
+            productAggregation[key] = {
+              name: name,
+              qty: 0,
+              category: cat
+            }
+          }
+          productAggregation[key].qty += qty
+          // Update category if we found one and previous was empty
+          if (!productAggregation[key].category && cat) {
+            productAggregation[key].category = cat
+          }
+        })
+      })
 
       // Group by Category to match User Request Format
-      // Expected Categories: TORTAS, INDIVIDUALES, BOLLERIA, GALLETAS, SYROPES, VEGETALES, HELADERIA, CASA MIA, OTROS
       const categoryMap: Record<string, any[]> = {
         'TORTAS': [],
         'INDIVIDUALES': [],
@@ -60,35 +64,32 @@ export function useOrderExport() {
         'OTROS': []
       }
 
-      items.forEach((item: any) => {
-        // Calculate total pending quantity
-        const pending = (item.orders || []).reduce((acc: number, o: any) => {
-          // Only count pending
-          if (o.stage === 'FINISHED') return acc
-          return acc + (o.pendingInOrder !== undefined ? o.pendingInOrder : o.quantity)
-        }, 0)
-
-        if (pending <= 0) return
+      Object.values(productAggregation).forEach(item => {
+        if (item.qty <= 0) return
 
         const cat = (item.category || '').toUpperCase()
-        const name = item._id
-        const unit = 'UNI' // Default unit, simplified
+        const name = item.name
+        const unit = 'UNI'
 
-        // Simple mapping
+        // Mapping Logic
         let targetCat = 'OTROS'
-        if (cat.includes('CAKE') || cat.includes('TORTA')) targetCat = 'TORTAS'
-        else if (cat.includes('INDIVIDUAL')) targetCat = 'INDIVIDUALES'
-        else if (cat.includes('BOLLERIA') || cat.includes('PAN')) targetCat = 'BOLLERIA'
-        else if (cat.includes('GALLETA') || cat.includes('COOKIE')) targetCat = 'GALLETAS'
-        else if (cat.includes('SIROPE') || cat.includes('SYRUP')) targetCat = 'SYROPES'
-        else if (cat.includes('VEGETAL') || cat.includes('FRUTA')) targetCat = 'VEGETALES'
-        else if (cat.includes('HELADO') || cat.includes('NIEVE')) targetCat = 'HELADERIA'
-        else if (cat.includes('CASA') || cat.includes('SALADO')) targetCat = 'CASA MIA'
-
-        const targetList = categoryMap[targetCat]
-        if (targetList) {
-          targetList.push({ name, unit, qty: pending })
+        // Try strict mapping first if category is known
+        if (categoryMap[cat]) {
+          targetCat = cat
+        } else {
+          // Heuristic mapping
+          if (cat.includes('CAKE') || cat.includes('TORTA') || name.toUpperCase().includes('TORTA')) targetCat = 'TORTAS'
+          else if (cat.includes('INDIVIDUAL') || name.toUpperCase().includes('INDIVIDUAL')) targetCat = 'INDIVIDUALES'
+          else if (cat.includes('BOLLERIA') || cat.includes('PAN') || name.toUpperCase().includes('PAN')) targetCat = 'BOLLERIA'
+          else if (cat.includes('GALLETA') || cat.includes('COOKIE') || name.toUpperCase().includes('GALLETA')) targetCat = 'GALLETAS'
+          else if (cat.includes('SIROPE') || cat.includes('SYRUP')) targetCat = 'SYROPES'
+          else if (cat.includes('VEGETAL') || cat.includes('FRUTA')) targetCat = 'VEGETALES'
+          else if (cat.includes('HELADO') || cat.includes('NIEVE')) targetCat = 'HELADERIA'
+          else if (cat.includes('CASA') || cat.includes('SALADO')) targetCat = 'CASA MIA'
         }
+
+        const targetList = categoryMap[targetCat] || categoryMap['OTROS'] || []
+        targetList.push({ name, unit, qty: item.qty })
       })
 
       // Create Worksheet Data

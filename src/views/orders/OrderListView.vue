@@ -60,7 +60,7 @@ const handleExportProductionClick = () => {
 
 const executeExportProduction = async (responsibleName: string) => {
   try {
-    await exportProductionOrder(filterMode.value as any, responsibleName)
+    await exportProductionOrder(orders.value, responsibleName)
     showExportProductionModal.value = false
     success('Orden de Producción exportada')
   } catch (err) {
