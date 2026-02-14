@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import ProductionService from '@/services/production.service'
-import { parseECTDate } from '@/utils/dateUtils'
+import { parseECTDate, getECTNow, isSameDayECT } from '@/utils/dateUtils'
 import DispatchReportModal from './components/DispatchReportModal.vue'
 import DispatchByDestinationModal from './components/DispatchByDestinationModal.vue'
 import HoldToConfirmModal from './components/HoldToConfirmModal.vue'
@@ -173,39 +173,33 @@ const handleDispatchConfirm = async (payload: any) => {
   }
 }
 
-// Helper to strip time for date comparison
-const isSameDay = (d1: Date, d2: Date) => {
-  return d1.getFullYear() === d2.getFullYear() &&
-    d1.getMonth() === d2.getMonth() &&
-    d1.getDate() === d2.getDate()
-}
+// Actions
 
 // 1. First: Filter by Date (Time) - This is the "Base" for the view
 const ordersByDate = computed(() => {
   if (filterMode.value === 'all') return orders.value
 
-  const now = new Date()
-  // Normalizing "today" to EC midnight
-  const ecToday = new Date(now.toLocaleString('en-US', { timeZone: 'America/Guayaquil' }))
-  const today = new Date(ecToday.getFullYear(), ecToday.getMonth(), ecToday.getDate())
+  const today = getECTNow()
+  today.setHours(0, 0, 0, 0)
 
   const tomorrow = new Date(today)
   tomorrow.setDate(tomorrow.getDate() + 1)
+
+  const yesterday = new Date(today)
+  yesterday.setDate(yesterday.getDate() - 1)
 
   return orders.value.filter(o => {
     // Crucial: Use parseECTDate to treat UTC midnight as EC midnight
     const dDate = parseECTDate(o.deliveryDate)
 
     if (filterMode.value === 'today') {
-      return isSameDay(dDate, today)
+      return isSameDayECT(dDate, today)
     }
     if (filterMode.value === 'tomorrow') {
-      return isSameDay(dDate, tomorrow)
+      return isSameDayECT(dDate, tomorrow)
     }
     if (filterMode.value === 'yesterday') {
-      const yesterday = new Date(today)
-      yesterday.setDate(yesterday.getDate() - 1)
-      return isSameDay(dDate, yesterday)
+      return isSameDayECT(dDate, yesterday)
     }
     if (filterMode.value === 'future') {
       return dDate > tomorrow

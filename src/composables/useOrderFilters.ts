@@ -1,6 +1,6 @@
 import { ref, watch, computed } from 'vue'
 import OrderService from '@/services/order.service'
-import { getECTTodayString } from '@/utils/dateUtils'
+import { getECTTodayString, getECTNow } from '@/utils/dateUtils'
 import { useToast } from '@/composables/useToast'
 
 export type FilterMode = 'today' | 'yesterday' | 'tomorrow' | 'all' | 'custom' | 'invoiceError' | 'returns'
@@ -36,27 +36,22 @@ export function useOrderFilters() {
       }
 
       // 2. Date filters logic
+      const today = getECTNow()
       const todayStr = getECTTodayString()
-      // Note: rudimentary parsing for yesterday/tomorrow calculation
-      // For production, date-fns or similar is better, but sticking to existing logic pattern
-      const [y, m, d] = todayStr.split('-').map(Number) as [number, number, number]
-      const todayDate = new Date(y, m - 1, d)
 
       if (filterMode.value === 'today') {
         filters.startDate = todayStr
         filters.endDate = todayStr
       } else if (filterMode.value === 'yesterday') {
-        const target = new Date(todayDate)
+        const target = new Date(today)
         target.setDate(target.getDate() - 1)
-        const dateStr = formatDate(target)
-        filters.startDate = dateStr
-        filters.endDate = dateStr
+        filters.startDate = formatDate(target)
+        filters.endDate = filters.startDate
       } else if (filterMode.value === 'tomorrow') {
-        const target = new Date(todayDate)
+        const target = new Date(today)
         target.setDate(target.getDate() + 1)
-        const dateStr = formatDate(target)
-        filters.startDate = dateStr
-        filters.endDate = dateStr
+        filters.startDate = formatDate(target)
+        filters.endDate = filters.startDate
       } else if (filterMode.value === 'custom' && customDate.value) {
         filters.startDate = customDate.value
         filters.endDate = customDate.value
