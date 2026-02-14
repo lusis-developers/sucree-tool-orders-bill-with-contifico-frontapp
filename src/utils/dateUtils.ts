@@ -54,17 +54,33 @@ export const formatECT = (dateStr: string, includeTime = true): string => {
 }
 
 /**
+ * Returns the current date in Ecuador as a Date object.
+ */
+export const getECTNow = (): Date => {
+  const now = new Date()
+  const utc = now.getTime() + (now.getTimezoneOffset() * 60000)
+  return new Date(utc + (3600000 * -5)) // Ecuador UTC-5
+}
+
+/**
  * Returns the current date in Ecuador as a YYYY-MM-DD string
  */
 export const getECTTodayString = (): string => {
-  // Ecuador is UTC-5
-  const now = new Date()
-  const utc = now.getTime() + (now.getTimezoneOffset() * 60000)
-  const ecDate = new Date(utc + (3600000 * -5))
-
+  const ecDate = getECTNow()
   const y = ecDate.getFullYear()
   const m = String(ecDate.getMonth() + 1).padStart(2, '0')
   const d = String(ecDate.getDate()).padStart(2, '0')
-
   return `${y}-${m}-${d}`
+}
+
+/**
+ * Compares two dates (or date strings) to see if they are the same day in ECT.
+ */
+export const isSameDayECT = (d1: Date | string, d2: Date | string): boolean => {
+  const date1 = typeof d1 === 'string' ? parseECTDate(d1) : d1
+  const date2 = typeof d2 === 'string' ? parseECTDate(d2) : d2
+
+  return date1.getFullYear() === date2.getFullYear() &&
+    date1.getMonth() === date2.getMonth() &&
+    date1.getDate() === date2.getDate()
 }
