@@ -6,6 +6,7 @@ import ProviderService from '@/services/provider.service'
 import { useToast } from '@/composables/useToast'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import WarehouseFilters from '@/components/SupplyChain/WarehouseFilters.vue'
+import SearchableSelect from '@/components/ui/SearchableSelect.vue'
 
 const { success, error: showError } = useToast()
 
@@ -98,6 +99,29 @@ const entities = [
 // Computed
 const selectedInMaterial = computed(() => materials.value.find(m => m._id === inForm.value.rawMaterial))
 const selectedOutMaterial = computed(() => materials.value.find(m => m._id === outForm.value.rawMaterial))
+
+// Options for SearchableSelect components
+const materialOptions = computed(() => {
+  return materials.value.map(m => ({
+    value: m._id,
+    label: m.name,
+    subtitle: `Stock: ${getDisplayQuantity(m.quantity, m.unit)} ${getDisplayUnit(m.unit)}`
+  }))
+})
+
+const providerOptions = computed(() => {
+  return providers.value.map(p => ({
+    value: p._id,
+    label: p.name
+  }))
+})
+
+const entityOptions = computed(() => {
+  return entities.map(e => ({
+    value: e,
+    label: e
+  }))
+})
 
 // Methods
 const getDisplayUnit = (unit: string) => {
@@ -496,12 +520,11 @@ onUnmounted(() => {
           </div>
           <div class="form-group">
             <label>Materia Prima</label>
-            <select v-model="inForm.rawMaterial">
-              <option value="">-- Seleccionar --</option>
-              <option v-for="m in materials" :key="m._id" :value="m._id">
-                {{ m.name }} (Stock: {{ getDisplayQuantity(m.quantity, m.unit) }} {{ getDisplayUnit(m.unit) }})
-              </option>
-            </select>
+            <SearchableSelect
+              v-model="inForm.rawMaterial"
+              :options="materialOptions"
+              placeholder="Buscar materia prima..."
+            />
           </div>
           <div class="form-group">
             <label>Cantidad ({{ selectedInMaterial ? getDisplayUnit(selectedInMaterial.unit) : 'Unidad' }})</label>
@@ -509,10 +532,11 @@ onUnmounted(() => {
           </div>
           <div class="form-group">
             <label>Proveedor (Opcional)</label>
-            <select v-model="inForm.provider">
-              <option value="">-- Seleccionar --</option>
-              <option v-for="p in providers" :key="p._id" :value="p._id">{{ p.name }}</option>
-            </select>
+            <SearchableSelect
+              v-model="inForm.provider"
+              :options="providerOptions"
+              placeholder="Buscar proveedor..."
+            />
           </div>
           <div class="form-group">
             <label>Observación</label>
@@ -548,12 +572,11 @@ onUnmounted(() => {
           </div>
           <div class="form-group">
             <label>Materia Prima</label>
-            <select v-model="outForm.rawMaterial">
-              <option value="">-- Seleccionar --</option>
-              <option v-for="m in materials" :key="m._id" :value="m._id">
-                {{ m.name }} (Stock: {{ getDisplayQuantity(m.quantity, m.unit) }} {{ getDisplayUnit(m.unit) }})
-              </option>
-            </select>
+            <SearchableSelect
+              v-model="outForm.rawMaterial"
+              :options="materialOptions"
+              placeholder="Buscar materia prima..."
+            />
           </div>
           <div class="form-group">
             <label>Cantidad ({{ selectedOutMaterial ? getDisplayUnit(selectedOutMaterial.unit) : 'Unidad' }})</label>
@@ -564,10 +587,11 @@ onUnmounted(() => {
           </div>
           <div class="form-group">
             <label>Destino (Entidad)</label>
-            <select v-model="outForm.entity">
-              <option value="">-- Seleccionar --</option>
-              <option v-for="e in entities" :key="e" :value="e">{{ e }}</option>
-            </select>
+            <SearchableSelect
+              v-model="outForm.entity"
+              :options="entityOptions"
+              placeholder="Buscar destino..."
+            />
           </div>
           <div class="form-group">
             <label>Observación</label>
