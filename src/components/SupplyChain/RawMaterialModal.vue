@@ -29,8 +29,8 @@ const form = ref({
 
 const units = [
   { value: 'u', label: 'Unidades (u)' },
-  { value: 'g', label: 'Gramos (g) / Kilogramos (kg)' },
-  { value: 'ml', label: 'Mililitros (ml) / Litros (L)' }
+  { value: 'g', label: 'Gramos (g)' },
+  { value: 'ml', label: 'Mililitros (ml)' }
 ]
 
 const calculatedUnitCost = computed(() => {
@@ -40,21 +40,10 @@ const calculatedUnitCost = computed(() => {
   return 0
 })
 
-const getDisplayQuantity = (quantity: number, unit: string) => {
-  if (unit === 'g' || unit === 'ml') return quantity / 1000
-  return quantity
-}
-
-const getDisplayUnit = (unit: string) => {
-  if (unit === 'g') return 'kg'
-  if (unit === 'ml') return 'L'
-  return unit
-}
-
-const toBackendQuantity = (inputQty: number, unit: string) => {
-  if (unit === 'g' || unit === 'ml') return inputQty * 1000
-  return inputQty
-}
+// Conversion functions now identity as we always use base units
+const getDisplayQuantity = (quantity: number, unit: string) => quantity
+const getDisplayUnit = (unit: string) => unit
+const toBackendQuantity = (inputQty: number, unit: string) => inputQty
 
 const resetForm = () => {
   form.value = {
@@ -198,7 +187,7 @@ const handleConfirmDelete = () => {
             <label>Cantidad</label>
             <input type="number" v-model.number="form.presentationQuantity" placeholder="0" min="0" step="any" />
             <span class="input-hint" v-if="form.unit !== 'u'">
-              Ej. Si es 1kg, pon 1000g
+              Ingrese la cantidad en {{ form.unit }}
             </span>
           </div>
           <div class="form-group flex-1">
@@ -209,12 +198,8 @@ const handleConfirmDelete = () => {
 
         <div class="cost-summary" v-if="calculatedUnitCost > 0">
           <div class="summary-item">
-            <span class="label">Costo por {{ getDisplayUnit(form.unit) }}:</span>
-            <span class="value main">${{ (calculatedUnitCost * (form.unit === 'u' ? 1 : 1000)).toFixed(4) }}</span>
-          </div>
-          <div class="summary-item sub">
-             <span class="label">Costo unitario ({{ form.unit }}):</span>
-             <span class="value">${{ calculatedUnitCost.toFixed(6) }}</span>
+            <span class="label">Costo por {{ form.unit }}:</span>
+            <span class="value main">${{ calculatedUnitCost.toFixed(6) }}</span>
           </div>
         </div>
       </div>
