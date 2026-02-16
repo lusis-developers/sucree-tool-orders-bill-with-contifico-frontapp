@@ -26,7 +26,7 @@ watch(() => props.show, (newVal) => {
     <div v-if="show" class="toast-notification" :class="type || 'success'">
       <i v-if="type === 'error'" class="fa-solid fa-circle-exclamation"></i>
       <i v-else class="fa-solid fa-circle-check"></i>
-      <span>{{ message }}</span>
+      <span v-html="message"></span>
     </div>
   </transition>
 </template>

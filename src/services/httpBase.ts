@@ -103,10 +103,12 @@ class APIBase {
           showSlowConnectionWarning()
         }
 
-        // Manejar código 401 (No autorizado) - Redirigir al login
+        // Manejar código 401 (No autorizado) - NO forzar logout automático
         if (error.response?.status === 401) {
-          // Emitir evento de token expirado para que el auth store lo maneje
-          window.dispatchEvent(new CustomEvent('auth:token-expired'))
+          // Solo log de advertencia para desarrolladores
+          console.warn('⚠️ Authentication error (401): Token may be invalid or expired')
+          // NO emitir evento de logout automático - dejar que cada vista maneje el error
+          // window.dispatchEvent(new CustomEvent('auth:token-expired'))
         }
 
         return Promise.reject(error)

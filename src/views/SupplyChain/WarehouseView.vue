@@ -82,10 +82,6 @@ const holdProgress = ref(0)
 let holdTimer: any = null
 const HOLD_DURATION = 1200 // 1.2s
 
-// Celebration Effects
-const showCelebration = ref(false)
-const celebrationType = ref<'in' | 'out'>('in')
-
 // Timer for auto-update
 let dateTimeInterval: any = null
 
@@ -118,6 +114,37 @@ const providerOptions = computed(() => {
     value: p._id,
     label: p.name
   }))
+})
+
+// Filtered providers based on selected material (for IN form)
+const filteredProviderOptions = computed(() => {
+  // Si hay un material seleccionado y tiene proveedor principal, priorizarlo
+  if (selectedInMaterial.value?.provider) {
+    const mainProviderId = typeof selectedInMaterial.value.provider === 'object'
+      ? selectedInMaterial.value.provider._id
+      : selectedInMaterial.value.provider
+
+    // Encontrar el proveedor principal
+    const mainProvider = providers.value.find(p => p._id === mainProviderId)
+
+    if (mainProvider) {
+      // Mostrar el proveedor principal primero, luego los demás
+      const otherProviders = providers.value.filter(p => p._id !== mainProviderId)
+      return [
+        {
+          value: mainProvider._id,
+          label: `${mainProvider.name} ⭐ (Principal)`,
+        },
+        ...otherProviders.map(p => ({
+          value: p._id,
+          label: p.name
+        }))
+      ]
+    }
+  }
+
+  // Si no hay material seleccionado o no tiene proveedor, mostrar todos
+  return providerOptions.value
 })
 
 const entityOptions = computed(() => {
@@ -248,14 +275,8 @@ const confirmIn = async () => {
       user: user._id // Send user ID explicitly
     })
 
-    // Trigger celebration effect
-    celebrationType.value = 'in'
-    showCelebration.value = true
-    setTimeout(() => {
-      showCelebration.value = false
-    }, 3000)
-
-    success('Recepción registrada correctamente')
+    const unit = selectedInMaterial.value ? getDisplayUnit(selectedInMaterial.value.unit) : ''
+    success(`<i class="fa-solid fa-clipboard-check"></i> Recepción registrada: <strong>${inForm.value.quantity} ${unit}</strong> de ${selectedInMaterial.value?.name}`)
     // Reset but keep date/time current
     resetForms()
     updateDateTime()
@@ -265,7 +286,12 @@ const confirmIn = async () => {
       activeTab.value = 'movements'
     }, 500)
   } catch (err: any) {
-    showError(err.response?.data?.message || 'Error al registrar recepción')
+    // Check if it's an authentication error
+    if (err.status === 401 || err.response?.status === 401) {
+      showError('⚠️ Sesión expirada o token inválido. Por favor, cierre sesión y vuelva a iniciar sesión para continuar.')
+    } else {
+      showError(err.response?.data?.message || err.message || 'Error al registrar recepción')
+    }
   } finally {
     isSubmitting.value = false
   }
@@ -347,14 +373,8 @@ const confirmOut = async () => {
       user: user._id // Send user ID explicitly
     })
 
-    // Trigger celebration effect
-    celebrationType.value = 'out'
-    showCelebration.value = true
-    setTimeout(() => {
-      showCelebration.value = false
-    }, 3000)
-
-    success('Despacho registrado correctamente')
+    const unit = selectedOutMaterial.value ? getDisplayUnit(selectedOutMaterial.value.unit) : ''
+    success(`<i class="fa-solid fa-truck-moving"></i> Despacho registrado: <strong>${outForm.value.quantity} ${unit}</strong> de ${selectedOutMaterial.value?.name}`)
     // Update local material quantity immediately
     if (selectedOutMaterial.value) {
       selectedOutMaterial.value.quantity -= backendQty
@@ -367,7 +387,12 @@ const confirmOut = async () => {
       activeTab.value = 'movements'
     }, 500)
   } catch (err: any) {
-    showError(err.response?.data?.message || 'Error al registrar despacho')
+    // Check if it's an authentication error
+    if (err.status === 401 || err.response?.status === 401) {
+      showError('⚠️ Sesión expirada o token inválido. Por favor, cierre sesión y vuelva a iniciar sesión para continuar.')
+    } else {
+      showError(err.response?.data?.message || err.message || 'Error al registrar despacho')
+    }
   } finally {
     isSubmitting.value = false
     isHolding.value = false
@@ -406,16 +431,22 @@ const formatDate = (date: string) => {
   }).format(new Date(date))
 }
 
-// Confetti positioning helper
-const getConfettiStyle = (index: number) => {
-  const colors = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899']
-  return {
-    left: `${Math.random() * 100}%`,
-    animationDelay: `${Math.random() * 0.5}s`,
-    backgroundColor: colors[Math.floor(Math.random() * colors.length)],
-    animationDuration: `${2 + Math.random() * 1}s`
+// Auto-select provider when material changes
+watch(() => inForm.value.rawMaterial, (newMaterialId) => {
+  if (newMaterialId) {
+    const material = materials.value.find(m => m._id === newMaterialId)
+    if (material?.provider) {
+      // Auto-seleccionar el proveedor principal
+      const providerId = typeof material.provider === 'object'
+        ? material.provider._id
+        : material.provider
+      inForm.value.provider = providerId
+    }
+  } else {
+    // Si se deselecciona el material, limpiar el proveedor
+    inForm.value.provider = ''
   }
-}
+})
 
 watch(activeTab, (newTab) => {
   if (newTab === 'movements') {
@@ -573,7 +604,7 @@ onUnmounted(() => {
             <label>Proveedor (Opcional)</label>
             <SearchableSelect
               v-model="inForm.provider"
-              :options="providerOptions"
+              :options="filteredProviderOptions"
               placeholder="Buscar proveedor..."
             />
           </div>
@@ -691,34 +722,6 @@ onUnmounted(() => {
         </div>
       </div>
     </div>
-
-    <!-- Celebration Overlay -->
-    <transition name="celebration">
-      <div v-if="showCelebration" class="celebration-overlay">
-        <div class="celebration-content">
-          <div class="success-icon" :class="{ 'fade-in': showCelebration }">
-            <i v-if="celebrationType === 'in'" class="fas fa-box-open"></i>
-            <i v-else class="fas fa-truck-loading"></i>
-          </div>
-          <h2 class="celebration-title" :class="{ 'fade-in': showCelebration }">
-            {{ celebrationType === 'in' ? '¡Recepción Exitosa!' : '¡Despacho Exitoso!' }}
-          </h2>
-          <p class="celebration-subtitle" :class="{ 'fade-in-delay': showCelebration }">
-            {{ celebrationType === 'in' ? 'Inventario actualizado correctamente' : 'Material despachado correctamente' }}
-          </p>
-        </div>
-        
-        <!-- Confetti Effect -->
-        <div class="confetti-container">
-          <div 
-            v-for="i in 50" 
-            :key="i" 
-            class="confetti"
-            :style="getConfettiStyle(i)"
-          ></div>
-        </div>
-      </div>
-    </transition>
 
   </div>
 </template>
