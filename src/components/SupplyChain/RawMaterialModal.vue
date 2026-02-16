@@ -2,6 +2,7 @@
 import { ref, computed, watch } from 'vue'
 import HoldConfirmButton from '@/components/ui/HoldConfirmButton.vue'
 import DeleteMaterialModal from '@/views/SupplyChain/components/DeleteMaterialModal.vue'
+import SearchableSelect from '@/components/ui/SearchableSelect.vue'
 
 const props = defineProps({
   isOpen: { type: Boolean, required: true },
@@ -147,6 +148,21 @@ const handleConfirmDelete = () => {
     isDeleteModalOpen.value = false
   }
 }
+
+// Options for SearchableSelect
+const providerOptions = computed(() => {
+  return props.providers.map(p => ({
+    value: p._id,
+    label: p.name
+  }))
+})
+
+const categoryOptions = computed(() => {
+  return props.categories.map(c => ({
+    value: c.name,
+    label: c.name
+  }))
+})
 </script>
 
 <template>
@@ -176,10 +192,11 @@ const handleConfirmDelete = () => {
         <div class="form-row">
           <div class="form-group">
             <label>Categoría</label>
-            <select v-model="form.category">
-              <option value="">Sin Categoría</option>
-              <option v-for="cat in categories" :key="cat._id" :value="cat.name">{{ cat.name }}</option>
-            </select>
+            <SearchableSelect
+              v-model="form.category"
+              :options="categoryOptions"
+              placeholder="Buscar categoría..."
+            />
           </div>
           <div class="form-group">
             <label>Unidad de Medida</label>
@@ -221,10 +238,11 @@ const handleConfirmDelete = () => {
         
         <div class="form-group">
           <label>Proveedor Principal</label>
-          <select v-model="form.provider">
-            <option value="">-- Seleccionar Proveedor --</option>
-            <option v-for="p in providers" :key="p._id" :value="p._id">{{ p.name }}</option>
-          </select>
+          <SearchableSelect
+            v-model="form.provider"
+            :options="providerOptions"
+            placeholder="Buscar proveedor..."
+          />
         </div>
 
         <div class="form-row highlight">
