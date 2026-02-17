@@ -3,14 +3,18 @@ import { ref, onMounted, computed } from 'vue'
 import RawMaterialService from '@/services/raw-material.service'
 import { useToast } from '@/composables/useToast'
 
-const { error: showError } = useToast()
+// @ts-ignore
+import XLSX from 'xlsx-js-style'
+
+const { error: showError, success } = useToast()
 
 const materials = ref<any[]>([])
 const isLoading = ref(false)
+const searchQuery = ref('')
 const expandedSections = ref({
   low: true,
   warning: true,
-  optimal: false
+  optimal: true // Default open all for better visibility
 })
 
 const fetchData = async () => {
@@ -55,14 +59,100 @@ const getStockStatus = (m: any): Status => {
   return 'optimal'
 }
 
+const filteredMaterials = computed(() => {
+  if (!searchQuery.value) return materials.value
+  const query = searchQuery.value.toLowerCase()
+  return materials.value.filter(m =>
+    m.name.toLowerCase().includes(query) ||
+    (m.code && m.code.toLowerCase().includes(query)) ||
+    (m.category && m.category.toLowerCase().includes(query))
+  )
+})
+
 const itemsByStatus = computed(() => {
   const groups: Record<Status, any[]> = { low: [], warning: [], optimal: [] }
-  materials.value.forEach(m => {
+  filteredMaterials.value.forEach(m => {
     const status = getStockStatus(m)
     groups[status].push(m)
   })
   return groups
 })
+
+const exportToExcel = () => {
+  if (materials.value.length === 0) return
+
+  const data = materials.value.map(m => {
+    const unitCost = m.cost || 0
+    const totalValue = (m.quantity || 0) * unitCost
+
+    return {
+      'Proveedor': m.provider?.name || (typeof m.provider === 'string' ? '...' : 'N/A'),
+      'Categoría': m.category || 'N/A',
+      'Subcategoría (Ítem)': m.item || '-',
+      'Materia Prima': m.name,
+      'Código': m.code || '-',
+      'Cantidad': parseFloat(getDisplayQuantity(m.quantity || 0, m.unit)),
+      'Unidad': getDisplayUnit(m.unit).toUpperCase(),
+      'Costo Unitario ($)': unitCost,
+      'Valor Total ($)': totalValue
+    }
+  })
+
+  // Create sheet
+  const ws = XLSX.utils.json_to_sheet(data)
+
+  // Styles Setup
+  const headerStyle = {
+    font: { bold: true, color: { rgb: "FFFFFF" } },
+    fill: { fgColor: { rgb: "4338CA" } },
+    alignment: { horizontal: "center", vertical: "center" },
+    border: { top: { style: "thin" }, bottom: { style: "thin" }, left: { style: "thin" }, right: { style: "thin" } }
+  }
+
+  const bodyStyle = {
+    font: { name: "Arial", sz: 10 },
+    alignment: { vertical: "center" },
+    border: { bottom: { style: "thin", color: { rgb: "E2E8F0" } } }
+  }
+
+  // Apply Styles
+  const range = XLSX.utils.decode_range(ws['!ref']!)
+  for (let R = range.s.r; R <= range.e.r; ++R) {
+    for (let C = range.s.c; C <= range.e.c; ++C) {
+      const cell_address = { c: C, r: R }
+      const cell_ref = XLSX.utils.encode_cell(cell_address)
+      if (!ws[cell_ref]) continue
+
+      if (R === 0) {
+        ws[cell_ref].s = headerStyle
+      } else {
+        ws[cell_ref].s = bodyStyle
+        // Number formats
+        if (C === 5 || C === 7 || C === 8) { // Quantity, Cost, Total
+          ws[cell_ref].z = '#,##0.00'
+        }
+      }
+    }
+  }
+
+  // Column Widths
+  ws['!cols'] = [
+    { wch: 20 }, // Prov
+    { wch: 15 }, // Cat
+    { wch: 20 }, // Sub
+    { wch: 35 }, // Name
+    { wch: 10 }, // Code
+    { wch: 10 }, // Qty
+    { wch: 8 },  // Unit
+    { wch: 15 }, // Cost
+    { wch: 15 }  // Total
+  ]
+
+  const wb = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(wb, ws, "Estado de Bodega")
+  XLSX.writeFile(wb, `Inventario_Nicole_${new Date().toISOString().split('T')[0]}.xlsx`)
+  success('Archivo Excel generado correctamente')
+}
 
 const stats = computed(() => ({
   total: materials.value.length,
@@ -81,14 +171,34 @@ onMounted(fetchData)
 <template>
   <div class="inventory-summary">
     <div class="header">
-      <div class="title">
+      <div class="title-section">
         <h1>Centro de Control de Inventario</h1>
         <p>Monitoreo predictivo de stock y reabastecimiento</p>
       </div>
-      <button class="btn-refresh" @click="fetchData" :disabled="isLoading">
-        <i class="fas fa-sync-alt" :class="{ 'fa-spin': isLoading }"></i>
-        <span>Sincronizar Stock</span>
-      </button>
+      
+      <div class="actions-bar">
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input 
+            v-model="searchQuery" 
+            placeholder="Buscar insumo..." 
+            type="text"
+          />
+          <button v-if="searchQuery" class="clear-search" @click="searchQuery = ''">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <button class="btn-refresh" @click="exportToExcel">
+          <i class="fas fa-file-excel"></i>
+          <span>Exportar</span>
+        </button>
+
+        <button class="btn-refresh" @click="fetchData" :disabled="isLoading">
+          <i class="fas fa-sync-alt" :class="{ 'fa-spin': isLoading }"></i>
+          <span>Sincronizar</span>
+        </button>
+      </div>
     </div>
 
     <div v-if="isLoading" class="loading-state">
@@ -245,12 +355,18 @@ onMounted(fetchData)
 
 .header {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+  flex-direction: column;
+  gap: 1.5rem;
   margin-bottom: 3.5rem;
 
+  @media (min-width: 900px) {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
   h1 {
-    font-size: 2.5rem;
+    font-size: 2rem;
     font-weight: 800;
     color: #1e1b4b;
     margin: 0;
@@ -258,13 +374,94 @@ onMounted(fetchData)
     background: linear-gradient(135deg, #1e1b4b 0%, #4338ca 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+
+    @media (min-width: 640px) {
+      font-size: 2.5rem;
+    }
   }
 
   p {
-    font-size: 1.1rem;
+    font-size: 1rem;
     color: #64748b;
     margin-top: 0.5rem;
     font-weight: 500;
+  }
+}
+
+.actions-bar {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 300px;
+
+  i.fa-search {
+    position: absolute;
+    left: 1rem;
+    color: #94a3b8;
+    pointer-events: none;
+  }
+
+  input {
+    width: 100%;
+    padding: 0.85rem 1rem 0.85rem 2.75rem;
+    border-radius: 14px;
+    border: 1px solid #e2e8f0;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+
+    &:focus {
+      outline: none;
+      border-color: #4338ca;
+      box-shadow: 0 0 0 3px rgba(67, 56, 202, 0.1);
+    }
+  }
+
+  .clear-search {
+    position: absolute;
+    right: 0.75rem;
+    background: none;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    padding: 0.25rem;
+
+    &:hover {
+      color: #ef4444;
+    }
+  }
+}
+
+.btn-export {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1.75rem;
+  background: white;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  color: #10b981;
+  font-weight: 700;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  i {
+    font-size: 1rem;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    background: #10b981;
+    color: white;
+    border-color: #10b981;
   }
 }
 
