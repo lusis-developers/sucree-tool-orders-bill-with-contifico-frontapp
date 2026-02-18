@@ -1,0 +1,13 @@
+@use 'sass:color';
+
+// Global replacements for deprecated darken/lighten.
+// These override the built-in functions so existing code
+// continues to work without warnings.
+
+@function darken($color, $amount) {
+  @return color.adjust($color, $lightness: -$amount);
+}
+
+@function lighten($color, $amount) {
+  @return color.adjust($color, $lightness: $amount);
+}
