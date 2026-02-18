@@ -188,7 +188,7 @@ export function useOrderExport() {
   }
 
   // --- Dispatch Export ---
-  const exportDispatchOrder = async (orders: any[]) => {
+  const exportDispatchOrder = async (orders: any[], branchName: string) => {
     isExporting.value = true
     try {
       const wsData: any[][] = []
@@ -200,13 +200,23 @@ export function useOrderExport() {
         wsStyle[cellRef] = style
       }
 
-      // Header row
+      // 1. Branch Header Row (Row 0)
+      wsData.push([`REPORTE DE ENTREGAS - ${branchName.toUpperCase()}`])
+
+      // Style for Branch Header
+      setStyle(0, 0, {
+        font: { bold: true, sz: 14, color: { rgb: "FFFFFF" } },
+        fill: { fgColor: { rgb: "6A1B9A" } }, // Purple
+        alignment: { horizontal: 'left', vertical: 'center' }
+      })
+
+      // 2. Column Headers (Row 1)
       const headers = ['FECHA DE ENTREGA', 'CLIENTE', 'PEDIDO', 'HORA DE ENTREGA', 'DIRECCION DE ENTREGA', 'ESTADO DE PAGO', 'COMENTARIOS']
       wsData.push(headers)
 
       // Header Style
       for (let c = 0; c < headers.length; c++) {
-        setStyle(0, c, {
+        setStyle(1, c, {
           font: { bold: true, color: { rgb: "FFFFFF" } },
           fill: { fgColor: { rgb: "2C3E50" } }, // Dark Blue Header
           alignment: { horizontal: 'center', vertical: 'center' },
@@ -242,18 +252,55 @@ export function useOrderExport() {
           address = order.branch || 'Retiro en Local'
         }
 
-        const paymentStatus = order.paymentDetails?.status === 'PAID' ? 'PAGADO' : 'PENDIENTE'
-        const paymentMethod = order.paymentDetails?.method ? `(${order.paymentDetails.method})` : ''
-        const paymentStr = `${paymentStatus} ${paymentMethod}`
+        // Payment Status Logic
+        const total = order.totalValue || 0
+        const payments = order.payments || []
+        const totalPaid = payments.reduce((sum: number, p: any) => sum + (Number(p.monto) || 0), 0)
+        const remaining = Math.max(0, total - totalPaid)
 
-        const rowIdx = index + 1
+        let paymentStatusStr = ''
+
+        if (order.isGlobalCourtesy) {
+          paymentStatusStr = 'CORTESÍA'
+        } else if (order.settledInIsland) {
+          paymentStatusStr = 'PAGADO (ISLA)'
+        } else if (remaining < 0.01) {
+          paymentStatusStr = 'PAGADO'
+        } else {
+          paymentStatusStr = `PENDIENTE ($${remaining.toFixed(2)})`
+        }
+
+        let paymentMethodStr = order.paymentMethod
+        if (!paymentMethodStr || paymentMethodStr === 'Por confirmar' || paymentMethodStr === 'Por Cobrar') {
+          if (payments && payments.length > 0) {
+            const methods = [...new Set(payments.map((p: any) => {
+              const m = p.forma_cobro
+              if (m === 'TRA') return 'Transferencia'
+              if (m === 'EFE') return 'Efectivo'
+              if (m === 'TC') return 'Tarjeta Crédito'
+              if (m === 'TD') return 'Tarjeta Débito'
+              return m
+            }))]
+            if (methods.length > 0) {
+              paymentMethodStr = methods.join(', ')
+            } else {
+              paymentMethodStr = 'Por Confirmar'
+            }
+          } else {
+            paymentMethodStr = 'Por Confirmar'
+          }
+        }
+
+        const paymentColumn = `${paymentStatusStr} - ${paymentMethodStr}`
+
+        const rowIdx = index + 2
         wsData.push([
           dateStr,
           order.customerName,
           itemsStr,
           order.deliveryTime || '',
           address,
-          paymentStr,
+          paymentColumn,
           order.comments || ''
         ])
 

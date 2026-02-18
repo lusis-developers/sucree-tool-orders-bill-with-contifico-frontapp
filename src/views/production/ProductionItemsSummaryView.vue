@@ -202,7 +202,7 @@ const handleExportProduction = async (responsibleName: string) => {
 
     // 3. Export based on mode
     if (exportMode.value === 'dispatch') {
-      await exportDispatchOrder(ordersToExport)
+      await exportDispatchOrder(ordersToExport, 'Producción (Resumen)')
     } else {
       await exportProductionOrder(ordersToExport, responsibleName)
     }

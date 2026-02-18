@@ -71,7 +71,7 @@ const executeExportProduction = async (responsibleName: string) => {
 const handleExportDispatch = async () => {
   try {
     // Export currently loaded orders
-    await exportDispatchOrder(orders.value)
+    await exportDispatchOrder(orders.value, 'General (Lista de Pedidos)')
     success('Reporte de Entregas exportado')
   } catch (err) {
     showError('Error al exportar')
