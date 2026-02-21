@@ -186,194 +186,196 @@ onMounted(fetchData)
 
 <template>
   <div class="inventory-summary">
-    <div class="header">
-      <div class="title-section">
-        <h1>Centro de Control de Inventario</h1>
-        <p>Monitoreo predictivo de stock y reabastecimiento</p>
-      </div>
-      
-      <div class="actions-bar">
-        <div class="search-box">
-          <i class="fas fa-search"></i>
-          <input 
-            v-model="searchQuery" 
-            placeholder="Buscar insumo..." 
-            type="text"
-          />
-          <button v-if="searchQuery" class="clear-search" @click="searchQuery = ''">
-            <i class="fas fa-times"></i>
-          </button>
+    <div class="content-container">
+      <div class="header">
+        <div class="title-section">
+          <h1>Centro de Control de Inventario</h1>
+          <p>Monitoreo predictivo de stock y reabastecimiento</p>
         </div>
-
-        <router-link to="/supply-chain/orders" class="btn-history">
-          <i class="fas fa-clipboard-list"></i>
-          <span>Ver Historial</span>
-        </router-link>
-
-        <button class="btn-export" @click="exportToExcel">
-          <i class="fas fa-file-excel"></i>
-          <span>Exportar</span>
-        </button>
-
-        <button class="btn-refresh" @click="fetchData" :disabled="isLoading">
-          <i class="fas fa-sync-alt" :class="{ 'fa-spin': isLoading }"></i>
-          <span>Sincronizar</span>
-        </button>
-      </div>
-    </div>
-
-    <div v-if="isLoading" class="loading-state">
-      <div class="spinner"></div>
-      <span>Calculando niveles de inventario...</span>
-    </div>
-
-    <div v-else class="dashboard">
-      <!-- Stats Overview -->
-      <div class="summary-cards">
-        <div class="glass-card stat-item low" @click="toggleSection('low')">
-          <div class="icon-box"><i class="fas fa-skull-crossbones"></i></div>
-          <div class="content">
-            <span class="value">{{ stats.low }}</span>
-            <span class="desc">Críticos (Pedir Ya)</span>
-          </div>
-          <div class="indicator" :class="{ active: expandedSections.low }"></div>
-        </div>
-
-        <div class="glass-card stat-item warning" @click="toggleSection('warning')">
-          <div class="icon-box"><i class="fas fa-tachometer-alt"></i></div>
-          <div class="content">
-            <span class="value">{{ stats.warning }}</span>
-            <span class="desc">Alerta Stock Próximo</span>
-          </div>
-          <div class="indicator" :class="{ active: expandedSections.warning }"></div>
-        </div>
-
-        <div class="glass-card stat-item optimal" @click="toggleSection('optimal')">
-          <div class="icon-box"><i class="fas fa-shield-alt"></i></div>
-          <div class="content">
-            <span class="value">{{ stats.optimal }}</span>
-            <span class="desc">Niveles Óptimos</span>
-          </div>
-          <div class="indicator" :class="{ active: expandedSections.optimal }"></div>
-        </div>
-      </div>
-
-      <!-- Accordion Sections -->
-      <div class="accordion-layout">
         
-        <!-- SECTION: CRITICAL -->
-        <div class="accordion-group low" :class="{ open: expandedSections.low }">
-          <button class="accordion-header" @click="toggleSection('low')">
-            <div class="title-group">
-               <i class="fas fa-exclamation-circle main-icon"></i>
-               <h2>URGENTE: ABAJO DEL MÍNIMO</h2>
-               <span class="count-badge">{{ stats.low }}</span>
-            </div>
-            <i class="fas fa-chevron-down arrow"></i>
-          </button>
-          
-          <div class="accordion-content">
-            <div v-if="itemsByStatus.low.length === 0" class="empty-msg">
-              <i class="fas fa-check-double"></i> No hay insumos críticos por el momento.
-            </div>
-            <div v-else class="grid-display">
-              <div v-for="m in itemsByStatus.low" :key="m._id" class="inv-card style-low">
-                <div class="header-card">
-                   <div class="meta">
-                      <span class="cat">{{ m.category }}</span>
-                      <h3 class="name">{{ m.name }}</h3>
-                   </div>
-                   <div class="status-dot shine"></div>
-                </div>
-                <div class="progress-container">
-                   <div class="progress-info">
-                      <span>Stock Actual</span>
-                      <span class="val">{{ getDisplayQuantity(m.quantity, m.unit) }} {{ getDisplayUnit(m.unit) }}</span>
-                   </div>
-                   <div class="progress-bar-bg">
-                      <div class="progress-bar-fill" :style="{ width: Math.min((m.quantity / (m.minStock || 1)) * 100, 100) + '%' }"></div>
-                   </div>
-                   <div class="min-line">Mínimo sugerido: {{ getDisplayQuantity(m.minStock, m.unit) }}{{ getDisplayUnit(m.unit) }}</div>
-                </div>
+        <div class="actions-bar">
+          <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input 
+              v-model="searchQuery" 
+              placeholder="Buscar insumo..." 
+              type="text"
+            />
+            <button v-if="searchQuery" class="clear-search" @click="searchQuery = ''">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
 
-                <!-- NEW: Order Button -->
-                <div class="card-footer" v-if="m.provider">
-                  <button class="btn-order-action" @click="openOrderModal(m)">
-                    <i class="fas fa-truck"></i> Realizar Pedido
-                  </button>
+          <router-link to="/supply-chain/orders" class="btn-history">
+            <i class="fas fa-clipboard-list"></i>
+            <span>Ver Historial</span>
+          </router-link>
+
+          <button class="btn-export" @click="exportToExcel">
+            <i class="fas fa-file-excel"></i>
+            <span>Exportar</span>
+          </button>
+
+          <button class="btn-refresh" @click="fetchData" :disabled="isLoading">
+            <i class="fas fa-sync-alt" :class="{ 'fa-spin': isLoading }"></i>
+            <span>Sincronizar</span>
+          </button>
+        </div>
+      </div>
+
+      <div v-if="isLoading" class="loading-state">
+        <div class="spinner"></div>
+        <span>Calculando niveles de inventario...</span>
+      </div>
+
+      <div v-else class="dashboard">
+        <!-- Stats Overview -->
+        <div class="summary-cards">
+          <div class="glass-card stat-item low" @click="toggleSection('low')">
+            <div class="icon-box"><i class="fas fa-skull-crossbones"></i></div>
+            <div class="content">
+              <span class="value">{{ stats.low }}</span>
+              <span class="desc">Críticos (Pedir Ya)</span>
+            </div>
+            <div class="indicator" :class="{ active: expandedSections.low }"></div>
+          </div>
+
+          <div class="glass-card stat-item warning" @click="toggleSection('warning')">
+            <div class="icon-box"><i class="fas fa-tachometer-alt"></i></div>
+            <div class="content">
+              <span class="value">{{ stats.warning }}</span>
+              <span class="desc">Alerta Stock Próximo</span>
+            </div>
+            <div class="indicator" :class="{ active: expandedSections.warning }"></div>
+          </div>
+
+          <div class="glass-card stat-item optimal" @click="toggleSection('optimal')">
+            <div class="icon-box"><i class="fas fa-shield-alt"></i></div>
+            <div class="content">
+              <span class="value">{{ stats.optimal }}</span>
+              <span class="desc">Niveles Óptimos</span>
+            </div>
+            <div class="indicator" :class="{ active: expandedSections.optimal }"></div>
+          </div>
+        </div>
+
+        <!-- Accordion Sections -->
+        <div class="accordion-layout">
+          
+          <!-- SECTION: CRITICAL -->
+          <div class="accordion-group low" :class="{ open: expandedSections.low }">
+            <button class="accordion-header" @click="toggleSection('low')">
+              <div class="title-group">
+                 <i class="fas fa-exclamation-circle main-icon"></i>
+                 <h2>URGENTE: ABAJO DEL MÍNIMO</h2>
+                 <span class="count-badge">{{ stats.low }}</span>
+              </div>
+              <i class="fas fa-chevron-down arrow"></i>
+            </button>
+            
+            <div class="accordion-content">
+              <div v-if="itemsByStatus.low.length === 0" class="empty-msg">
+                <i class="fas fa-check-double"></i> No hay insumos críticos por el momento.
+              </div>
+              <div v-else class="grid-display">
+                <div v-for="m in itemsByStatus.low" :key="m._id" class="inv-card style-low">
+                  <div class="header-card">
+                     <div class="meta">
+                        <span class="cat">{{ m.category }}</span>
+                        <h3 class="name">{{ m.name }}</h3>
+                     </div>
+                     <div class="status-dot shine"></div>
+                  </div>
+                  <div class="progress-container">
+                     <div class="progress-info">
+                        <span>Stock Actual</span>
+                        <span class="val">{{ getDisplayQuantity(m.quantity, m.unit) }} {{ getDisplayUnit(m.unit) }}</span>
+                     </div>
+                     <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" :style="{ width: Math.min((m.quantity / (m.minStock || 1)) * 100, 100) + '%' }"></div>
+                     </div>
+                     <div class="min-line">Mínimo sugerido: {{ getDisplayQuantity(m.minStock, m.unit) }}{{ getDisplayUnit(m.unit) }}</div>
+                  </div>
+
+                  <!-- NEW: Order Button -->
+                  <div class="card-footer" v-if="m.provider">
+                    <button class="btn-order-action" @click="openOrderModal(m)">
+                      <i class="fas fa-truck"></i> Realizar Pedido
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- SECTION: WARNING -->
-        <div class="accordion-group warning" :class="{ open: expandedSections.warning }">
-          <button class="accordion-header" @click="toggleSection('warning')">
-            <div class="title-group">
-               <i class="fas fa-history main-icon"></i>
-               <h2>ALERTA: REABASTECIMIENTO PRÓXIMO</h2>
-               <span class="count-badge">{{ stats.warning }}</span>
-            </div>
-            <i class="fas fa-chevron-down arrow"></i>
-          </button>
-          
-          <div class="accordion-content">
-            <div v-if="itemsByStatus.warning.length === 0" class="empty-msg">
-              No hay alertas de reabastecimiento.
-            </div>
-            <div v-else class="grid-display">
-              <div v-for="m in itemsByStatus.warning" :key="m._id" class="inv-card style-warning">
-                 <div class="header-card">
-                   <div class="meta">
-                      <span class="cat">{{ m.category }}</span>
-                      <h3 class="name">{{ m.name }}</h3>
-                   </div>
-                </div>
-                <div class="stock-details">
-                   <div class="metric">
-                      <span class="lab">Actual</span>
-                      <span class="qty">{{ getDisplayQuantity(m.quantity, m.unit) }}</span>
-                   </div>
-                   <div class="separator"><i class="fas fa-arrow-right"></i></div>
-                   <div class="metric">
-                      <span class="lab">Mínimo x1.5</span>
-                      <span class="qty">{{ getDisplayQuantity(m.minStock * 1.5, m.unit) }}</span>
-                   </div>
-                </div>
+          <!-- SECTION: WARNING -->
+          <div class="accordion-group warning" :class="{ open: expandedSections.warning }">
+            <button class="accordion-header" @click="toggleSection('warning')">
+              <div class="title-group">
+                 <i class="fas fa-history main-icon"></i>
+                 <h2>ALERTA: REABASTECIMIENTO PRÓXIMO</h2>
+                 <span class="count-badge">{{ stats.warning }}</span>
+              </div>
+              <i class="fas fa-chevron-down arrow"></i>
+            </button>
+            
+            <div class="accordion-content">
+              <div v-if="itemsByStatus.warning.length === 0" class="empty-msg">
+                No hay alertas de reabastecimiento.
+              </div>
+              <div v-else class="grid-display">
+                <div v-for="m in itemsByStatus.warning" :key="m._id" class="inv-card style-warning">
+                   <div class="header-card">
+                     <div class="meta">
+                        <span class="cat">{{ m.category }}</span>
+                        <h3 class="name">{{ m.name }}</h3>
+                     </div>
+                  </div>
+                  <div class="stock-details">
+                     <div class="metric">
+                        <span class="lab">Actual</span>
+                        <span class="qty">{{ getDisplayQuantity(m.quantity, m.unit) }}</span>
+                     </div>
+                     <div class="separator"><i class="fas fa-arrow-right"></i></div>
+                     <div class="metric">
+                        <span class="lab">Mínimo x1.5</span>
+                        <span class="qty">{{ getDisplayQuantity(m.minStock * 1.5, m.unit) }}</span>
+                     </div>
+                  </div>
 
-                <!-- NEW: Order Button -->
-                <div class="card-footer" v-if="m.provider">
-                  <button class="btn-order-action" @click="openOrderModal(m)">
-                    <i class="fas fa-truck"></i> Realizar Pedido
-                  </button>
+                  <!-- NEW: Order Button -->
+                  <div class="card-footer" v-if="m.provider">
+                    <button class="btn-order-action" @click="openOrderModal(m)">
+                      <i class="fas fa-truck"></i> Realizar Pedido
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- SECTION: OPTIMAL -->
-        <div class="accordion-group optimal" :class="{ open: expandedSections.optimal }">
-          <button class="accordion-header" @click="toggleSection('optimal')">
-            <div class="title-group">
-               <i class="fas fa-shield-alt main-icon"></i>
-               <h2>INVENTARIO ÓPTIMO</h2>
-               <span class="count-badge">{{ stats.optimal }}</span>
-            </div>
-            <i class="fas fa-chevron-down arrow"></i>
-          </button>
-          
-          <div class="accordion-content">
-            <div class="items-bubble-cloud">
-               <div v-for="m in itemsByStatus.optimal" :key="m._id" class="bubble-item">
-                 <span class="n">{{ m.name }}</span>
-                 <span class="q">{{ getDisplayQuantity(m.quantity, m.unit) }}{{ getDisplayUnit(m.unit) }}</span>
-               </div>
+          <!-- SECTION: OPTIMAL -->
+          <div class="accordion-group optimal" :class="{ open: expandedSections.optimal }">
+            <button class="accordion-header" @click="toggleSection('optimal')">
+              <div class="title-group">
+                 <i class="fas fa-shield-alt main-icon"></i>
+                 <h2>INVENTARIO ÓPTIMO</h2>
+                 <span class="count-badge">{{ stats.optimal }}</span>
+              </div>
+              <i class="fas fa-chevron-down arrow"></i>
+            </button>
+            
+            <div class="accordion-content">
+              <div class="items-bubble-cloud">
+                 <div v-for="m in itemsByStatus.optimal" :key="m._id" class="bubble-item">
+                   <span class="n">{{ m.name }}</span>
+                   <span class="q">{{ getDisplayQuantity(m.quantity, m.unit) }}{{ getDisplayUnit(m.unit) }}</span>
+                 </div>
+              </div>
             </div>
           </div>
-        </div>
 
+        </div>
       </div>
     </div>
 
@@ -390,11 +392,19 @@ onMounted(fetchData)
 
 <style lang="scss" scoped>
 .inventory-summary {
-  padding: 3rem 2rem;
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--color-background);
+}
+
+.content-container {
+  padding: 2rem 1rem;
   max-width: 1300px;
   margin: 0 auto;
-  min-height: 100vh;
-  background-color: #f8fafc;
+
+  @media (min-width: 768px) {
+    padding: 3rem 2rem;
+  }
 }
 
 .header {

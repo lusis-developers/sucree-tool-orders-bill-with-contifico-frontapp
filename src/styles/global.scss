@@ -1,9 +1,13 @@
 @use './colorVariables.module.scss' as *;
 @use './fonts.modules.scss' as *;
 
+:root {
+  --color-background: #f8fafc;
+}
+
 html,
 body {
-  background-color: $white;
+  background-color: var(--color-background);
   margin: 0;
   font-family: $font-principal;
 }
