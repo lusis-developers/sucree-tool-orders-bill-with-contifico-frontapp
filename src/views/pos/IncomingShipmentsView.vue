@@ -239,26 +239,19 @@ onMounted(() => {
                     <span class="branch-name">{{ selectedBranch === 'Todas las sucursales' ? 'Global (Todas)' : selectedBranch }}</span>
                 </div>
                 <div class="banner-tag">{{ selectedBranch === 'Todas las sucursales' ? 'REPORTES' : 'ACTIVO' }}</div>
+                <button
+                    v-if="selectedBranch !== 'Todas las sucursales'"
+                    @click="openRestockModal"
+                    class="btn-restock-inline"
+                    :title="'Cerrar caja de ' + selectedBranch"
+                >
+                    <i class="fa-solid fa-clipboard-check"></i>
+                    <span>Cierre Caja</span>
+                </button>
             </div>
         </div>
         
         <div class="controls">
-            <button class="btn-export-dispatch" @click="handleExportDispatch" :disabled="isExporting || orders.length === 0">
-                <i class="fas fa-file-excel"></i> Exportar Reporte
-            </button>
-
-            <div class="separator"></div>
-
-            <div class="separator"></div>
-
-             <button @click="openRestockModal" class="btn-restock">
-                <i class="fa-solid fa-clipboard-check"></i> Cierre Caja
-            </button>
-
-            <div class="separator"></div>
-
-            <div class="separator"></div>
-
             <button v-if="pendingDispatchesForBulk.length > 0" class="btn-bulk" @click="showBulkModal = true">
                 <i class="fa-solid fa-boxes-stacked"></i> Recepción Masiva
             </button>
@@ -277,8 +270,15 @@ onMounted(() => {
                     <i class="fa-solid fa-chevron-down select-arrow"></i>
                 </div>
             </div>
-            <button class="btn-refresh" @click="fetchData" title="Actualizar" :class="{ 'fa-spin': isLoading }">
-                <i class="fa-solid fa-arrows-rotate"></i>
+
+            <button class="btn-refresh" @click="fetchData" title="Actualizar">
+                <i class="fa-solid fa-arrows-rotate" :class="{ 'fa-spin': isLoading }"></i>
+            </button>
+
+            <div class="separator"></div>
+
+            <button class="btn-export-dispatch" @click="handleExportDispatch" :disabled="isExporting">
+                <i class="fas fa-file-excel"></i> Exportar Reporte
             </button>
         </div>
       </div>
@@ -661,20 +661,21 @@ $desktop: 1024px;
   .controls {
     display: flex;
     flex-direction: column;
-    gap: 0.8rem;
+    gap: 0.75rem;
     width: 100%;
 
     @include from-tablet {
-      width: auto;
+      width: 100%;
       flex-direction: row;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
       align-items: center;
-      justify-content: flex-end;
+      justify-content: flex-start;
+      gap: 0.5rem;
     }
   }
 
   .btn-export-dispatch {
-    background: #F0FDF4; // Light Green background
+    background: #F0FDF4;
     color: #16A34A;
     border: 1px solid #DCFCE7;
     padding: 0.8rem 1.2rem;
@@ -693,6 +694,7 @@ $desktop: 1024px;
       width: auto;
       padding: 0.6rem 1.2rem;
       font-size: 0.85rem;
+      margin-left: auto; // Push to far right
     }
 
     &:hover:not(:disabled) {
@@ -711,35 +713,34 @@ $desktop: 1024px;
     }
   }
 
-  .btn-restock {
-    background: #475569;
-    color: white;
-    text-decoration: none;
-    padding: 0.8rem 1.2rem;
-    border-radius: 8px;
-    font-weight: 700;
+  .btn-restock-inline {
+    position: relative;
+    z-index: 1;
+    background: rgba(255, 255, 255, 0.15);
+    color: #1E293B;
+    border: 1.5px solid rgba(0, 0, 0, 0.12);
+    padding: 0.5rem 1rem;
+    border-radius: 10px;
+    font-weight: 800;
+    font-size: 0.8rem;
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
+    gap: 0.4rem;
+    cursor: pointer;
     transition: all 0.2s;
-    width: 100%;
-    font-size: 0.95rem;
-    border: 1px solid transparent;
-
-    @include from-tablet {
-      width: auto;
-      padding: 0.6rem 1.2rem;
-      font-size: 0.85rem;
-    }
+    white-space: nowrap;
+    backdrop-filter: blur(4px);
+    margin-left: auto;
 
     &:hover {
-      background: #334155;
+      background: rgba(255, 255, 255, 0.35);
+      border-color: rgba(0, 0, 0, 0.2);
       transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
 
     i {
-      font-size: 1rem;
+      font-size: 0.9rem;
     }
   }
 
@@ -779,9 +780,6 @@ $desktop: 1024px;
     background: $border-light;
     margin: 0 0.5rem;
 
-    @include from-tablet {
-      display: block;
-    }
   }
 
   .branch-selector-group {
