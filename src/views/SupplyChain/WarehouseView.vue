@@ -206,46 +206,48 @@ watch(activeTab, (tab) => { if (tab === 'in') fetchTodaySuggestions() })
 
 <template>
   <div class="warehouse-view">
-    <div class="header">
-      <div class="title">
-        <h1>Bodega</h1>
-        <p>Gestión de Inventario Modernizada</p>
+    <div class="content-container">
+      <div class="header">
+        <div class="title">
+          <h1>Bodega</h1>
+          <p>Gestión de Inventario Modernizada</p>
+        </div>
       </div>
-    </div>
 
-    <div class="tabs">
-      <button v-for="t in [['movements', 'Historial', 'fa-history'], ['in', 'Recepción', 'fa-box-open'], ['out', 'Despacho', 'fa-truck-loading'], ['loss', 'Bajas', 'fa-trash-alt']]"
-        :key="t[0]" :class="{ active: activeTab === t[0] }" @click="activeTab = (t[0] as any)">
-        <i :class="'fas ' + t[2]"></i> <span class="tab-label">{{ t[1] }}</span>
-      </button>
-    </div>
+      <div class="tabs">
+        <button v-for="t in [['movements', 'Historial', 'fa-history'], ['in', 'Recepción', 'fa-box-open'], ['out', 'Despacho', 'fa-truck-loading'], ['loss', 'Bajas', 'fa-trash-alt']]"
+          :key="t[0]" :class="{ active: activeTab === t[0] }" @click="activeTab = (t[0] as any)">
+          <i :class="'fas ' + t[2]"></i> <span class="tab-label">{{ t[1] }}</span>
+        </button>
+      </div>
 
-    <div class="main-content">
-      <WarehouseHistoryTable v-if="activeTab === 'movements'"
-        :materials="materials" :movements="movements" :isLoading="isLoading"
-        :activeFilters="activeFilters" :currentPage="currentPage" :totalPages="totalPages"
-        :totalInValue="movements.filter(m => m.type === 'IN').reduce((s, m) => s + (m.quantity * (m.rawMaterial?.cost || 0)), 0)"
-        @filter="handleFilter" @page-change="handlePageChange"
-      />
-      
-      <WarehouseReceptionForm v-if="activeTab === 'in'"
-        v-model:form="inForm" :materials="materials" :providers="providers"
-        :suggestedOrders="suggestedOrders" :isSubmitting="isSubmitting"
-        :materialOptions="materialOptions" :filteredProviderOptions="filteredProviderOptions"
-        @submit="onInSubmit" @apply-suggestion="applySuggestion"
-      />
+      <div class="main-content">
+        <WarehouseHistoryTable v-if="activeTab === 'movements'"
+          :materials="materials" :movements="movements" :isLoading="isLoading"
+          :activeFilters="activeFilters" :currentPage="currentPage" :totalPages="totalPages"
+          :totalInValue="movements.filter(m => m.type === 'IN').reduce((s, m) => s + (m.quantity * (m.rawMaterial?.cost || 0)), 0)"
+          @filter="handleFilter" @page-change="handlePageChange"
+        />
+        
+        <WarehouseReceptionForm v-if="activeTab === 'in'"
+          v-model:form="inForm" :materials="materials" :providers="providers"
+          :suggestedOrders="suggestedOrders" :isSubmitting="isSubmitting"
+          :materialOptions="materialOptions" :filteredProviderOptions="filteredProviderOptions"
+          @submit="onInSubmit" @apply-suggestion="applySuggestion"
+        />
 
-      <WarehouseDispatchForm v-if="activeTab === 'out'"
-        v-model:form="outForm" :materials="materials" :materialOptions="materialOptions"
-        :entityOptions="entityOptions" :isSubmitting="isSubmitting"
-        :holdProgress="holdProgress" :isHolding="isHolding"
-        @submit="onOutSubmit" @start-hold="startHold" @cancel-hold="stopHold"
-      />
+        <WarehouseDispatchForm v-if="activeTab === 'out'"
+          v-model:form="outForm" :materials="materials" :materialOptions="materialOptions"
+          :entityOptions="entityOptions" :isSubmitting="isSubmitting"
+          :holdProgress="holdProgress" :isHolding="isHolding"
+          @submit="onOutSubmit" @start-hold="startHold" @cancel-hold="stopHold"
+        />
 
-      <WarehouseLossForm v-if="activeTab === 'loss'"
-        v-model:form="lossForm" :materials="materials" :materialOptions="materialOptions"
-        :isSubmitting="isSubmitting" @submit="onLossSubmit"
-      />
+        <WarehouseLossForm v-if="activeTab === 'loss'"
+          v-model:form="lossForm" :materials="materials" :materialOptions="materialOptions"
+          :isSubmitting="isSubmitting" @submit="onLossSubmit"
+        />
+      </div>
     </div>
   </div>
 </template>
