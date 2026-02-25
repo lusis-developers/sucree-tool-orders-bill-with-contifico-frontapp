@@ -10,6 +10,8 @@ import { useToast } from '@/composables/useToast';
 interface RestockItemData {
   productName: string;
   unit: string;
+  isGeneral: boolean;
+  category: 'Producción' | 'Bodega';
   stockObjectiveTomorrow: number;
   stockObjectiveToday: number;
   bajas: number;
@@ -59,6 +61,8 @@ const fetchDailyForm = async () => {
         return {
           productName: item.productName,
           unit: item.unit,
+          isGeneral: item.isGeneral || false,
+          category: item.category || 'Producción',
           stockObjectiveTomorrow: item.stockObjectiveTomorrow,
           stockObjectiveToday: item.stockObjectiveToday,
           bajas: (isToday && item.lastEntry) ? item.lastEntry.bajas : 0,
@@ -170,6 +174,9 @@ const executeSubmission = async () => {
       submittedBy: 'POS User',
       items: formItems.value.map(item => ({
         productName: item.productName,
+        unit: item.unit,
+        isGeneral: item.isGeneral,
+        category: item.category,
         bajas: item.bajas,
         stockFinal: item.excedente,
         pedidoFinal: getFinalPedido(item),
