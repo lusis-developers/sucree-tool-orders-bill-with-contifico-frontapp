@@ -305,9 +305,9 @@ onMounted(() => {
   transition: all 0.2s;
 
   &:hover {
-    background: $NICOLE-PURPLE;
+    background: $SUCREE-PRIMARY;
     color: white;
-    border-color: $NICOLE-PURPLE;
+    border-color: $SUCREE-PRIMARY;
   }
 
   &.btn-delete:hover {
@@ -339,7 +339,7 @@ onMounted(() => {
 
     &:not(:disabled):hover {
       background: #f8fafc;
-      border-color: $NICOLE-PURPLE;
+      border-color: $SUCREE-PRIMARY;
     }
   }
 
@@ -358,7 +358,7 @@ onMounted(() => {
     width: 40px;
     height: 40px;
     border: 4px solid #f1f5f9;
-    border-top-color: $NICOLE-PURPLE;
+    border-top-color: $SUCREE-PRIMARY;
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin: 0 auto 1rem;

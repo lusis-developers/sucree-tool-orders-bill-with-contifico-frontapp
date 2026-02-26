@@ -127,7 +127,7 @@ $tablet: 768px;
 
   h1 {
     font-family: $font-principal;
-    color: $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
     margin: 0;
     font-size: 1.4rem;
     line-height: 1.2;
@@ -173,7 +173,7 @@ $tablet: 768px;
 }
 
 .btn-restock {
-  background: $NICOLE-PURPLE;
+  background: $SUCREE-PRIMARY;
   color: white;
   border: none;
   padding: 0.8rem 1rem;
@@ -187,7 +187,7 @@ $tablet: 768px;
   transition: all 0.2s;
   width: 100%;
   font-size: 0.95rem;
-  box-shadow: 0 4px 12px rgba($NICOLE-PURPLE, 0.2);
+  box-shadow: 0 4px 12px rgba($SUCREE-PRIMARY, 0.2);
 
   @include from-tablet {
     width: auto;
@@ -197,7 +197,7 @@ $tablet: 768px;
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba($NICOLE-PURPLE, 0.3);
+    box-shadow: 0 6px 16px rgba($SUCREE-PRIMARY, 0.3);
   }
 }
 
@@ -237,7 +237,7 @@ $tablet: 768px;
 }
 
 .btn-bulk {
-  background: $NICOLE-SECONDARY;
+  background: $SUCREE-SECONDARY;
   color: white;
   border: none;
   padding: 0.8rem 1rem;
@@ -248,7 +248,7 @@ $tablet: 768px;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  box-shadow: 0 4px 10px rgba($NICOLE-SECONDARY, 0.2);
+  box-shadow: 0 4px 10px rgba($SUCREE-SECONDARY, 0.2);
   transition: all 0.2s;
   width: 100%;
   font-size: 0.95rem;
@@ -261,7 +261,7 @@ $tablet: 768px;
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 14px rgba($NICOLE-SECONDARY, 0.3);
+    box-shadow: 0 6px 14px rgba($SUCREE-SECONDARY, 0.3);
   }
 
   &.is-disabled {
@@ -368,8 +368,8 @@ $tablet: 768px;
   }
 
   &:hover {
-    color: $NICOLE-PURPLE;
-    border-color: $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
+    border-color: $SUCREE-PRIMARY;
   }
 
   i {

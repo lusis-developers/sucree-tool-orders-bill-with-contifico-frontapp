@@ -265,7 +265,7 @@ onMounted(fetchRiders)
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 15px rgba(0, 0, 0, 0.05);
-    border-color: $NICOLE-PURPLE;
+    border-color: $SUCREE-PRIMARY;
   }
 }
 
@@ -278,8 +278,8 @@ onMounted(fetchRiders)
   .avatar {
     width: 42px;
     height: 42px;
-    background: rgba($NICOLE-PURPLE, 0.1);
-    color: $NICOLE-PURPLE;
+    background: rgba($SUCREE-PRIMARY, 0.1);
+    color: $SUCREE-PRIMARY;
     border-radius: 10px;
     display: flex;
     align-items: center;
@@ -342,8 +342,8 @@ onMounted(fetchRiders)
     color: $text-light;
 
     &:hover {
-      background: rgba($NICOLE-PURPLE, 0.1);
-      color: $NICOLE-PURPLE;
+      background: rgba($SUCREE-PRIMARY, 0.1);
+      color: $SUCREE-PRIMARY;
     }
   }
 
@@ -371,7 +371,7 @@ onMounted(fetchRiders)
 }
 
 .btn-primary {
-  background: $NICOLE-PURPLE;
+  background: $SUCREE-PRIMARY;
   color: white;
   border: none;
   padding: 0.6rem 1.2rem;
@@ -385,13 +385,13 @@ onMounted(fetchRiders)
   transition: all 0.2s;
 
   &:hover {
-    background: $purple-hover;
+    background: $primary-hover;
   }
 }
 
 .btn-secondary {
   background: $gray-100;
-  color: $NICOLE-PURPLE;
+  color: $SUCREE-PRIMARY;
   border: none;
   padding: 0.6rem 1.2rem;
   border-radius: 8px;
@@ -412,9 +412,9 @@ onMounted(fetchRiders)
   .spinner {
     width: 30px;
     height: 30px;
-    border: 3px solid rgba($NICOLE-PURPLE, 0.3);
+    border: 3px solid rgba($SUCREE-PRIMARY, 0.3);
     border-radius: 50%;
-    border-top-color: $NICOLE-PURPLE;
+    border-top-color: $SUCREE-PRIMARY;
     animation: spin 1s linear infinite;
   }
 }

@@ -158,7 +158,7 @@ const saveNotes = async () => {
   display: flex;
   flex-direction: column;
   max-height: 90vh;
-  border-top: 6px solid $NICOLE-PURPLE;
+  border-top: 6px solid $SUCREE-PRIMARY;
 
   &.urgent-border {
     border-top-color: $error;
@@ -269,7 +269,7 @@ const saveNotes = async () => {
 
 h3 {
   font-size: 1rem;
-  color: $NICOLE-PURPLE;
+  color: $SUCREE-PRIMARY;
   margin: 0 0 0.75rem 0;
   font-family: $font-secondary;
   border-bottom: 1px solid $border-light;
@@ -327,8 +327,8 @@ h3 {
 
     &:focus {
       outline: none;
-      border-color: $NICOLE-PURPLE;
-      box-shadow: 0 0 0 3px rgba($NICOLE-PURPLE, 0.1);
+      border-color: $SUCREE-PRIMARY;
+      box-shadow: 0 0 0 3px rgba($SUCREE-PRIMARY, 0.1);
     }
   }
 }
@@ -361,12 +361,12 @@ h3 {
   }
 
   .btn-save {
-    background: $NICOLE-PURPLE;
+    background: $SUCREE-PRIMARY;
     border: none;
     color: white;
 
     &:hover:not(:disabled) {
-      background: $purple-dark;
+      background: $primary-dark;
       transform: translateY(-1px);
     }
 

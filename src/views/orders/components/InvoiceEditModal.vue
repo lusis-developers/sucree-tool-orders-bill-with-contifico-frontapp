@@ -163,7 +163,7 @@ const save = async () => {
 
   h2 {
     margin-top: 0;
-    color: $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
     margin-bottom: 1.5rem;
     font-family: $font-principal;
   }
@@ -189,7 +189,7 @@ const save = async () => {
 
     &:focus {
       outline: none;
-      border-color: $NICOLE-PURPLE;
+      border-color: $SUCREE-PRIMARY;
     }
   }
 }
@@ -236,7 +236,7 @@ const save = async () => {
   }
 
   .btn-primary {
-    background: $NICOLE-PURPLE;
+    background: $SUCREE-PRIMARY;
     color: white;
 
     &:hover:not(:disabled) {

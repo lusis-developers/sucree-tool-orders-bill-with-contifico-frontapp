@@ -122,12 +122,12 @@ onMounted(() => {
 
     &:focus {
       outline: none;
-      border-color: $NICOLE-PURPLE;
+      border-color: $SUCREE-PRIMARY;
     }
   }
 
   .btn-search {
-    background: $NICOLE-PURPLE;
+    background: $SUCREE-PRIMARY;
     color: white;
     border: none;
     padding: 0 1.5rem;
@@ -136,7 +136,7 @@ onMounted(() => {
     font-weight: 600;
 
     &:hover {
-      background: $purple-hover;
+      background: $primary-hover;
     }
   }
 }
@@ -159,9 +159,9 @@ onMounted(() => {
   .spinner {
     width: 30px;
     height: 30px;
-    border: 3px solid rgba($NICOLE-PURPLE, 0.3);
+    border: 3px solid rgba($SUCREE-PRIMARY, 0.3);
     border-radius: 50%;
-    border-top-color: $NICOLE-PURPLE;
+    border-top-color: $SUCREE-PRIMARY;
     animation: spin 1s ease-in-out infinite;
   }
 }
@@ -178,11 +178,11 @@ onMounted(() => {
     border-radius: 8px;
     cursor: pointer;
     font-weight: 500;
-    color: $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
     transition: all 0.2s;
 
     &:hover {
-      background: $NICOLE-PURPLE;
+      background: $SUCREE-PRIMARY;
       color: white;
     }
   }

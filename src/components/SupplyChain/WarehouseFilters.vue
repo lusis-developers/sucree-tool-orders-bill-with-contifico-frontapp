@@ -145,8 +145,8 @@ const clearFilters = () => {
 
     &:focus {
       outline: none;
-      border-color: $NICOLE-PURPLE;
-      box-shadow: 0 0 0 4px rgba($NICOLE-PURPLE, 0.1);
+      border-color: $SUCREE-PRIMARY;
+      box-shadow: 0 0 0 4px rgba($SUCREE-PRIMARY, 0.1);
     }
   }
 }

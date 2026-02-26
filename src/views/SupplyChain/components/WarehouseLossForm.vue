@@ -192,7 +192,7 @@ const confirmLoss = () => {
   }
 
   h2 {
-    color: $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
     margin: 0 0 1.5rem;
   }
 }
@@ -251,7 +251,7 @@ const confirmLoss = () => {
 }
 
 .btn-primary {
-  background: $NICOLE-PURPLE;
+  background: $SUCREE-PRIMARY;
   color: white;
   padding: 0.8rem 1.5rem;
   border-radius: 8px;

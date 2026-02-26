@@ -144,7 +144,7 @@ const ivaTotal = computed(() => {
 
       .value-total {
         font-size: 1.2rem;
-        color: $NICOLE-PURPLE;
+        color: $SUCREE-PRIMARY;
       }
     }
   }

@@ -459,9 +459,9 @@ onMounted(() => {
     transition: all 0.2s;
 
     &:hover {
-      border-color: $NICOLE-PURPLE;
-      color: $NICOLE-PURPLE;
-      background: rgba($NICOLE-PURPLE, 0.05);
+      border-color: $SUCREE-PRIMARY;
+      color: $SUCREE-PRIMARY;
+      background: rgba($SUCREE-PRIMARY, 0.05);
     }
   }
 
@@ -538,7 +538,7 @@ onMounted(() => {
 }
 
 .btn-primary {
-  background: $NICOLE-PURPLE;
+  background: $SUCREE-PRIMARY;
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
@@ -566,7 +566,7 @@ onMounted(() => {
   background: white;
   padding: 2rem;
   border-radius: 16px;
-  border-left: 5px solid $NICOLE-PURPLE;
+  border-left: 5px solid $SUCREE-PRIMARY;
   display: flex;
   flex-direction: column;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
@@ -609,7 +609,7 @@ onMounted(() => {
   }
 
   tr.selected-row {
-    background-color: rgba($NICOLE-PURPLE, 0.03);
+    background-color: rgba($SUCREE-PRIMARY, 0.03);
   }
 
   td {
@@ -621,7 +621,7 @@ onMounted(() => {
 
   .amount {
     font-weight: 700;
-    color: $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
   }
 
   .rider-tag {
@@ -660,8 +660,8 @@ onMounted(() => {
     transition: all 0.2s;
 
     &:hover {
-      background: rgba($NICOLE-PURPLE, 0.1);
-      color: $NICOLE-PURPLE;
+      background: rgba($SUCREE-PRIMARY, 0.1);
+      color: $SUCREE-PRIMARY;
       transform: scale(1.1);
     }
   }
@@ -754,9 +754,9 @@ onMounted(() => {
     }
 
     &.open {
-      border-color: $NICOLE-PURPLE;
+      border-color: $SUCREE-PRIMARY;
       background: white;
-      box-shadow: 0 0 0 4px rgba($NICOLE-PURPLE, 0.1);
+      box-shadow: 0 0 0 4px rgba($SUCREE-PRIMARY, 0.1);
 
       .arrow {
         transform: rotate(180deg);
@@ -807,14 +807,14 @@ onMounted(() => {
     text-align: left;
 
     &:hover {
-      background: rgba($NICOLE-PURPLE, 0.05);
+      background: rgba($SUCREE-PRIMARY, 0.05);
     }
 
     &.selected {
-      background: rgba($NICOLE-PURPLE, 0.1);
+      background: rgba($SUCREE-PRIMARY, 0.1);
 
       .option-name {
-        color: $NICOLE-PURPLE;
+        color: $SUCREE-PRIMARY;
       }
     }
 
@@ -849,7 +849,7 @@ onMounted(() => {
     }
 
     .check-icon {
-      color: $NICOLE-PURPLE;
+      color: $SUCREE-PRIMARY;
       font-size: 0.9rem;
     }
   }
@@ -886,7 +886,7 @@ onMounted(() => {
     }
 
     .btn-primary {
-      background: $NICOLE-PURPLE;
+      background: $SUCREE-PRIMARY;
       color: white;
     }
   }

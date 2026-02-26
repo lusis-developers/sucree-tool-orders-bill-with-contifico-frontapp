@@ -54,7 +54,7 @@ const isSales = computed(() => {
       <div class="brand">
         <router-link to="/" class="logo-link">
             <span class="logo-dot"></span>
-            Nicole <span class="thin">Pastry Arts</span>
+            Sucree <span class="thin">Croissanterie</span>
         </router-link>
       </div>
       
@@ -179,7 +179,7 @@ const isSales = computed(() => {
     .logo-dot {
       width: 10px;
       height: 10px;
-      background: $NICOLE-PURPLE;
+      background: $SUCREE-PRIMARY;
       border-radius: 50%;
     }
 
@@ -215,16 +215,16 @@ const isSales = computed(() => {
     gap: 0.5rem;
 
     &:hover {
-      color: $NICOLE-PURPLE;
-      background: rgba($NICOLE-PURPLE, 0.05);
+      color: $SUCREE-PRIMARY;
+      background: rgba($SUCREE-PRIMARY, 0.05);
     }
 
     &.active {
-      color: $NICOLE-PURPLE;
-      background: rgba($NICOLE-PURPLE, 0.1);
+      color: $SUCREE-PRIMARY;
+      background: rgba($SUCREE-PRIMARY, 0.1);
 
       i {
-        color: $NICOLE-PURPLE;
+        color: $SUCREE-PRIMARY;
       }
     }
 
@@ -255,7 +255,7 @@ const isSales = computed(() => {
   .user-initial {
     width: 24px;
     height: 24px;
-    background: $NICOLE-PURPLE;
+    background: $SUCREE-PRIMARY;
     color: white;
     border-radius: 50%;
     display: flex;
@@ -376,7 +376,7 @@ const isSales = computed(() => {
     }
 
     i {
-      color: $NICOLE-PURPLE;
+      color: $SUCREE-PRIMARY;
       font-size: 1.2rem;
     }
   }

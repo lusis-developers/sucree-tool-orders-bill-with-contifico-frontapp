@@ -297,14 +297,14 @@ const formatMoney = (val: number) => `$${val.toFixed(2)}`
     width: 60px;
     height: 60px;
     background: #f0f9ff;
-    color: $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.8rem;
     margin: 0 auto 1rem;
-    border: 1px solid rgba($NICOLE-PURPLE, 0.2);
+    border: 1px solid rgba($SUCREE-PRIMARY, 0.2);
   }
 
   h2 {
@@ -346,7 +346,7 @@ const formatMoney = (val: number) => `$${val.toFixed(2)}`
 
     .total-text {
       font-size: 1.1rem;
-      color: $NICOLE-PURPLE;
+      color: $SUCREE-PRIMARY;
     }
 
     &.highlight {
@@ -477,7 +477,7 @@ const formatMoney = (val: number) => `$${val.toFixed(2)}`
 
         .p-qty {
           font-weight: 700;
-          color: $NICOLE-PURPLE;
+          color: $SUCREE-PRIMARY;
         }
 
         .p-name {
@@ -515,7 +515,7 @@ const formatMoney = (val: number) => `$${val.toFixed(2)}`
   }
 
   .text-purple {
-    color: $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
   }
 
   .is-credit {
@@ -524,8 +524,8 @@ const formatMoney = (val: number) => `$${val.toFixed(2)}`
   }
 
   .is-settled {
-    background: rgba($NICOLE-PURPLE, 0.05) !important;
-    border-color: rgba($NICOLE-PURPLE, 0.2) !important;
+    background: rgba($SUCREE-PRIMARY, 0.05) !important;
+    border-color: rgba($SUCREE-PRIMARY, 0.2) !important;
   }
 }
 
@@ -589,7 +589,7 @@ const formatMoney = (val: number) => `$${val.toFixed(2)}`
       top: 0;
       left: 0;
       bottom: 0;
-      background: $NICOLE-PURPLE;
+      background: $SUCREE-PRIMARY;
       width: 0%;
       z-index: -1;
       transition: width 0.1s linear; // Linear for JS animation
@@ -607,7 +607,7 @@ const formatMoney = (val: number) => `$${val.toFixed(2)}`
 
   &:active,
   &:has(.btn-hold:active) {
-    border-color: $NICOLE-PURPLE;
+    border-color: $SUCREE-PRIMARY;
 
     .btn-hold {
       color: white;

@@ -288,7 +288,7 @@ const startManual = () => {
   transition: all 0.2s;
 
   &:focus-within {
-    border-color: $NICOLE-PRIMARY;
+    border-color: $SUCREE-PRIMARY;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   }
 }
@@ -309,7 +309,7 @@ const startManual = () => {
   }
 
   .loading-spinner {
-    color: $NICOLE-PRIMARY;
+    color: $SUCREE-PRIMARY;
     margin-left: 0.5rem;
   }
 
@@ -372,20 +372,20 @@ const startManual = () => {
     background: #f8fafc;
 
     .p-name {
-      color: $NICOLE-PRIMARY;
+      color: $SUCREE-PRIMARY;
     }
   }
 
   &.local {
-    background: rgba($NICOLE-PRIMARY, 0.04);
-    border-bottom: 1px solid rgba($NICOLE-PRIMARY, 0.1);
+    background: rgba($SUCREE-PRIMARY, 0.04);
+    border-bottom: 1px solid rgba($SUCREE-PRIMARY, 0.1);
 
     &:hover {
-      background: rgba($NICOLE-PRIMARY, 0.08);
+      background: rgba($SUCREE-PRIMARY, 0.08);
     }
 
     .p-name {
-      color: $NICOLE-PRIMARY;
+      color: $SUCREE-PRIMARY;
     }
   }
 
@@ -441,7 +441,7 @@ const startManual = () => {
   }
 
   &.local i {
-    color: $NICOLE-PRIMARY;
+    color: $SUCREE-PRIMARY;
   }
 }
 
@@ -449,7 +449,7 @@ const startManual = () => {
   background: #fdf2f8; // Very light pink/purple for priority
 
   .section-header {
-    color: $NICOLE-PRIMARY;
+    color: $SUCREE-PRIMARY;
   }
 }
 
@@ -462,7 +462,7 @@ const startManual = () => {
 .manual-trigger {
   padding: 1rem;
   background: #fdfafb;
-  color: $NICOLE-PURPLE;
+  color: $SUCREE-PRIMARY;
   font-size: 0.9rem;
   font-weight: 700;
   display: flex;
@@ -477,7 +477,7 @@ const startManual = () => {
 
   &:hover {
     background: #f5f0f2;
-    color: darken($NICOLE-PURPLE, 10%);
+    color: darken($SUCREE-PRIMARY, 10%);
   }
 }
 
@@ -497,7 +497,7 @@ const startManual = () => {
 
   &:hover {
     background: #f1f5f9;
-    color: $NICOLE-PRIMARY;
+    color: $SUCREE-PRIMARY;
   }
 }
 
@@ -517,7 +517,7 @@ const startManual = () => {
     font-size: 0.7rem;
     font-weight: 900;
     text-transform: uppercase;
-    color: $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
     letter-spacing: 1px;
   }
 
@@ -548,7 +548,7 @@ const startManual = () => {
     outline: none;
 
     &:focus {
-      border-color: $NICOLE-PRIMARY;
+      border-color: $SUCREE-PRIMARY;
     }
 
     &.name {
@@ -572,7 +572,7 @@ const startManual = () => {
   }
 
   .btn-confirm-add {
-    background: $NICOLE-PRIMARY;
+    background: $SUCREE-PRIMARY;
     color: white;
     border: none;
     width: 36px;
@@ -586,7 +586,7 @@ const startManual = () => {
 
     &:hover:not(:disabled) {
       transform: scale(1.05);
-      background: darken($NICOLE-PRIMARY, 5%);
+      background: darken($SUCREE-PRIMARY, 5%);
     }
 
     &:disabled {
@@ -612,7 +612,7 @@ const startManual = () => {
     cursor: pointer;
     width: 16px;
     height: 16px;
-    accent-color: $NICOLE-PRIMARY;
+    accent-color: $SUCREE-PRIMARY;
   }
 
   label {
@@ -624,10 +624,10 @@ const startManual = () => {
   }
 
   &:hover {
-    border-color: $NICOLE-PRIMARY;
+    border-color: $SUCREE-PRIMARY;
 
     label {
-      color: $NICOLE-PRIMARY;
+      color: $SUCREE-PRIMARY;
     }
   }
 }

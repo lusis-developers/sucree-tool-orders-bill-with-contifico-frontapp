@@ -300,7 +300,7 @@ const handleSave = async () => {
 
   &.active {
     background: white;
-    color: $NICOLE-PRIMARY;
+    color: $SUCREE-PRIMARY;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   }
 
@@ -324,12 +324,12 @@ const handleSave = async () => {
   background: #fdfafb; // Subtle hint
   padding: 0.75rem;
   border-radius: 12px;
-  border: 1px dashed $NICOLE-PURPLE;
+  border: 1px dashed $SUCREE-PRIMARY;
 
   label {
     font-size: 0.8rem;
     font-weight: 800;
-    color: $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
@@ -362,14 +362,14 @@ const handleSave = async () => {
   transition: all 0.2s;
 
   &:focus {
-    border-color: $NICOLE-PRIMARY;
-    box-shadow: 0 0 0 3px rgba($NICOLE-PRIMARY, 0.1);
+    border-color: $SUCREE-PRIMARY;
+    box-shadow: 0 0 0 3px rgba($SUCREE-PRIMARY, 0.1);
   }
 }
 
 .btn-continue {
   margin-top: 1rem;
-  background: $NICOLE-PRIMARY;
+  background: $SUCREE-PRIMARY;
   color: white;
   border: none;
   padding: 12px;
@@ -383,7 +383,7 @@ const handleSave = async () => {
   transition: all 0.2s;
 
   &:hover:not(:disabled) {
-    background: darken($NICOLE-PRIMARY, 5%);
+    background: darken($SUCREE-PRIMARY, 5%);
     transform: translateY(-1px);
   }
 
@@ -437,8 +437,8 @@ const handleSave = async () => {
 
     .unit-badge {
       font-size: 0.75rem;
-      color: $NICOLE-PRIMARY;
-      background: rgba($NICOLE-PRIMARY, 0.1);
+      color: $SUCREE-PRIMARY;
+      background: rgba($SUCREE-PRIMARY, 0.1);
       padding: 0.15rem 0.5rem;
       border-radius: 4px;
       font-weight: 700;
@@ -473,7 +473,7 @@ const handleSave = async () => {
       background: $gray-100;
       color: $text-dark;
       border-color: $gray-300;
-      color: $NICOLE-PRIMARY;
+      color: $SUCREE-PRIMARY;
     }
   }
 }
@@ -505,7 +505,7 @@ const handleSave = async () => {
     }
 
     &.active {
-      background: $NICOLE-PRIMARY;
+      background: $SUCREE-PRIMARY;
       color: white;
 
       i {
@@ -559,8 +559,8 @@ const handleSave = async () => {
 
       &:focus {
         outline: none;
-        border-color: $NICOLE-PRIMARY;
-        box-shadow: 0 0 0 3px rgba($NICOLE-PRIMARY, 0.1);
+        border-color: $SUCREE-PRIMARY;
+        box-shadow: 0 0 0 3px rgba($SUCREE-PRIMARY, 0.1);
       }
 
       &::placeholder {
@@ -575,10 +575,10 @@ const handleSave = async () => {
   display: flex;
   align-items: flex-start;
   gap: 0.75rem;
-  background-color: $purple-overlay;
+  background-color: $primary-overlay;
   padding: 1rem;
   border-radius: 8px;
-  color: $NICOLE-PRIMARY;
+  color: $SUCREE-PRIMARY;
   font-size: 0.85rem;
   line-height: 1.4;
 
@@ -620,12 +620,12 @@ const handleSave = async () => {
   }
 
   .btn-save {
-    background: $NICOLE-PRIMARY;
+    background: $SUCREE-PRIMARY;
     border: none;
     color: white;
 
     &:hover {
-      background: darken($NICOLE-PRIMARY, 5%);
+      background: darken($SUCREE-PRIMARY, 5%);
     }
 
     &:disabled {

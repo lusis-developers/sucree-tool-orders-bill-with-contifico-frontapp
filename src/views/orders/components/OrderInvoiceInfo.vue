@@ -132,16 +132,16 @@ const handleGenerateClick = () => {
   cursor: pointer;
   border: 1px solid $border-light;
   background: white;
-  color: $NICOLE-PURPLE;
+  color: $SUCREE-PRIMARY;
   transition: all 0.2s;
 
   &.btn-primary {
-    background: $NICOLE-PURPLE;
+    background: $SUCREE-PRIMARY;
     color: white;
-    border-color: $NICOLE-PURPLE;
+    border-color: $SUCREE-PRIMARY;
 
     &:hover {
-      background: darken($NICOLE-PURPLE, 5%);
+      background: darken($SUCREE-PRIMARY, 5%);
     }
   }
 

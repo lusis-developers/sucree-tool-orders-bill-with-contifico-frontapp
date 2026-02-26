@@ -308,10 +308,8 @@ export function useOrderExport() {
         // Determine Row Style based on Destination
         let rowColor = 'FFFFFF' // Default white
         const addrLower = address.toLowerCase()
-        if (addrLower.includes('mall del sol')) {
-          rowColor = 'FFF9C4' // Light Yellow
-        } else if (addrLower.includes('san marino')) {
-          rowColor = 'E1F5FE' // Light Blue
+        if (addrLower.includes('entre') || addrLower.includes('ríos')) {
+          rowColor = 'E1F5FE' // Light Blue for Entre Ríos
         }
 
         // Apply style to all cells in the row

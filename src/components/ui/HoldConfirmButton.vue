@@ -4,7 +4,7 @@ import { ref, onUnmounted } from 'vue'
 const props = defineProps({
   label: { type: String, default: 'Mantener para Confirmar' },
   holdTime: { type: Number, default: 1200 }, // in ms
-  color: { type: String, default: '#7C3AED' }, // NICOLE-PURPLE
+  color: { type: String, default: '#28374E' }, // SUCREE-PRIMARY
   disabled: { type: Boolean, default: false }
 })
 

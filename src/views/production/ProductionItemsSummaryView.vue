@@ -325,8 +325,7 @@ onMounted(async () => {
           <div v-for="(products, destination) in rawStatsByDestination" :key="destination" class="destination-card">
             <div class="dest-title">
               <div class="dest-icon-box">
-                <i v-if="destination === 'San Marino'" class="fas fa-store"></i>
-                <i v-else-if="destination === 'Mall del Sol'" class="fas fa-shopping-bag"></i>
+                <i v-if="destination === 'Entre Ríos'" class="fas fa-store"></i>
                 <i v-else-if="destination === 'Centro Prod.'" class="fas fa-industry"></i>
                 <i v-else-if="destination === 'Delivery'" class="fas fa-motorcycle"></i>
                 <i v-else class="fas fa-map-marker-alt"></i>

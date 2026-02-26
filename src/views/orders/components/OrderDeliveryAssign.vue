@@ -174,7 +174,7 @@ onMounted(fetchRiders)
 .btn-edit-link {
   background: transparent;
   border: none;
-  color: $NICOLE-PURPLE;
+  color: $SUCREE-PRIMARY;
   font-weight: 700;
   font-size: 0.85rem;
   cursor: pointer;
@@ -192,8 +192,8 @@ onMounted(fetchRiders)
   .avatar {
     width: 36px;
     height: 36px;
-    background: rgba($NICOLE-PURPLE, 0.1);
-    color: $NICOLE-PURPLE;
+    background: rgba($SUCREE-PRIMARY, 0.1);
+    color: $SUCREE-PRIMARY;
     border-radius: 8px;
     display: flex;
     align-items: center;
@@ -272,9 +272,9 @@ onMounted(fetchRiders)
   }
 
   &.open {
-    border-color: $NICOLE-PURPLE;
+    border-color: $SUCREE-PRIMARY;
     background: white;
-    box-shadow: 0 0 0 4px rgba($NICOLE-PURPLE, 0.1);
+    box-shadow: 0 0 0 4px rgba($SUCREE-PRIMARY, 0.1);
 
     .arrow {
       transform: rotate(180deg);
@@ -283,7 +283,7 @@ onMounted(fetchRiders)
 
   &:hover:not(.open) {
     background: white;
-    border-color: rgba($NICOLE-PURPLE, 0.3);
+    border-color: rgba($SUCREE-PRIMARY, 0.3);
   }
 
   .arrow {
@@ -342,14 +342,14 @@ onMounted(fetchRiders)
   text-align: left;
 
   &:hover {
-    background: rgba($NICOLE-PURPLE, 0.05);
+    background: rgba($SUCREE-PRIMARY, 0.05);
   }
 
   &.selected {
-    background: rgba($NICOLE-PURPLE, 0.1);
+    background: rgba($SUCREE-PRIMARY, 0.1);
 
     .option-name {
-      color: $NICOLE-PURPLE;
+      color: $SUCREE-PRIMARY;
     }
   }
 
@@ -384,7 +384,7 @@ onMounted(fetchRiders)
   }
 
   .check-icon {
-    color: $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
     font-size: 0.9rem;
   }
 }
@@ -422,7 +422,7 @@ onMounted(fetchRiders)
   }
 
   .btn-save {
-    background: $NICOLE-PURPLE;
+    background: $SUCREE-PRIMARY;
     border: none;
     color: white;
     display: flex;
@@ -431,7 +431,7 @@ onMounted(fetchRiders)
     gap: 0.5rem;
 
     &:hover:not(:disabled) {
-      background: $purple-hover;
+      background: $primary-hover;
       transform: translateY(-1px);
     }
 

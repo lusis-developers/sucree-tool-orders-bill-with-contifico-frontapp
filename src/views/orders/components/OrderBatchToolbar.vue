@@ -32,7 +32,7 @@ const emit = defineEmits<{
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #7c3aed; // Nicole Purple (Using hardcode or variable if available globally)
+  background: $SUCREE-PRIMARY;
   color: white;
   padding: 0.75rem 1.25rem;
   border-radius: 12px;
@@ -65,7 +65,7 @@ const emit = defineEmits<{
 
   .btn-batch-primary {
     background: white;
-    color: #7c3aed;
+    color: $SUCREE-PRIMARY;
     border: none;
     padding: 0.5rem 1rem;
     border-radius: 8px;

@@ -117,8 +117,8 @@ const displayValue = computed(() => {
   }
 
   &.is-open {
-    border-color: $NICOLE-PURPLE;
-    box-shadow: 0 0 0 4px rgba($NICOLE-PURPLE, 0.1);
+    border-color: $SUCREE-PRIMARY;
+    box-shadow: 0 0 0 4px rgba($SUCREE-PRIMARY, 0.1);
   }
 
   &.disabled {
@@ -198,15 +198,15 @@ const displayValue = computed(() => {
 
   &:hover {
     background: white;
-    border-color: $NICOLE-PURPLE;
-    color: $NICOLE-PURPLE;
+    border-color: $SUCREE-PRIMARY;
+    color: $SUCREE-PRIMARY;
   }
 
   &.selected {
-    background: $NICOLE-PURPLE;
+    background: $SUCREE-PRIMARY;
     color: white;
     font-weight: 700;
-    box-shadow: 0 2px 8px rgba($NICOLE-PURPLE, 0.3);
+    box-shadow: 0 2px 8px rgba($SUCREE-PRIMARY, 0.3);
   }
 }
 

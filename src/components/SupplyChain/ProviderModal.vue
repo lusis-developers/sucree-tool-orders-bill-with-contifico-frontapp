@@ -380,7 +380,7 @@ const handleConfirmDelete = () => {
 
   .header-title {
     h2 {
-      color: $NICOLE-PURPLE;
+      color: $SUCREE-PRIMARY;
       margin: 0;
       font-size: 1.25rem;
       font-weight: 900;
@@ -453,9 +453,9 @@ const handleConfirmDelete = () => {
 
     &:focus {
       outline: none;
-      border-color: $NICOLE-PURPLE;
+      border-color: $SUCREE-PRIMARY;
       background: white;
-      box-shadow: 0 0 0 4px rgba($NICOLE-PURPLE, 0.1);
+      box-shadow: 0 0 0 4px rgba($SUCREE-PRIMARY, 0.1);
     }
   }
 }
@@ -494,7 +494,7 @@ const handleConfirmDelete = () => {
 
   .badge {
     background: #f1f5f9;
-    color: $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
     padding: 0.2rem 0.6rem;
     border-radius: 8px;
     font-size: 0.75rem;
@@ -502,8 +502,8 @@ const handleConfirmDelete = () => {
   }
 
   .btn-mini-plus {
-    background: rgba($NICOLE-PURPLE, 0.1);
-    color: $NICOLE-PURPLE;
+    background: rgba($SUCREE-PRIMARY, 0.1);
+    color: $SUCREE-PRIMARY;
     border: none;
     padding: 0.6rem 1rem;
     border-radius: 12px;
@@ -557,7 +557,7 @@ const handleConfirmDelete = () => {
     width: 100%; // Mobile: Full width button
     height: 48px;
     border-radius: 14px;
-    background: $NICOLE-PURPLE;
+    background: $SUCREE-PRIMARY;
     color: white;
     border: none;
     cursor: pointer;
@@ -607,7 +607,7 @@ const handleConfirmDelete = () => {
       height: 40px;
       border-radius: 12px;
       background: #f1f5f9;
-      color: $NICOLE-PURPLE;
+      color: $SUCREE-PRIMARY;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -692,7 +692,7 @@ const handleConfirmDelete = () => {
   @media(hover: hover) {
     &:hover {
       background: #fcfcfd;
-      border-color: $NICOLE-PURPLE;
+      border-color: $SUCREE-PRIMARY;
     }
   }
 
@@ -718,7 +718,7 @@ const handleConfirmDelete = () => {
     .item-price {
       font-size: 0.85rem;
       font-weight: 600;
-      color: $NICOLE-PURPLE;
+      color: $SUCREE-PRIMARY;
     }
   }
 
@@ -748,7 +748,7 @@ const handleConfirmDelete = () => {
   width: 30px;
   height: 30px;
   border: 3px solid #f1f5f9;
-  border-top-color: $NICOLE-PURPLE;
+  border-top-color: $SUCREE-PRIMARY;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }

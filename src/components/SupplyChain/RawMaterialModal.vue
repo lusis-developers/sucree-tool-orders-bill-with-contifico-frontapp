@@ -431,7 +431,7 @@ const categoryOptions = computed(() => {
   .sku-subtitle {
     font-size: 0.8rem;
     font-weight: 800;
-    color: $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
     margin: 0.25rem 0 0;
     text-transform: uppercase;
 
@@ -603,22 +603,22 @@ const categoryOptions = computed(() => {
 
     @media(hover: hover) {
       &:hover {
-        border-color: $NICOLE-PURPLE;
-        color: $NICOLE-PURPLE;
-        background: rgba($NICOLE-PURPLE, 0.06);
+        border-color: $SUCREE-PRIMARY;
+        color: $SUCREE-PRIMARY;
+        background: rgba($SUCREE-PRIMARY, 0.06);
       }
     }
 
     &--active {
-      border-color: $NICOLE-PURPLE;
-      background: rgba($NICOLE-PURPLE, 0.1);
-      color: $NICOLE-PURPLE;
+      border-color: $SUCREE-PRIMARY;
+      background: rgba($SUCREE-PRIMARY, 0.1);
+      color: $SUCREE-PRIMARY;
     }
   }
 }
 
 .highlight-title {
-  color: $NICOLE-PURPLE;
+  color: $SUCREE-PRIMARY;
 }
 
 .form-row {
@@ -689,9 +689,9 @@ const categoryOptions = computed(() => {
 
     &:focus {
       outline: none;
-      border-color: $NICOLE-PURPLE;
+      border-color: $SUCREE-PRIMARY;
       background: white;
-      box-shadow: 0 0 0 4px rgba($NICOLE-PURPLE, 0.1);
+      box-shadow: 0 0 0 4px rgba($SUCREE-PRIMARY, 0.1);
     }
 
     &:disabled {
@@ -754,7 +754,7 @@ const categoryOptions = computed(() => {
 
     &.main {
       font-size: 1.25rem;
-      color: $NICOLE-PURPLE;
+      color: $SUCREE-PRIMARY;
 
       @media (min-width: 640px) {
         font-size: 1.5rem;
@@ -816,7 +816,7 @@ const categoryOptions = computed(() => {
     }
 
     .total {
-      color: $NICOLE-PURPLE;
+      color: $SUCREE-PRIMARY;
       font-size: 1.5rem;
 
       @media (min-width: 640px) {
@@ -831,13 +831,13 @@ const categoryOptions = computed(() => {
       font-weight: 900;
       color: #0f172a;
       background: white;
-      border: 3px solid $NICOLE-PURPLE;
+      border: 3px solid $SUCREE-PRIMARY;
       padding: 0.75rem;
       border-radius: 16px;
       appearance: none; // Remove spinner
 
       &:focus {
-        box-shadow: 0 0 0 5px rgba($NICOLE-PURPLE, 0.15);
+        box-shadow: 0 0 0 5px rgba($SUCREE-PRIMARY, 0.15);
         outline: none;
       }
     }

@@ -260,7 +260,7 @@ const cancelHold = () => {
   }
 
   h2 {
-    color: $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
     margin: 0 0 1.5rem;
   }
 }
@@ -397,8 +397,8 @@ const cancelHold = () => {
   .tag {
     font-size: 0.75rem;
     font-weight: 700;
-    color: $NICOLE-PURPLE;
-    background: rgba($NICOLE-PURPLE, 0.08);
+    color: $SUCREE-PRIMARY;
+    background: rgba($SUCREE-PRIMARY, 0.08);
     padding: 0.3rem 0.8rem;
     border-radius: 999px;
     cursor: pointer;
@@ -412,7 +412,7 @@ const cancelHold = () => {
 }
 
 .btn-primary {
-  background: $NICOLE-PURPLE;
+  background: $SUCREE-PRIMARY;
   color: white;
   border: none;
   padding: 0.8rem 1.5rem;

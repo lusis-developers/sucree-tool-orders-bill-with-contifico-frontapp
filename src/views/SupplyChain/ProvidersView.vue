@@ -211,7 +211,7 @@ onMounted(() => {
   }
 
   h1 {
-    color: $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
     margin: 0;
     font-size: 1.75rem;
     font-weight: 800;
@@ -251,9 +251,9 @@ onMounted(() => {
 
     &:focus {
       outline: none;
-      border-color: $NICOLE-PURPLE;
+      border-color: $SUCREE-PRIMARY;
       background: white;
-      box-shadow: 0 0 0 4px rgba($NICOLE-PURPLE, 0.1);
+      box-shadow: 0 0 0 4px rgba($SUCREE-PRIMARY, 0.1);
     }
   }
 }
@@ -333,7 +333,7 @@ onMounted(() => {
 
       .agent-count {
         font-size: 0.8rem;
-        color: $NICOLE-PURPLE;
+        color: $SUCREE-PRIMARY;
         font-weight: 700;
         margin-top: 0.5rem;
         display: block;
@@ -368,10 +368,10 @@ onMounted(() => {
     &:hover {
       transform: translateY(-8px);
       box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-      border-color: $NICOLE-PURPLE;
+      border-color: $SUCREE-PRIMARY;
 
       .btn-view {
-        background: $NICOLE-PURPLE;
+        background: $SUCREE-PRIMARY;
         color: white;
       }
     }
@@ -394,8 +394,8 @@ onMounted(() => {
           border-radius: 8px;
 
           &.items {
-            background: rgba($NICOLE-PURPLE, 0.1);
-            color: $NICOLE-PURPLE;
+            background: rgba($SUCREE-PRIMARY, 0.1);
+            color: $SUCREE-PRIMARY;
           }
 
           &.agents {
@@ -460,7 +460,7 @@ onMounted(() => {
           width: 30px;
           height: 30px;
           border-radius: 50%;
-          background: $NICOLE-PURPLE;
+          background: $SUCREE-PRIMARY;
           color: white;
           border: 3px solid white;
           display: flex;
@@ -491,7 +491,7 @@ onMounted(() => {
 }
 
 .btn-primary {
-  background: $NICOLE-PURPLE;
+  background: $SUCREE-PRIMARY;
   color: white;
   border: none;
   padding: 1rem 1.75rem;
@@ -505,9 +505,9 @@ onMounted(() => {
   transition: all 0.2s;
 
   &:hover {
-    background: darken($NICOLE-PURPLE, 5%);
+    background: darken($SUCREE-PRIMARY, 5%);
     transform: translateY(-1px);
-    box-shadow: 0 10px 15px rgba($NICOLE-PURPLE, 0.2);
+    box-shadow: 0 10px 15px rgba($SUCREE-PRIMARY, 0.2);
   }
 }
 
@@ -524,7 +524,7 @@ onMounted(() => {
     width: 48px;
     height: 48px;
     border: 4px solid #f1f5f9;
-    border-top-color: $NICOLE-PURPLE;
+    border-top-color: $SUCREE-PRIMARY;
     border-radius: 50%;
     animation: spin 1s linear infinite;
   }

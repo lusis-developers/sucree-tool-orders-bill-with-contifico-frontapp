@@ -57,7 +57,7 @@ const handleAdd = () => {
     <div class="product-content">
       <div class="product-info">
         <h3>{{ product.nombre }}</h3>
-        <p class="description">{{ product.descripcion || 'Deliciosas creaciones de Nicole Pastry Arts' }}</p>
+        <p class="description">{{ product.descripcion || 'Deliciosas creaciones de Sucree Croissanterie' }}</p>
       </div>
       <div class="product-actions">
         <!-- Conditional Price Display/Input -->
@@ -92,7 +92,7 @@ const handleAdd = () => {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
 
   &:hover {
-    border-color: $NICOLE-PURPLE;
+    border-color: $SUCREE-PRIMARY;
     transform: translateY(-4px);
     box-shadow: 0 12px 20px rgba(0, 0, 0, 0.08);
   }
@@ -129,9 +129,9 @@ const handleAdd = () => {
     .spinner-sm {
       width: 20px;
       height: 20px;
-      border: 2px solid rgba($NICOLE-PURPLE, 0.3);
+      border: 2px solid rgba($SUCREE-PRIMARY, 0.3);
       border-radius: 50%;
-      border-top-color: $NICOLE-PURPLE;
+      border-top-color: $SUCREE-PRIMARY;
       animation: spin 1s ease-in-out infinite;
     }
   }
@@ -177,7 +177,7 @@ const handleAdd = () => {
 
     .price {
       font-weight: 700;
-      color: $NICOLE-SECONDARY;
+      color: $SUCREE-SECONDARY;
       font-size: 1.1rem;
     }
 
@@ -185,14 +185,14 @@ const handleAdd = () => {
       display: flex;
       align-items: center;
       background: #fdf2f8; // Light pink background
-      border: 1px dashed $NICOLE-PURPLE;
+      border: 1px dashed $SUCREE-PRIMARY;
       border-radius: 6px;
       padding: 0 0.5rem;
       width: 80px;
 
       .currency {
         font-weight: 600;
-        color: $NICOLE-PURPLE;
+        color: $SUCREE-PRIMARY;
         font-size: 0.9rem;
         margin-right: 2px;
       }
@@ -202,14 +202,14 @@ const handleAdd = () => {
         border: none;
         background: transparent;
         font-weight: 700;
-        color: $NICOLE-SECONDARY;
+        color: $SUCREE-SECONDARY;
         font-size: 1rem;
         padding: 0.25rem 0;
         outline: none;
         text-align: right; // Align numbers for better feel
 
         &::placeholder {
-          color: rgba($NICOLE-SECONDARY, 0.4);
+          color: rgba($SUCREE-SECONDARY, 0.4);
           font-weight: 400;
         }
 
@@ -236,8 +236,8 @@ const handleAdd = () => {
       height: auto;
 
       &:hover {
-        background: $NICOLE-PURPLE;
-        border-color: $NICOLE-PURPLE;
+        background: $SUCREE-PRIMARY;
+        border-color: $SUCREE-PRIMARY;
         color: white;
       }
     }

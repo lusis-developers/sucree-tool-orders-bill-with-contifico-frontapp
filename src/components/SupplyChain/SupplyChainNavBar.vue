@@ -57,7 +57,7 @@ const handleLogout = () => {
   h1 {
     margin: 0;
     font-size: 1.25rem;
-    color: $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
     font-family: 'Poppins', sans-serif; // Assuming font availability or fallback
     font-weight: 700;
     letter-spacing: -0.5px;
@@ -89,23 +89,23 @@ const handleLogout = () => {
 
     // Hover State
     &:hover {
-      background-color: rgba($NICOLE-PURPLE, 0.08);
-      color: $NICOLE-PURPLE;
+      background-color: rgba($SUCREE-PRIMARY, 0.08);
+      color: $SUCREE-PRIMARY;
     }
 
     // Active State (router-link-active is automatically applied by Vue Router)
     &.active,
     &.router-link-active {
-      color: $NICOLE-PURPLE;
+      color: $SUCREE-PRIMARY;
       background-color: white; // Lift active item visually
-      border-bottom: 3px solid $NICOLE-PURPLE;
+      border-bottom: 3px solid $SUCREE-PRIMARY;
     }
 
     // Focus State for accessibility
     &:focus-visible {
-      outline: 2px solid $NICOLE-PURPLE;
+      outline: 2px solid $SUCREE-PRIMARY;
       outline-offset: -2px;
-      background-color: rgba($NICOLE-PURPLE, 0.05);
+      background-color: rgba($SUCREE-PRIMARY, 0.05);
     }
   }
 }

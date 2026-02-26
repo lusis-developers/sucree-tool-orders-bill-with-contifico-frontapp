@@ -389,7 +389,7 @@ const isUrgent = (dateString: string) => {
 .customer-info {
   margin-bottom: 0.75rem;
   font-family: $font-secondary;
-  color: $NICOLE-PURPLE;
+  color: $SUCREE-PRIMARY;
 }
 
 .product-list {
@@ -429,7 +429,7 @@ const isUrgent = (dateString: string) => {
   width: 48px;
   height: 48px;
   border: 5px solid $gray-200;
-  border-bottom-color: $NICOLE-PURPLE;
+  border-bottom-color: $SUCREE-PRIMARY;
   border-radius: 50%;
   display: inline-block;
   box-sizing: border-box;
@@ -438,7 +438,7 @@ const isUrgent = (dateString: string) => {
 
 .production-notes-preview {
   margin-top: 0.5rem;
-  color: $NICOLE-PURPLE;
+  color: $SUCREE-PRIMARY;
   font-weight: 600;
 }
 

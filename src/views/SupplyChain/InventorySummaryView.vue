@@ -166,7 +166,7 @@ const exportToExcel = () => {
 
   const wb = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(wb, ws, "Estado de Bodega")
-  XLSX.writeFile(wb, `Inventario_Nicole_${new Date().toISOString().split('T')[0]}.xlsx`)
+  XLSX.writeFile(wb, `Inventario_Sucree_${new Date().toISOString().split('T')[0]}.xlsx`)
   success('Archivo Excel generado correctamente')
 }
 
@@ -500,7 +500,7 @@ onMounted(fetchData)
   background: white;
   border-radius: 14px;
   border: 1px solid #e2e8f0;
-  color: $NICOLE-PURPLE;
+  color: $SUCREE-PRIMARY;
   font-weight: 700;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
   cursor: pointer;
@@ -514,9 +514,9 @@ onMounted(fetchData)
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    background: $NICOLE-PURPLE;
+    background: $SUCREE-PRIMARY;
     color: white;
-    border-color: $NICOLE-PURPLE;
+    border-color: $SUCREE-PRIMARY;
   }
 }
 
@@ -900,7 +900,7 @@ onMounted(fetchData)
     border-radius: 12px;
     border: none;
     background: white;
-    color: $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
     font-weight: 800;
     font-size: 0.85rem;
     cursor: pointer;
@@ -908,11 +908,11 @@ onMounted(fetchData)
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    border: 1px solid rgba($NICOLE-PURPLE, 0.3);
+    border: 1px solid rgba($SUCREE-PRIMARY, 0.3);
     transition: all 0.2s;
 
     &:hover {
-      background: $NICOLE-PURPLE;
+      background: $SUCREE-PRIMARY;
       color: white;
       transform: scale(1.02);
     }

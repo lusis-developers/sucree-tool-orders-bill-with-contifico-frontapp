@@ -203,7 +203,7 @@ onMounted(fetchUsers)
                 <label>Email Corporativo</label>
                 <div class="input-container">
                   <i class="fa-solid fa-envelope"></i>
-                  <input v-model="currentUser.email" type="email" placeholder="email@nicole.com.ec" required />
+                  <input v-model="currentUser.email" type="email" placeholder="email@sucree.com.ec" required />
                 </div>
               </div>
             </div>
@@ -267,7 +267,7 @@ onMounted(fetchUsers)
 }
 
 .gradient-title {
-  background: linear-gradient(135deg, $NICOLE-PURPLE, #7c3aed);
+  background: linear-gradient(135deg, $SUCREE-PRIMARY, #7c3aed);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -285,7 +285,7 @@ onMounted(fetchUsers)
 }
 
 .btn-add-user {
-  background: $NICOLE-PURPLE;
+  background: $SUCREE-PRIMARY;
   color: white;
   border: none;
   padding: 0.5rem 1.5rem 0.5rem 0.5rem;
@@ -296,12 +296,12 @@ onMounted(fetchUsers)
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 10px 20px rgba($NICOLE-PURPLE, 0.2);
+  box-shadow: 0 10px 20px rgba($SUCREE-PRIMARY, 0.2);
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 15px 25px rgba($NICOLE-PURPLE, 0.3);
-    background: darken($NICOLE-PURPLE, 5%);
+    box-shadow: 0 15px 25px rgba($SUCREE-PRIMARY, 0.3);
+    background: darken($SUCREE-PRIMARY, 5%);
   }
 
   .icon-circle {
@@ -361,7 +361,7 @@ onMounted(fetchUsers)
   &:hover {
     transform: translateY(-5px);
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-    border-color: rgba($NICOLE-PURPLE, 0.2);
+    border-color: rgba($SUCREE-PRIMARY, 0.2);
   }
 
   &::before {
@@ -371,7 +371,7 @@ onMounted(fetchUsers)
     left: 0;
     width: 100%;
     height: 4px;
-    background: linear-gradient(90deg, #8b5cf6, $NICOLE-PURPLE);
+    background: linear-gradient(90deg, #8b5cf6, $SUCREE-PRIMARY);
     opacity: 0;
     transition: opacity 0.3s;
   }
@@ -401,7 +401,7 @@ onMounted(fetchUsers)
   .avatar-gradient {
     width: 64px;
     height: 64px;
-    background: linear-gradient(135deg, $NICOLE-PURPLE, #a855f7);
+    background: linear-gradient(135deg, $SUCREE-PRIMARY, #a855f7);
     color: white;
     border-radius: 20px;
     display: flex;
@@ -409,7 +409,7 @@ onMounted(fetchUsers)
     justify-content: center;
     font-size: 1.8rem;
     font-weight: 800;
-    box-shadow: 0 8px 16px rgba($NICOLE-PURPLE, 0.2);
+    box-shadow: 0 8px 16px rgba($SUCREE-PRIMARY, 0.2);
   }
 
   .status-indicator {
@@ -439,8 +439,8 @@ onMounted(fetchUsers)
     transition: all 0.2s;
 
     &:hover {
-      background: rgba($NICOLE-PURPLE, 0.1);
-      color: $NICOLE-PURPLE;
+      background: rgba($SUCREE-PRIMARY, 0.1);
+      color: $SUCREE-PRIMARY;
       transform: scale(1.1);
     }
 
@@ -562,7 +562,7 @@ onMounted(fetchUsers)
     display: flex;
     align-items: center;
     gap: 1rem;
-    color: $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
 
     i {
       font-size: 1.5rem;
@@ -628,14 +628,14 @@ onMounted(fetchUsers)
       transition: all 0.2s;
 
       &:focus {
-        border-color: $NICOLE-PURPLE;
+        border-color: $SUCREE-PRIMARY;
         outline: none;
-        box-shadow: 0 0 0 4px rgba($NICOLE-PURPLE, 0.1);
+        box-shadow: 0 0 0 4px rgba($SUCREE-PRIMARY, 0.1);
         background: white;
       }
 
       &:focus+i {
-        color: $NICOLE-PURPLE;
+        color: $SUCREE-PRIMARY;
       }
     }
   }
@@ -667,15 +667,15 @@ onMounted(fetchUsers)
   }
 
   .btn-save {
-    background: $NICOLE-PURPLE;
+    background: $SUCREE-PRIMARY;
     color: white;
     border: none;
-    box-shadow: 0 8px 16px rgba($NICOLE-PURPLE, 0.2);
+    box-shadow: 0 8px 16px rgba($SUCREE-PRIMARY, 0.2);
 
     &:hover {
-      background: darken($NICOLE-PURPLE, 5%);
+      background: darken($SUCREE-PRIMARY, 5%);
       transform: translateY(-2px);
-      box-shadow: 0 12px 20px rgba($NICOLE-PURPLE, 0.3);
+      box-shadow: 0 12px 20px rgba($SUCREE-PRIMARY, 0.3);
     }
   }
 }
@@ -694,7 +694,7 @@ onMounted(fetchUsers)
   width: 50px;
   height: 50px;
   border: 4px solid #f1f5f9;
-  border-top-color: $NICOLE-PURPLE;
+  border-top-color: $SUCREE-PRIMARY;
   border-radius: 50%;
   animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }

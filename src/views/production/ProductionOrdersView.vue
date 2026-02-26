@@ -45,7 +45,7 @@ const router = useRouter()
 
 // Filter State
 const filterMode = ref('today') // Default to Today for focus
-const filterBranch = ref<string | null>(null) // 'sanMarino', 'mallDelSol', 'centroProduccion', 'delivery'
+const filterBranch = ref<string | null>(null) // 'entreRios', 'centroProduccion', 'delivery'
 
 // Collapse State
 const isPendingExpanded = ref(true)
@@ -214,8 +214,7 @@ const filteredOrders = computed(() => {
       }
 
       const branch = (o.branch || '').toLowerCase()
-      if (filterBranch.value === 'sanMarino') return branch.includes('marino')
-      if (filterBranch.value === 'mallDelSol') return branch.includes('mall') || branch.includes('sol')
+      if (filterBranch.value === 'entreRios') return branch.includes('entre') || branch.includes('ríos')
       if (filterBranch.value === 'centroProduccion') return branch.includes('centro') || branch.includes('producci')
 
       return false
@@ -235,8 +234,7 @@ const dispatchedOrders = computed(() => {
 
 const stats = computed(() => {
   const s = {
-    sanMarino: 0,
-    mallDelSol: 0,
+    entreRios: 0,
     centroProduccion: 0,
     delivery: 0
   }
@@ -252,10 +250,8 @@ const stats = computed(() => {
 
     // If pickup, check branch
     const branch = (o.branch || '').toLowerCase()
-    if (branch.includes('marino')) s.sanMarino++
-    else if (branch.includes('mall') || branch.includes('sol')) s.mallDelSol++
-    else if (branch.includes('centro') || branch.includes('producci')) s.centroProduccion++
-    else s.delivery++ // Fallback
+    if (branch.includes('centro') || branch.includes('producci')) s.centroProduccion++
+    else s.entreRios++ // Default to Entre Ríos
   })
 
   return s
@@ -394,24 +390,13 @@ const getDispatchBadge = (status?: string) => {
     <div class="stats-grid" v-if="orders.length > 0">
       <div 
         class="stat-card" 
-        :class="{ active: filterBranch === 'sanMarino' }"
-        @click="toggleBranchFilter('sanMarino')"
+        :class="{ active: filterBranch === 'entreRios' }"
+        @click="toggleBranchFilter('entreRios')"
       >
         <div class="icon-box sm"><i class="fas fa-store-alt"></i></div>
         <div class="info">
-          <span class="count">{{ stats.sanMarino }}</span>
-          <span class="label">San Marino</span>
-        </div>
-      </div>
-      <div 
-        class="stat-card"
-        :class="{ active: filterBranch === 'mallDelSol' }"
-        @click="toggleBranchFilter('mallDelSol')"
-      >
-        <div class="icon-box mds"><i class="fas fa-shopping-bag"></i></div>
-        <div class="info">
-          <span class="count">{{ stats.mallDelSol }}</span>
-          <span class="label">Mall del Sol</span>
+          <span class="count">{{ stats.entreRios }}</span>
+          <span class="label">Entre Ríos</span>
         </div>
       </div>
       <div 

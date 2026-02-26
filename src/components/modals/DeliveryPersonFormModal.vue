@@ -153,7 +153,7 @@ const submit = async () => {
 
     &:focus {
       outline: none;
-      border-color: $NICOLE-PURPLE;
+      border-color: $SUCREE-PRIMARY;
       background: white;
     }
   }
@@ -184,12 +184,12 @@ const submit = async () => {
   }
 
   .btn-primary {
-    background: $NICOLE-PURPLE;
+    background: $SUCREE-PRIMARY;
     border: none;
     color: white;
 
     &:hover {
-      background: $purple-hover;
+      background: $primary-hover;
     }
 
     &:disabled {

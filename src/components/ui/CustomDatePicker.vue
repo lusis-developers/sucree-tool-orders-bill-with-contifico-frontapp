@@ -219,8 +219,8 @@ const displayValue = computed(() => {
   }
 
   &.is-open {
-    border-color: $NICOLE-PURPLE;
-    box-shadow: 0 0 0 4px rgba($NICOLE-PURPLE, 0.1);
+    border-color: $SUCREE-PRIMARY;
+    box-shadow: 0 0 0 4px rgba($SUCREE-PRIMARY, 0.1);
   }
 
   &.disabled {
@@ -280,7 +280,7 @@ const displayValue = computed(() => {
   .curr-month {
     font-weight: 700;
     text-transform: capitalize;
-    color: $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
     font-size: 1rem;
   }
 
@@ -294,7 +294,7 @@ const displayValue = computed(() => {
 
     &:hover {
       background: $gray-50;
-      color: $NICOLE-PURPLE;
+      color: $SUCREE-PRIMARY;
     }
   }
 }
@@ -331,14 +331,14 @@ const displayValue = computed(() => {
 
   &:hover:not(.empty):not(.disabled) {
     background: $gray-50;
-    color: $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
   }
 
   &.selected {
-    background: $NICOLE-PURPLE !important;
+    background: $SUCREE-PRIMARY !important;
     color: white !important;
     font-weight: 700;
-    box-shadow: 0 4px 10px rgba($NICOLE-PURPLE, 0.3);
+    box-shadow: 0 4px 10px rgba($SUCREE-PRIMARY, 0.3);
   }
 
   &.disabled {
@@ -347,8 +347,8 @@ const displayValue = computed(() => {
   }
 
   &.today {
-    border: 1px solid $NICOLE-PURPLE;
-    color: $NICOLE-PURPLE;
+    border: 1px solid $SUCREE-PRIMARY;
+    color: $SUCREE-PRIMARY;
     font-weight: 700;
   }
 }

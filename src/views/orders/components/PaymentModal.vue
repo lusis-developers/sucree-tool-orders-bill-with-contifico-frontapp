@@ -188,7 +188,7 @@ const submitPayment = async () => {
 
   h3 {
     margin: 0;
-    color: $NICOLE-SECONDARY;
+    color: $SUCREE-SECONDARY;
   }
 
   .close-btn {
@@ -224,8 +224,8 @@ const submitPayment = async () => {
 
     &:focus {
       outline: none;
-      border-color: $NICOLE-PURPLE;
-      box-shadow: 0 0 0 3px rgba($NICOLE-PURPLE, 0.1);
+      border-color: $SUCREE-PRIMARY;
+      box-shadow: 0 0 0 3px rgba($SUCREE-PRIMARY, 0.1);
     }
   }
 }
@@ -255,11 +255,11 @@ const submitPayment = async () => {
   }
 
   .btn-confirm {
-    background: $NICOLE-PURPLE;
+    background: $SUCREE-PRIMARY;
     color: white;
 
     &:hover {
-      background: darken-color($NICOLE-PURPLE, 10%);
+      background: darken-color($SUCREE-PRIMARY, 10%);
     }
 
     &:disabled {

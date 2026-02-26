@@ -198,7 +198,7 @@ onMounted(() => {
   h1 {
     margin: 0;
     font-family: $font-principal;
-    color: $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
     font-size: 1.5rem;
   }
 }
@@ -215,10 +215,10 @@ onMounted(() => {
   align-items: center;
   gap: 0.5rem;
   background-color: white;
-  color: $NICOLE-PURPLE;
+  color: $SUCREE-PRIMARY;
   padding: 0.6rem 1.2rem;
   border-radius: 8px;
-  border: 1px solid rgba($NICOLE-PURPLE, 0.2);
+  border: 1px solid rgba($SUCREE-PRIMARY, 0.2);
   font-weight: 600;
   text-decoration: none;
   font-size: 0.9rem;
@@ -226,8 +226,8 @@ onMounted(() => {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 
   &:hover {
-    background-color: rgba($NICOLE-PURPLE, 0.03);
-    border-color: $NICOLE-PURPLE;
+    background-color: rgba($SUCREE-PRIMARY, 0.03);
+    border-color: $SUCREE-PRIMARY;
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
@@ -295,7 +295,7 @@ onMounted(() => {
     align-items: center;
     gap: 1rem;
     flex-wrap: wrap;
-    color: $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
     font-size: 0.9rem;
 
     i {
@@ -332,7 +332,7 @@ onMounted(() => {
   .value {
     font-size: 2rem;
     font-weight: 700;
-    color: $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
     margin: 0;
   }
 
@@ -379,7 +379,7 @@ onMounted(() => {
 
     .progress-bar {
       height: 100%;
-      background: linear-gradient(90deg, #a855f7, $NICOLE-PURPLE);
+      background: linear-gradient(90deg, #a855f7, $SUCREE-PRIMARY);
       border-radius: 6px;
       transition: width 0.6s ease;
 
@@ -450,7 +450,7 @@ onMounted(() => {
 
         &.amount {
           font-weight: 600;
-          color: $NICOLE-SECONDARY;
+          color: $SUCREE-SECONDARY;
         }
 
         &.commission-cell {
@@ -487,8 +487,8 @@ onMounted(() => {
   .avatar-circle {
     width: 32px;
     height: 32px;
-    background: rgba($NICOLE-PURPLE, 0.1);
-    color: $NICOLE-PURPLE;
+    background: rgba($SUCREE-PRIMARY, 0.1);
+    color: $SUCREE-PRIMARY;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -522,7 +522,7 @@ onMounted(() => {
 }
 
 .btn-primary {
-  background-color: $NICOLE-PURPLE;
+  background-color: $SUCREE-PRIMARY;
   color: white;
   padding: 0.75rem 1.5rem;
   border-radius: 8px;
@@ -531,12 +531,12 @@ onMounted(() => {
   cursor: pointer;
 
   &:hover {
-    background-color: $purple-hover;
+    background-color: $primary-hover;
   }
 }
 
 .btn-secondary {
-  color: $NICOLE-PURPLE;
+  color: $SUCREE-PRIMARY;
   text-decoration: none;
   font-weight: 500;
 
@@ -557,9 +557,9 @@ onMounted(() => {
   .spinner {
     width: 30px;
     height: 30px;
-    border: 3px solid rgba($NICOLE-PURPLE, 0.3);
+    border: 3px solid rgba($SUCREE-PRIMARY, 0.3);
     border-radius: 50%;
-    border-top-color: $NICOLE-PURPLE;
+    border-top-color: $SUCREE-PRIMARY;
     animation: spin 1s ease-in-out infinite;
   }
 }

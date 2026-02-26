@@ -43,7 +43,7 @@ const handleLogin = async () => {
   <div class="login-container">
     <div class="login-card">
       <div class="logo-area">
-        <h1>Nicole Pastry Arts</h1>
+        <h1>Sucree Croissanterie</h1>
         <p class="subtitle">Sistema de Pedidos</p>
       </div>
 
@@ -54,7 +54,7 @@ const handleLogin = async () => {
             type="email" 
             id="email" 
             v-model="email" 
-            placeholder="ej. ventas@nicole.com.ec"
+            placeholder="ej. ventas@sucree.com.ec"
             required
             :disabled="isLoading"
           />
@@ -92,7 +92,7 @@ const handleLogin = async () => {
   justify-content: center;
   min-height: 100vh;
   background-color: $background-cream;
-  background-image: radial-gradient($NICOLE-PURPLE 0.5px, transparent 0.5px), radial-gradient($NICOLE-PURPLE 0.5px, $background-cream 0.5px);
+  background-image: radial-gradient($SUCREE-PRIMARY 0.5px, transparent 0.5px), radial-gradient($SUCREE-PRIMARY 0.5px, $background-cream 0.5px);
   background-size: 20px 20px;
   background-position: 0 0, 10px 10px;
   padding: 2rem;
@@ -102,10 +102,10 @@ const handleLogin = async () => {
   background: white;
   padding: 3rem;
   border-radius: 16px;
-  box-shadow: 0 10px 30px rgba($NICOLE-PURPLE, 0.1);
+  box-shadow: 0 10px 30px rgba($SUCREE-PRIMARY, 0.1);
   width: 100%;
   max-width: 400px;
-  border: 1px solid rgba($NICOLE-PURPLE, 0.05);
+  border: 1px solid rgba($SUCREE-PRIMARY, 0.05);
 
   .logo-area {
     text-align: center;
@@ -113,7 +113,7 @@ const handleLogin = async () => {
 
     h1 {
       font-family: $font-principal;
-      color: $NICOLE-PURPLE;
+      color: $SUCREE-PRIMARY;
       font-size: 2rem;
       margin: 0;
       line-height: 1.2;
@@ -156,8 +156,8 @@ const handleLogin = async () => {
 
     &:focus {
       outline: none;
-      border-color: $NICOLE-PURPLE;
-      box-shadow: 0 0 0 3px rgba($NICOLE-PURPLE, 0.1);
+      border-color: $SUCREE-PRIMARY;
+      box-shadow: 0 0 0 3px rgba($SUCREE-PRIMARY, 0.1);
       background-color: white;
     }
 
@@ -177,7 +177,7 @@ const handleLogin = async () => {
 }
 
 .btn-primary {
-  background-color: $NICOLE-PURPLE;
+  background-color: $SUCREE-PRIMARY;
   color: white;
   border: none;
   padding: 0.875rem;
@@ -192,9 +192,9 @@ const handleLogin = async () => {
   justify-content: center;
 
   &:hover:not(:disabled) {
-    background-color: $purple-dark;
+    background-color: $primary-dark;
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba($NICOLE-PURPLE, 0.2);
+    box-shadow: 0 4px 12px rgba($SUCREE-PRIMARY, 0.2);
   }
 
   &:active:not(:disabled) {

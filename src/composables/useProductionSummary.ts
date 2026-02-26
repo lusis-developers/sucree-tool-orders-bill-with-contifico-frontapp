@@ -114,10 +114,8 @@ export function useProductionSummary() {
         dest = 'Delivery'
       } else if (order.branch) {
         const b = order.branch.toLowerCase()
-        if (b.includes('marino')) dest = 'San Marino'
-        else if (b.includes('mall') || b.includes('sol')) dest = 'Mall del Sol'
-        else if (b.includes('centro') || b.includes('producci')) dest = 'Centro Prod.'
-        else dest = order.branch
+        if (b.includes('centro') || b.includes('producci')) dest = 'Centro Prod.'
+        else dest = 'Entre Ríos'
       }
 
       if (!stats[dest]) stats[dest] = {}

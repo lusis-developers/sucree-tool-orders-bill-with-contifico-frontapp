@@ -34,7 +34,7 @@ const formData = reactive<OrderFormData>({
   deliveryDate: '',
   deliveryTime: '',
   deliveryType: 'pickup',
-  branch: 'San Marino', // Default or undefined
+  branch: 'Entre Ríos', // Default or undefined
   deliveryAddress: '',
   googleMapsLink: '',
   invoiceNeeded: false,
@@ -53,7 +53,7 @@ const formData = reactive<OrderFormData>({
   registerPaymentNow: false,
   isCredit: false,
   settledInIsland: false,
-  settledIslandName: 'San Marino',
+  settledIslandName: 'Entre Ríos',
   paymentDetails: {
     forma_cobro: 'TRA',
     monto: 0,
@@ -251,7 +251,7 @@ const resetForm = () => {
     deliveryDate: '',
     deliveryTime: '',
     deliveryType: 'pickup',
-    branch: 'San Marino',
+    branch: 'Entre Ríos',
     deliveryAddress: '',
     googleMapsLink: '',
     invoiceNeeded: false,
@@ -264,7 +264,7 @@ const resetForm = () => {
     registerPaymentNow: false,
     isCredit: false,
     settledInIsland: false,
-    settledIslandName: 'San Marino',
+    settledIslandName: 'Entre Ríos',
     paymentDetails: {
       forma_cobro: 'TRA',
       monto: 0,
@@ -319,7 +319,7 @@ onMounted(async () => {
         invoiceData: order.invoiceData || { ruc: '', businessName: '', email: '', address: '' },
         totalValue: order.totalValue,
         settledInIsland: order.settledInIsland || false,
-        settledIslandName: order.settledIslandName || 'San Marino',
+        settledIslandName: order.settledIslandName || 'Entre Ríos',
         globalDiscountPercentage: order.globalDiscountPercentage || 0,
         isGlobalCourtesy: order.isGlobalCourtesy || false,
         payments: order.payments || []
@@ -447,7 +447,7 @@ onMounted(async () => {
   h1 {
     margin: 0;
     font-family: $font-principal;
-    color: $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
     font-size: 2rem;
     font-weight: 700;
     letter-spacing: -1px;
@@ -460,7 +460,7 @@ onMounted(async () => {
       display: block;
       width: 6px;
       height: 32px;
-      background: $NICOLE-PURPLE;
+      background: $SUCREE-PRIMARY;
       border-radius: 4px;
     }
   }
@@ -563,9 +563,9 @@ onMounted(async () => {
   gap: 0.6rem;
   padding: 0.75rem 1.25rem;
   border-radius: 8px;
-  border: 2px solid $NICOLE-PURPLE;
+  border: 2px solid $SUCREE-PRIMARY;
   background-color: white;
-  color: $NICOLE-PURPLE;
+  color: $SUCREE-PRIMARY;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -573,14 +573,14 @@ onMounted(async () => {
   font-size: 0.95rem;
 
   &:hover {
-    background-color: rgba($NICOLE-PURPLE, 0.05);
+    background-color: rgba($SUCREE-PRIMARY, 0.05);
     transform: translateY(-1px);
   }
 
   &.active {
-    background-color: $NICOLE-PURPLE;
+    background-color: $SUCREE-PRIMARY;
     color: white;
-    box-shadow: 0 4px 12px rgba($NICOLE-PURPLE, 0.3);
+    box-shadow: 0 4px 12px rgba($SUCREE-PRIMARY, 0.3);
   }
 }
 </style>

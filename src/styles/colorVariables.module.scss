@@ -1,31 +1,35 @@
-// Colores principales de Nicole Pastry Arts
-$NICOLE-PURPLE: #812a73;
-$NICOLE-CREAM: #f6f1ee;
+// Colores principales de Sucree Croissanterie
+$SUCREE-PRIMARY: #28374E; // Azul Noche
+$SUCREE-CREAM: #FFF5A6; // Crema Limón
 
-// Color primario principal
-$NICOLE-PRIMARY: $NICOLE-PURPLE;
+// Paleta de acento Sucree
+$SUCREE-PEACH: #F5C5B4; // Melocotón Suave
+$SUCREE-COFFEE: #785121; // Café Intenso
+$SUCREE-GOLD: #B98508; // Ocre Dorado
+$SUCREE-SAND: #ECD56F; // Arena Dorado
+
+// Color primario principal (alias)
+$primary-color: $SUCREE-PRIMARY;
 
 // Colores base
 $white: #ffffff;
-$purple-primary: $NICOLE-PURPLE;
-$cream-primary: $NICOLE-CREAM;
 $text-dark: #1a1a1a;
 $text-light: #666666;
 
 // Colores de fondo y bordes
-$background-light: $NICOLE-CREAM;
-$background-cream: $NICOLE-CREAM;
+$background-light: #f6f1ee;
+$background-cream: #f6f1ee;
 $border-light: #e9ecef;
 
-// Variaciones del morado principal para diferentes estados
+// Variaciones del primario para diferentes estados
 @use 'sass:color';
-$purple-light: color.adjust($NICOLE-PURPLE, $lightness: 15%); // Morado más claro
-$purple-dark: color.adjust($NICOLE-PURPLE, $lightness: -15%); // Morado más oscuro
+$primary-light: color.adjust($SUCREE-PRIMARY, $lightness: 15%);
+$primary-dark: color.adjust($SUCREE-PRIMARY, $lightness: -15%);
 
-// Color secundario (definido después de $purple-dark)
-$NICOLE-SECONDARY: $purple-dark;
-$purple-hover: color.adjust($NICOLE-PURPLE, $lightness: -8%); // Para hover states
-$purple-overlay: rgba($NICOLE-PURPLE, 0.1);
+// Color secundario (derivado)
+$SUCREE-SECONDARY: $primary-dark;
+$primary-hover: color.adjust($SUCREE-PRIMARY, $lightness: -8%);
+$primary-overlay: rgba($SUCREE-PRIMARY, 0.1);
 
 // Colores neutros para UI (basados en grises)
 $gray-50: #fafafa;
@@ -43,7 +47,7 @@ $gray-900: #212121;
 $success: #4caf50;
 $warning: #ff9800;
 $error: #f44336;
-$info: $NICOLE-PURPLE;
+$info: $SUCREE-PRIMARY;
 
 // Variaciones de colores de estado usando funciones modernas de Sass
 $success-light: color.scale($success, $lightness: 20%);
@@ -54,7 +58,6 @@ $error-light: color.scale($error, $lightness: 20%);
 $error-dark: color.scale($error, $lightness: -20%);
 
 // Funciones de utilidad para colores (usando las nuevas funciones de Sass)
-// Estas reemplazan las funciones deprecadas como lighten(), darken(), etc.
 @function lighten-color($color, $amount) {
   @return color.adjust($color, $lightness: $amount);
 }

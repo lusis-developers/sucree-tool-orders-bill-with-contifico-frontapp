@@ -224,7 +224,7 @@ const formatMoney = (val: number) => `$${val.toFixed(2)}`
     .total-text {
       font-size: 1.2rem;
       font-weight: 800;
-      color: $NICOLE-PURPLE;
+      color: $SUCREE-PRIMARY;
       font-family: $font-principal;
     }
   }
@@ -290,7 +290,7 @@ const formatMoney = (val: number) => `$${val.toFixed(2)}`
       top: 0;
       left: 0;
       bottom: 0;
-      background: $NICOLE-PURPLE;
+      background: $SUCREE-PRIMARY;
       width: 0%;
       z-index: -1;
       transition: width 0.1s linear;
@@ -307,7 +307,7 @@ const formatMoney = (val: number) => `$${val.toFixed(2)}`
 
   &:active,
   &:has(.btn-hold:active) {
-    border-color: $NICOLE-PURPLE;
+    border-color: $SUCREE-PRIMARY;
 
     .btn-hold {
       color: white;

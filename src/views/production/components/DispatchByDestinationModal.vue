@@ -16,7 +16,7 @@ const items = ref<{ name: string; pending: number; toSend: number }[]>([])
 const filterMode = ref<'today' | 'tomorrow' | 'all'>('today')
 
 // Destinations
-const destinations = ['San Marino', 'Mall del Sol', 'Centro de Producción', 'Domicilio / Delivery']
+const destinations = ['Entre Ríos', 'Centro de Producción', 'Domicilio / Delivery']
 
 const isSameDay = (d1: Date, d2: Date) => {
   return d1.getFullYear() === d2.getFullYear() &&
@@ -41,8 +41,7 @@ const calculatePendingItems = () => {
     } else {
       const branch = (o.branch || '').toLowerCase()
       // Simple match
-      if (selectedDestination.value === 'San Marino' && branch.includes('marino')) destMatch = true
-      else if (selectedDestination.value === 'Mall del Sol' && (branch.includes('mall') || branch.includes('sol'))) destMatch = true
+      if (selectedDestination.value === 'Entre Ríos' && (branch.includes('entre') || branch.includes('ríos'))) destMatch = true
       else if (selectedDestination.value === 'Centro de Producción' && (branch.includes('centro') || branch.includes('producc'))) destMatch = true
     }
 
@@ -185,8 +184,7 @@ watch(() => props.isOpen, (newVal) => {
                 class="btn-dest"
                 @click="handleDestinationSelect(dest)"
             >
-                <i class="fas fa-store-alt" v-if="dest.includes('Marino')"></i>
-                <i class="fas fa-shopping-bag" v-else-if="dest.includes('Mall')"></i>
+                <i class="fas fa-store-alt" v-if="dest.includes('Entre')"></i>
                 <i class="fas fa-industry" v-else-if="dest.includes('Centro')"></i>
                 <i class="fas fa-motorcycle" v-else></i>
                 <span>{{ dest }}</span>

@@ -17,7 +17,7 @@ const emit = defineEmits(['close', 'success', 'notify']);
 const router = useRouter();
 
 // --- Branch switching ---
-const BRANCHES = ['San Marino', 'Mall del Sol', 'Centro de Producción'];
+const BRANCHES = ['Entre Ríos', 'Centro de Producción'];
 const localBranch = ref(props.branch);
 const branchOptions = computed(() => BRANCHES.map(b => ({ value: b, label: b })));
 

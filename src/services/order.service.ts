@@ -6,7 +6,7 @@ interface OrderData {
   deliveryDate: string
   deliveryTime: string
   deliveryType: 'pickup' | 'delivery' | 'retiro'
-  branch?: 'San Marino' | 'Mall del Sol' | 'Centro de Producción'
+  branch?: 'Entre Ríos' | 'Centro de Producción'
   googleMapsLink?: string
   deliveryAddress?: string
   products: Array<{

@@ -12,7 +12,7 @@ const props = defineProps<{
   modelValue: OrderFormData
 }>()
 
-const BRANCHES = ['San Marino', 'Mall del Sol', 'Centro de Producción'] as const
+const BRANCHES = ['Entre Ríos', 'Centro de Producción'] as const
 
 const isDelivery = computed(() => props.modelValue.deliveryType === 'delivery')
 
@@ -416,8 +416,8 @@ const selectTime = (time: string) => {
     &:focus {
       outline: none;
       background-color: white;
-      border-color: $NICOLE-PURPLE;
-      box-shadow: 0 0 0 4px rgba($NICOLE-PURPLE, 0.1); // Focus ring
+      border-color: $SUCREE-PRIMARY;
+      box-shadow: 0 0 0 4px rgba($SUCREE-PRIMARY, 0.1); // Focus ring
     }
 
     &:disabled {
@@ -460,18 +460,18 @@ const selectTime = (time: string) => {
     }
 
     &:has(input:checked) {
-      background: rgba($NICOLE-PURPLE, 0.05);
-      border-color: $NICOLE-PURPLE;
-      color: $NICOLE-PURPLE;
+      background: rgba($SUCREE-PRIMARY, 0.05);
+      border-color: $SUCREE-PRIMARY;
+      color: $SUCREE-PRIMARY;
       font-weight: 700;
-      box-shadow: 0 4px 12px rgba($NICOLE-PURPLE, 0.15);
+      box-shadow: 0 4px 12px rgba($SUCREE-PRIMARY, 0.15);
     }
 
     input {
       width: auto;
       margin: 0;
       cursor: pointer;
-      accent-color: $NICOLE-PURPLE;
+      accent-color: $SUCREE-PRIMARY;
     }
   }
 }
@@ -480,7 +480,7 @@ const selectTime = (time: string) => {
   background: linear-gradient(to right, #fff5f9, #fff0f7); // Subtle gradient
   padding: 1.5rem;
   border-radius: 12px;
-  border: 1px solid rgba($NICOLE-PURPLE, 0.2);
+  border: 1px solid rgba($SUCREE-PRIMARY, 0.2);
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1.5rem;
@@ -500,7 +500,7 @@ const selectTime = (time: string) => {
   transition: all 0.2s;
 
   &:hover {
-    border-color: $NICOLE-PURPLE;
+    border-color: $SUCREE-PRIMARY;
   }
 
   label {
@@ -516,7 +516,7 @@ const selectTime = (time: string) => {
     input[type="checkbox"] {
       width: 1.2rem;
       height: 1.2rem;
-      accent-color: $NICOLE-PURPLE;
+      accent-color: $SUCREE-PRIMARY;
       cursor: pointer;
     }
   }
@@ -640,14 +640,14 @@ const selectTime = (time: string) => {
 
     &:hover {
       background: $gray-50;
-      color: $NICOLE-PURPLE;
-      border-color: $NICOLE-PURPLE;
+      color: $SUCREE-PRIMARY;
+      border-color: $SUCREE-PRIMARY;
     }
 
     &.active {
-      background: rgba($NICOLE-PURPLE, 0.1);
-      color: $NICOLE-PURPLE;
-      border-color: $NICOLE-PURPLE;
+      background: rgba($SUCREE-PRIMARY, 0.1);
+      color: $SUCREE-PRIMARY;
+      border-color: $SUCREE-PRIMARY;
       font-weight: 700;
     }
   }
@@ -692,7 +692,7 @@ const selectTime = (time: string) => {
     transition: all 0.2s;
 
     &:hover {
-      border-color: $NICOLE-PURPLE;
+      border-color: $SUCREE-PRIMARY;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     }
 

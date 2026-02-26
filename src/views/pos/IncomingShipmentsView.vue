@@ -14,7 +14,7 @@ const isLoading = ref(false)
 const orders = ref<POSOrder[]>([])
 const pendingDispatchesForBulk = ref<any[]>([])
 const selectedBranch = ref('Mall del Sol')
-const branches = ['Todas las sucursales', 'San Marino', 'Mall del Sol', 'Centro de Producción']
+const branches = ['Todas las sucursales', 'Entre Ríos', 'Centro de Producción']
 
 const filterMode = ref<POSFilterMode>('today')
 const customDate = ref('')
@@ -209,7 +209,7 @@ onMounted(fetchData)
       @open-restock="showBulkModal = false; showRestockModal = true"
     />
     <DeliveryModal :is-open="showDeliveryModal" :order="selectedOrder || ({} as POSOrder)" @close="showDeliveryModal = false" @confirm="handleMarkAsDelivered" />
-    <RestockDailyModal :is-open="showRestockModal" :branch="selectedBranch === 'Todas las sucursales' ? 'San Marino' : selectedBranch" @close="showRestockModal = false" @success="handleRestockSuccess" @notify="handleNotification" />
+    <RestockDailyModal :is-open="showRestockModal" :branch="selectedBranch === 'Todas las sucursales' ? 'Entre Ríos' : selectedBranch" @close="showRestockModal = false" @success="handleRestockSuccess" @notify="handleNotification" />
 
 
     <div class="floating-badge" :class="selectedBranch.toLowerCase().replace(/\s+/g, '-')">
@@ -300,7 +300,7 @@ $tablet: 768px;
 
   &:hover {
     background: rgba(#0369A1, 0.05);
-    color: $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
   }
 
   i {
@@ -338,7 +338,7 @@ $tablet: 768px;
   width: 40px;
   height: 40px;
   border: 4px solid #F1F5F9;
-  border-top-color: $NICOLE-PURPLE;
+  border-top-color: $SUCREE-PRIMARY;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -360,7 +360,7 @@ $tablet: 768px;
   align-items: center;
   gap: 1.2rem;
   z-index: 1000;
-  border: 3px solid $NICOLE-PURPLE;
+  border: 3px solid $SUCREE-PRIMARY;
   animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   backdrop-filter: blur(12px);
   background: rgba(255, 255, 255, 0.98);

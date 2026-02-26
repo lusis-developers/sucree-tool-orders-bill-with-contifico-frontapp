@@ -53,7 +53,7 @@ const handleLogout = () => {
   h1 {
     margin: 0;
     font-size: 1.25rem;
-    color: $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
     font-family: $font-principal;
     font-weight: 700;
   }
@@ -80,13 +80,13 @@ const handleLogout = () => {
     transition: all 0.2s;
 
     &:hover {
-      background-color: rgba($NICOLE-PURPLE, 0.05); // Subtle hover effect
-      color: $NICOLE-PURPLE;
+      background-color: rgba($SUCREE-PRIMARY, 0.05); // Subtle hover effect
+      color: $SUCREE-PRIMARY;
     }
 
     &.active {
-      color: $NICOLE-PURPLE;
-      border-bottom-color: $NICOLE-PURPLE;
+      color: $SUCREE-PRIMARY;
+      border-bottom-color: $SUCREE-PRIMARY;
     }
   }
 }

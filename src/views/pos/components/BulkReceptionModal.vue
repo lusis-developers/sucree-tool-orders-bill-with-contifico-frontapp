@@ -346,7 +346,7 @@ const handleConfirm = async () => {
   .header-text {
     h3 {
       margin: 0;
-      color: $NICOLE-PURPLE;
+      color: $SUCREE-PRIMARY;
       display: flex;
       align-items: center;
       gap: 0.5rem;
@@ -381,8 +381,8 @@ const handleConfirm = async () => {
 
 .btn-restock-shortcut {
   background: white;
-  color: $NICOLE-PURPLE;
-  border: 1.2px solid $NICOLE-PURPLE;
+  color: $SUCREE-PRIMARY;
+  border: 1.2px solid $SUCREE-PRIMARY;
   padding: 0.4rem 0.8rem;
   border-radius: 8px;
   font-weight: 700;
@@ -395,9 +395,9 @@ const handleConfirm = async () => {
   white-space: nowrap;
 
   &:hover {
-    background: rgba($NICOLE-PURPLE, 0.05);
+    background: rgba($SUCREE-PRIMARY, 0.05);
     transform: translateY(-1px);
-    box-shadow: 0 4px 10px rgba($NICOLE-PURPLE, 0.1);
+    box-shadow: 0 4px 10px rgba($SUCREE-PRIMARY, 0.1);
   }
 
   @media (max-width: 480px) {
@@ -443,7 +443,7 @@ const handleConfirm = async () => {
 
     &.active {
       background: white;
-      color: $NICOLE-PURPLE;
+      color: $SUCREE-PRIMARY;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
     }
   }
@@ -524,7 +524,7 @@ const handleConfirm = async () => {
       border-radius: 6px;
       padding: 0.4rem;
       font-weight: 700;
-      color: $NICOLE-PURPLE;
+      color: $SUCREE-PRIMARY;
     }
   }
 
@@ -545,8 +545,8 @@ const handleConfirm = async () => {
     }
 
     &.excess {
-      background: rgba($NICOLE-SECONDARY, 0.1);
-      color: $NICOLE-SECONDARY;
+      background: rgba($SUCREE-SECONDARY, 0.1);
+      color: $SUCREE-SECONDARY;
     }
   }
 }
@@ -658,8 +658,8 @@ select {
   .btn-restock-empty {
     margin-top: 1rem;
     background: white;
-    color: $NICOLE-PURPLE;
-    border: 2px solid $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
+    border: 2px solid $SUCREE-PRIMARY;
     padding: 1rem 2rem;
     border-radius: 12px;
     font-weight: 800;
@@ -669,13 +669,13 @@ select {
     gap: 0.75rem;
     cursor: pointer;
     transition: all 0.2s;
-    box-shadow: 0 4px 15px rgba($NICOLE-PURPLE, 0.1);
+    box-shadow: 0 4px 15px rgba($SUCREE-PRIMARY, 0.1);
 
     &:hover {
-      background: $NICOLE-PURPLE;
+      background: $SUCREE-PRIMARY;
       color: white;
       transform: translateY(-3px);
-      box-shadow: 0 8px 25px rgba($NICOLE-PURPLE, 0.25);
+      box-shadow: 0 8px 25px rgba($SUCREE-PRIMARY, 0.25);
     }
 
     i {

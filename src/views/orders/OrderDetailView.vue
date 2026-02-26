@@ -363,7 +363,7 @@ onMounted(() => {
   h1 {
     margin: 0;
     font-family: $font-principal;
-    color: $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
     font-size: 1.4rem;
     font-weight: 700;
   }
@@ -380,8 +380,8 @@ onMounted(() => {
     white-space: nowrap;
 
     &:hover {
-      color: $NICOLE-PURPLE;
-      border-color: $NICOLE-PURPLE;
+      color: $SUCREE-PRIMARY;
+      border-color: $SUCREE-PRIMARY;
     }
   }
 }
@@ -423,8 +423,8 @@ onMounted(() => {
   .spinner {
     width: 40px;
     height: 40px;
-    border: 3px solid rgba($NICOLE-PURPLE, 0.2);
-    border-top-color: $NICOLE-PURPLE;
+    border: 3px solid rgba($SUCREE-PRIMARY, 0.2);
+    border-top-color: $SUCREE-PRIMARY;
     border-radius: 50%;
     animation: spin 0.8s infinite linear;
   }

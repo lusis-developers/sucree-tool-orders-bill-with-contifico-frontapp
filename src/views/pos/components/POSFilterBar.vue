@@ -146,8 +146,8 @@ const emit = defineEmits<{
 
         &:focus {
           background: white;
-          border-color: $NICOLE-PURPLE;
-          box-shadow: 0 0 0 4px rgba($NICOLE-PURPLE, 0.1);
+          border-color: $SUCREE-PRIMARY;
+          box-shadow: 0 0 0 4px rgba($SUCREE-PRIMARY, 0.1);
         }
 
         &::placeholder {
@@ -197,10 +197,10 @@ const emit = defineEmits<{
         }
 
         &.active {
-          background: $NICOLE-PURPLE;
+          background: $SUCREE-PRIMARY;
           color: white;
-          border-color: $NICOLE-PURPLE;
-          box-shadow: 0 4px 10px rgba($NICOLE-PURPLE, 0.2);
+          border-color: $SUCREE-PRIMARY;
+          box-shadow: 0 4px 10px rgba($SUCREE-PRIMARY, 0.2);
         }
       }
     }

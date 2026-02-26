@@ -14,9 +14,9 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'confirm'])
 
-const selectedIsland = ref('San Marino')
+const selectedIsland = ref('Entre Ríos')
 
-const ISLANDS = ['San Marino', 'Mall del Sol', 'Centro de Producción']
+const ISLANDS = ['Entre Ríos', 'Centro de Producción']
 
 const handleConfirm = () => {
   if (!selectedIsland.value) return
@@ -119,7 +119,7 @@ const handleConfirm = () => {
   h3 {
     margin: 0;
     font-size: 1.4rem;
-    color: $NICOLE-SECONDARY;
+    color: $SUCREE-SECONDARY;
     font-weight: 700;
     font-family: $font-principal;
   }
@@ -165,21 +165,21 @@ const handleConfirm = () => {
   color: $text-dark;
 
   &:hover {
-    border-color: rgba($NICOLE-PURPLE, 0.3);
-    background: rgba($NICOLE-PURPLE, 0.02);
+    border-color: rgba($SUCREE-PRIMARY, 0.3);
+    background: rgba($SUCREE-PRIMARY, 0.02);
   }
 
   &.active {
-    border-color: $NICOLE-PURPLE;
-    background: rgba($NICOLE-PURPLE, 0.04);
-    color: $NICOLE-PURPLE;
-    box-shadow: 0 4px 12px rgba($NICOLE-PURPLE, 0.1);
+    border-color: $SUCREE-PRIMARY;
+    background: rgba($SUCREE-PRIMARY, 0.04);
+    color: $SUCREE-PRIMARY;
+    box-shadow: 0 4px 12px rgba($SUCREE-PRIMARY, 0.1);
   }
 
   input {
     width: 1.25rem;
     height: 1.25rem;
-    accent-color: $NICOLE-PURPLE;
+    accent-color: $SUCREE-PRIMARY;
   }
 }
 
@@ -231,14 +231,14 @@ const handleConfirm = () => {
   }
 
   .btn-confirm {
-    background: $NICOLE-PURPLE;
+    background: $SUCREE-PRIMARY;
     color: white;
-    box-shadow: 0 4px 12px rgba($NICOLE-PURPLE, 0.25);
+    box-shadow: 0 4px 12px rgba($SUCREE-PRIMARY, 0.25);
 
     &:hover {
-      background: darken-color($NICOLE-PURPLE, 10%);
+      background: darken-color($SUCREE-PRIMARY, 10%);
       transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba($NICOLE-PURPLE, 0.3);
+      box-shadow: 0 6px 16px rgba($SUCREE-PRIMARY, 0.3);
     }
 
     &:disabled {

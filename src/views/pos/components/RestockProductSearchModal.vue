@@ -13,7 +13,7 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'success', 'update:branch', 'notify']);
 
-const branches = ['San Marino', 'Mall del Sol', 'Centro de Producción'];
+const branches = ['Entre Ríos', 'Centro de Producción'];
 
 const selectedBranch = computed({
   get: () => props.branch,

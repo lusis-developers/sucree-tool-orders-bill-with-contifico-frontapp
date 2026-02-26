@@ -111,16 +111,16 @@ const emit = defineEmits(['open-modal'])
   cursor: pointer;
   border: 1px solid $border-light;
   background: white;
-  color: $NICOLE-PURPLE;
+  color: $SUCREE-PRIMARY;
   transition: all 0.2s;
 
   &.btn-primary {
-    background: $NICOLE-PURPLE;
+    background: $SUCREE-PRIMARY;
     color: white;
-    border-color: $NICOLE-PURPLE;
+    border-color: $SUCREE-PRIMARY;
 
     &:hover {
-      background: darken-color($NICOLE-PURPLE, 5%);
+      background: darken-color($SUCREE-PRIMARY, 5%);
     }
   }
 }
@@ -240,7 +240,7 @@ const emit = defineEmits(['open-modal'])
     }
 
     .success {
-      color: $NICOLE-PURPLE;
+      color: $SUCREE-PRIMARY;
     }
 
     .danger {
@@ -249,9 +249,9 @@ const emit = defineEmits(['open-modal'])
   }
 
   .island-notice {
-    background: rgba($NICOLE-PURPLE, 0.05);
-    border: 1px solid rgba($NICOLE-PURPLE, 0.1);
-    color: $NICOLE-PURPLE;
+    background: rgba($SUCREE-PRIMARY, 0.05);
+    border: 1px solid rgba($SUCREE-PRIMARY, 0.1);
+    color: $SUCREE-PRIMARY;
     padding: 0.75rem;
     border-radius: 8px;
     font-size: 0.85rem;

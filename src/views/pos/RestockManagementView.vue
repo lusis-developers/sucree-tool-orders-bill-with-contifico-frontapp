@@ -20,8 +20,8 @@ interface ProductConfig {
 
 // --- State ---
 const router = useRouter();
-const branch = ref('San Marino');
-const branches = ['San Marino', 'Mall del Sol', 'Centro de Producción'];
+const branch = ref('Entre Ríos');
+const branches = ['Entre Ríos', 'Centro de Producción'];
 const branchOptions = computed(() => branches.map(b => ({ value: b, label: b })));
 const products = ref<ProductConfig[]>([]);
 const isLoading = ref(false);

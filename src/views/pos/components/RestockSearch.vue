@@ -71,7 +71,7 @@ const handleInput = (event: Event) => {
   .loading-icon {
     position: absolute;
     right: 1rem;
-    color: $NICOLE-PRIMARY;
+    color: $SUCREE-PRIMARY;
   }
 
   .search-input {
@@ -86,8 +86,8 @@ const handleInput = (event: Event) => {
 
     &:focus {
       outline: none;
-      border-color: $NICOLE-PRIMARY;
-      box-shadow: 0 0 0 3px rgba($NICOLE-PRIMARY, 0.1);
+      border-color: $SUCREE-PRIMARY;
+      box-shadow: 0 0 0 3px rgba($SUCREE-PRIMARY, 0.1);
     }
 
     &::placeholder {

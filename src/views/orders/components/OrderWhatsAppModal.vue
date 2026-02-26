@@ -322,11 +322,11 @@ const handleSend = () => {
       &.btn-details {
         background: white;
         border-color: #ddd;
-        color: $NICOLE-PURPLE;
+        color: $SUCREE-PRIMARY;
 
         &:hover {
           background: #fdf2f8;
-          border-color: $NICOLE-PURPLE;
+          border-color: $SUCREE-PRIMARY;
         }
       }
     }
@@ -372,8 +372,8 @@ const handleSend = () => {
     width: 100%;
     padding: 0.9rem;
     background: white; // Or slightly grey
-    color: $NICOLE-PURPLE;
-    border: 2px solid $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
+    border: 2px solid $SUCREE-PRIMARY;
     border-radius: 25px;
     font-weight: 700;
     font-size: 1.05rem;
@@ -386,7 +386,7 @@ const handleSend = () => {
     transition: transform 0.1s, background 0.2s, color 0.2s;
 
     &:hover {
-      background: rgba($NICOLE-PURPLE, 0.05);
+      background: rgba($SUCREE-PRIMARY, 0.05);
     }
 
     &:active {

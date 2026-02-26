@@ -45,7 +45,7 @@ const toggleSettle = () => {
     props.modelValue.isGlobalCourtesy = false // New
     // Default to first branch if not set
     if (!props.modelValue.settledIslandName) {
-      props.modelValue.settledIslandName = props.branches[0] || 'San Marino'
+      props.modelValue.settledIslandName = props.branches[0] || 'Entre Ríos'
     }
   }
 }
@@ -303,7 +303,7 @@ const amountToPay = computed(() => {
     width: 1.25rem;
     height: 1.25rem;
     cursor: pointer;
-    accent-color: $NICOLE-PURPLE;
+    accent-color: $SUCREE-PRIMARY;
   }
 
   /* Variant Styles */
@@ -336,16 +336,16 @@ const amountToPay = computed(() => {
   }
 
   &.purple.active {
-    border-color: $NICOLE-PURPLE;
-    background: rgba($NICOLE-PURPLE, 0.03);
+    border-color: $SUCREE-PRIMARY;
+    background: rgba($SUCREE-PRIMARY, 0.03);
 
     .toggle-icon {
-      background: $NICOLE-PURPLE;
+      background: $SUCREE-PRIMARY;
       color: white;
     }
 
     .toggle-title {
-      color: $NICOLE-PURPLE;
+      color: $SUCREE-PRIMARY;
     }
   }
 
@@ -463,12 +463,12 @@ const amountToPay = computed(() => {
         border: 2px solid $border-light;
         border-radius: 10px;
         font-weight: 700;
-        color: $NICOLE-PURPLE;
+        color: $SUCREE-PRIMARY;
         font-size: 1.1rem;
         transition: all 0.2s;
 
         &:focus {
-          border-color: $NICOLE-PURPLE;
+          border-color: $SUCREE-PRIMARY;
           background: white;
         }
 
@@ -546,9 +546,9 @@ const amountToPay = computed(() => {
   }
 
   &.island {
-    background: rgba($NICOLE-PURPLE, 0.03);
-    border-color: rgba($NICOLE-PURPLE, 0.1);
-    color: $NICOLE-PURPLE;
+    background: rgba($SUCREE-PRIMARY, 0.03);
+    border-color: rgba($SUCREE-PRIMARY, 0.1);
+    color: $SUCREE-PRIMARY;
   }
 
   &.credit {
@@ -599,7 +599,7 @@ const amountToPay = computed(() => {
     outline: none;
 
     &:focus {
-      border-color: $NICOLE-PURPLE;
+      border-color: $SUCREE-PRIMARY;
     }
   }
 }

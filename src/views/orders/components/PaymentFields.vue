@@ -139,10 +139,10 @@ const referenceLabel = computed(() => {
 }
 
 .abono-section {
-  background: lighten-color($NICOLE-PURPLE, 55%); // Very light purple
+  background: lighten-color($SUCREE-PRIMARY, 55%); // Very light purple
   padding: 1rem;
   border-radius: 8px;
-  border: 1px dashed rgba($NICOLE-PURPLE, 0.3);
+  border: 1px dashed rgba($SUCREE-PRIMARY, 0.3);
   margin-bottom: 0.5rem;
 
   .toggle-label {
@@ -150,14 +150,14 @@ const referenceLabel = computed(() => {
     align-items: center;
     gap: 0.75rem;
     font-weight: 600;
-    color: $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
     cursor: pointer;
     margin-bottom: 0.25rem;
 
     input {
       width: 1.1rem;
       height: 1.1rem;
-      accent-color: $NICOLE-PURPLE;
+      accent-color: $SUCREE-PRIMARY;
     }
   }
 

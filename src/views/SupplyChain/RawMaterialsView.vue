@@ -352,8 +352,8 @@ onMounted(() => {
 
     &:focus {
       outline: none;
-      border-color: $NICOLE-PURPLE;
-      box-shadow: 0 0 0 4px rgba($NICOLE-PURPLE, 0.1);
+      border-color: $SUCREE-PRIMARY;
+      box-shadow: 0 0 0 4px rgba($SUCREE-PRIMARY, 0.1);
     }
   }
 }
@@ -378,10 +378,10 @@ onMounted(() => {
     gap: 0.75rem;
     cursor: pointer;
     transition: all 0.2s;
-    background: $NICOLE-PURPLE;
+    background: $SUCREE-PRIMARY;
     color: white;
     border: none;
-    box-shadow: 0 4px 12px rgba($NICOLE-PURPLE, 0.2);
+    box-shadow: 0 4px 12px rgba($SUCREE-PRIMARY, 0.2);
     white-space: nowrap;
 
     @media (min-width: 640px) {
@@ -394,7 +394,7 @@ onMounted(() => {
 
     &:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba($NICOLE-PURPLE, 0.3);
+      box-shadow: 0 8px 20px rgba($SUCREE-PRIMARY, 0.3);
     }
   }
 }
@@ -520,7 +520,7 @@ onMounted(() => {
 
   .item-desc {
     font-weight: 600;
-    color: $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
     font-size: 0.85rem;
     text-transform: uppercase;
   }
@@ -606,7 +606,7 @@ onMounted(() => {
       .item-type {
         font-size: 0.8rem;
         font-weight: 900;
-        color: $NICOLE-PURPLE;
+        color: $SUCREE-PRIMARY;
         text-transform: uppercase;
         margin-top: 2px;
       }
@@ -669,7 +669,7 @@ onMounted(() => {
     width: 60px;
     height: 60px;
     border: 6px solid #f1f5f9;
-    border-top-color: $NICOLE-PURPLE;
+    border-top-color: $SUCREE-PRIMARY;
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin: 0 auto 2rem;

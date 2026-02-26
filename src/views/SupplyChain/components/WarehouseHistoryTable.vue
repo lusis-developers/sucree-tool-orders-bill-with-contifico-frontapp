@@ -169,8 +169,8 @@ const changePage = (page: number) => {
 .spinner {
   width: 40px;
   height: 40px;
-  border: 3px solid rgba($NICOLE-PURPLE, 0.2);
-  border-top-color: $NICOLE-PURPLE;
+  border: 3px solid rgba($SUCREE-PRIMARY, 0.2);
+  border-top-color: $SUCREE-PRIMARY;
   border-radius: 50%;
   animation: spin 1s infinite linear;
   margin-bottom: 1rem;
@@ -275,7 +275,7 @@ const changePage = (page: number) => {
 
   i {
     font-size: 0.75rem;
-    color: $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
   }
 }
 
@@ -292,7 +292,7 @@ const changePage = (page: number) => {
   .total-value {
     color: #047857;
     font-size: 1.15rem;
-    border-top: 2px solid $NICOLE-PURPLE;
+    border-top: 2px solid $SUCREE-PRIMARY;
   }
 }
 

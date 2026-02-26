@@ -23,7 +23,7 @@ interface RestockItemData {
 // --- State ---
 const route = useRoute();
 const router = useRouter();
-const branch = ref<string>((route.query.branch as string) || 'San Marino');
+const branch = ref<string>((route.query.branch as string) || 'Entre Ríos');
 const isLoading = ref(false);
 const isSubmitting = ref(false);
 const formData = ref<DailyFormData | null>(null);

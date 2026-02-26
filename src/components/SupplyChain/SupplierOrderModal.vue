@@ -153,7 +153,7 @@ const generatedMessage = computed(() => {
   const delivery = deliveryDate.value ? new Date(deliveryDate.value + 'T12:00:00') : null
   const deliveryStr = delivery ? new Intl.DateTimeFormat('es-EC', { dateStyle: 'long' }).format(delivery) : 'Pendiente'
 
-  let text = `📦 *PEDIDO DE MATERIAL — Nicole Pastry Arts*\n\n`
+  let text = `📦 *PEDIDO DE MATERIAL — Sucree Croissanterie*\n\n`
   text += `📅 *Fecha de pedido:* ${today}\n`
   text += `🚚 *Fecha requerida:* ${deliveryStr}\n\n`
   text += `Proveedor: *${props.provider.name || 'S/N'}*\n\n`
@@ -171,7 +171,7 @@ const generatedMessage = computed(() => {
 
   if (!hasItems) return 'Seleccione cantidades para generar el mensaje.'
 
-  text += `\n_Nicole Pastry Arts — Departamento de Compras_`
+  text += `\n_Sucree Croissanterie — Departamento de Compras_`
   return text
 })
 
@@ -412,7 +412,7 @@ watch([deliveryDate, orderItems], () => {
   .provider-subtitle {
     font-size: 0.9rem;
     font-weight: 700;
-    color: $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
     margin: 0.25rem 0 0;
     text-transform: uppercase;
   }
@@ -485,7 +485,7 @@ watch([deliveryDate, orderItems], () => {
       font-weight: 600;
 
       &:focus {
-        border-color: $NICOLE-PURPLE;
+        border-color: $SUCREE-PRIMARY;
         outline: none;
       }
     }
@@ -510,8 +510,8 @@ watch([deliveryDate, orderItems], () => {
 
   &.highlight {
     background: white;
-    border-color: rgba($NICOLE-PURPLE, 0.3);
-    box-shadow: 0 4px 6px -1px rgba($NICOLE-PURPLE, 0.05);
+    border-color: rgba($SUCREE-PRIMARY, 0.3);
+    box-shadow: 0 4px 6px -1px rgba($SUCREE-PRIMARY, 0.05);
   }
 
   &.initial-focus {
@@ -569,7 +569,7 @@ watch([deliveryDate, orderItems], () => {
         text-align: right;
 
         &:focus {
-          border-color: $NICOLE-PURPLE;
+          border-color: $SUCREE-PRIMARY;
           outline: none;
         }
       }
@@ -682,18 +682,18 @@ watch([deliveryDate, orderItems], () => {
   }
 
   .btn-save {
-    background: $NICOLE-PURPLE;
+    background: $SUCREE-PRIMARY;
     border: none;
     color: white;
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    box-shadow: 0 4px 12px rgba($NICOLE-PURPLE, 0.3);
+    box-shadow: 0 4px 12px rgba($SUCREE-PRIMARY, 0.3);
 
     &:hover {
-      background: darken($NICOLE-PURPLE, 5%);
+      background: darken($SUCREE-PRIMARY, 5%);
       transform: translateY(-2px);
-      box-shadow: 0 8px 15px rgba($NICOLE-PURPLE, 0.4);
+      box-shadow: 0 8px 15px rgba($SUCREE-PRIMARY, 0.4);
     }
 
     &:disabled {

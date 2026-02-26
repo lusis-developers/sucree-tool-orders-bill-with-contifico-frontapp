@@ -71,8 +71,8 @@ const filteredProviderOptions = computed(() => {
 })
 
 const entityOptions = [
-  "Nicole Pastry Arts - San marino", "Nicole Pastry Arts - Mall del sol", "Finestra - CDP",
-  "Delacrem - Mall del sol", "Casa mía - Mall del sol", "Sucreenda - CDP", "Sucree - Vivantino"
+  "Sucree - Entre Ríos", "Finestra - CDP",
+  "Delacrem - Entre Ríos", "Casa mía - Entre Ríos", "Sucreenda - CDP", "Sucree - Vivantino"
 ].map(e => ({ value: e, label: e }))
 
 // --- Logic Coordination ---
@@ -270,7 +270,7 @@ watch(activeTab, (tab) => { if (tab === 'in') fetchTodaySuggestions() })
   margin-bottom: 2rem;
 
   h1 {
-    color: $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
     margin: 0;
   }
 
@@ -318,9 +318,9 @@ watch(activeTab, (tab) => { if (tab === 'in') fetchTodaySuggestions() })
     }
 
     &.active {
-      color: $NICOLE-PURPLE;
-      border-bottom-color: $NICOLE-PURPLE;
-      background: rgba($NICOLE-PURPLE, 0.05);
+      color: $SUCREE-PRIMARY;
+      border-bottom-color: $SUCREE-PRIMARY;
+      background: rgba($SUCREE-PRIMARY, 0.05);
       border-radius: 12px 12px 0 0;
     }
   }

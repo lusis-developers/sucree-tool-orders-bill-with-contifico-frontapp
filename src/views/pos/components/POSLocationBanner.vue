@@ -46,7 +46,7 @@ const displayName = computed(() => (isGlobal.value ? 'Global (Todas)' : props.se
   background: #F8FAFC;
   padding: 1rem 2rem;
   border-radius: 20px;
-  border-left: 8px solid $NICOLE-PURPLE;
+  border-left: 8px solid $SUCREE-PRIMARY;
   animation: pulseIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
   position: relative;
@@ -112,7 +112,7 @@ const displayName = computed(() => (isGlobal.value ? 'Global (Todas)' : props.se
 
   i {
     font-size: 1.5rem;
-    color: $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
   }
 }
 

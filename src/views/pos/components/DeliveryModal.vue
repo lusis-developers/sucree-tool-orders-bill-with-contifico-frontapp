@@ -123,7 +123,7 @@ const handleConfirm = () => {
 
   h3 {
     margin: 0;
-    color: $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
     font-size: 1.25rem;
     display: flex;
     align-items: center;
@@ -154,7 +154,7 @@ const handleConfirm = () => {
   .order-id {
     font-size: 1.5rem;
     font-weight: 800;
-    color: $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
     margin-bottom: 0.2rem;
   }
 

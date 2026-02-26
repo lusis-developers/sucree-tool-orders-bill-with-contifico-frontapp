@@ -122,9 +122,9 @@ const { getEffectivePaymentMethod, getStatusLabel, getStatusColorClass, calculat
 }
 
 .shipment-card.is-selected {
-  border-color: $NICOLE-PURPLE;
-  box-shadow: 0 8px 30px rgba($NICOLE-PURPLE, 0.15);
-  background: rgba($NICOLE-PURPLE, 0.02);
+  border-color: $SUCREE-PRIMARY;
+  box-shadow: 0 8px 30px rgba($SUCREE-PRIMARY, 0.15);
+  background: rgba($SUCREE-PRIMARY, 0.02);
 }
 
 .card-selection {
@@ -143,11 +143,11 @@ const { getEffectivePaymentMethod, getStatusLabel, getStatusColorClass, calculat
 
   &:hover {
     transform: scale(1.1);
-    color: $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
   }
 
   .fa-square-check {
-    color: $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
   }
 }
 
@@ -212,7 +212,7 @@ const { getEffectivePaymentMethod, getStatusLabel, getStatusColorClass, calculat
 }
 
 .order-badge {
-  background: $NICOLE-PURPLE;
+  background: $SUCREE-PRIMARY;
   color: white;
   padding: 0.25rem 0.6rem;
   border-radius: 6px;
@@ -237,8 +237,8 @@ const { getEffectivePaymentMethod, getStatusLabel, getStatusColorClass, calculat
   gap: 0.3rem;
   font-size: 0.7rem;
   font-weight: 800;
-  color: $NICOLE-PURPLE;
-  background: rgba($NICOLE-PURPLE, 0.1);
+  color: $SUCREE-PRIMARY;
+  background: rgba($SUCREE-PRIMARY, 0.1);
   padding: 2px 8px;
   border-radius: 4px;
   text-transform: uppercase;
@@ -341,7 +341,7 @@ const { getEffectivePaymentMethod, getStatusLabel, getStatusColorClass, calculat
 
 .qty {
   font-weight: 800;
-  color: $NICOLE-PURPLE;
+  color: $SUCREE-PRIMARY;
   min-width: 2.5ch;
 }
 
@@ -420,7 +420,7 @@ const { getEffectivePaymentMethod, getStatusLabel, getStatusColorClass, calculat
 .total-amount {
   font-size: 1.1rem;
   font-weight: 900;
-  color: $NICOLE-SECONDARY;
+  color: $SUCREE-SECONDARY;
 }
 
 .card-actions {

@@ -290,7 +290,7 @@ const onDecrease = (item: CartItem, index: number) => {
       &:hover {
         transform: translateY(-1px);
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        color: $NICOLE-PURPLE;
+        color: $SUCREE-PRIMARY;
       }
     }
 
@@ -335,7 +335,7 @@ const onDecrease = (item: CartItem, index: number) => {
     &.final {
       font-size: 1.25rem;
       font-weight: 800;
-      color: $NICOLE-PURPLE;
+      color: $SUCREE-PRIMARY;
       margin-top: 1rem;
       padding-top: 1rem;
       border-top: 2px dashed rgba($border-light, 0.5);
@@ -345,7 +345,7 @@ const onDecrease = (item: CartItem, index: number) => {
 
 .btn-submit {
   width: 100%;
-  background: $NICOLE-PURPLE;
+  background: $SUCREE-PRIMARY;
   color: white;
   border: none;
   padding: 1.2rem;
@@ -354,12 +354,12 @@ const onDecrease = (item: CartItem, index: number) => {
   font-size: 1.1rem;
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: 0 4px 12px rgba($NICOLE-PURPLE, 0.3);
+  box-shadow: 0 4px 12px rgba($SUCREE-PRIMARY, 0.3);
 
   &:hover:not(:disabled) {
-    background: lighten-color($NICOLE-PURPLE, 5%);
+    background: lighten-color($SUCREE-PRIMARY, 5%);
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba($NICOLE-PURPLE, 0.4);
+    box-shadow: 0 8px 20px rgba($SUCREE-PRIMARY, 0.4);
   }
 
   &:disabled {

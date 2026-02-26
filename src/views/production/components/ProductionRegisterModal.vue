@@ -87,7 +87,7 @@ $gray-100: #f1f2f6;
 $gray-200: #dfe4ea;
 $text-light: #7f8c8d;
 $text-dark: #2c3e50;
-$NICOLE-PURPLE: #8e44ad;
+$SUCREE-PRIMARY: #8e44ad;
 $success: #2ecc71;
 $border-light: #f1f2f6;
 
@@ -123,7 +123,7 @@ $border-light: #f1f2f6;
   .icon-wrapper {
     width: 60px;
     height: 60px;
-    background: linear-gradient(135deg, $NICOLE-PURPLE, lighten-color($NICOLE-PURPLE, 20%));
+    background: linear-gradient(135deg, $SUCREE-PRIMARY, lighten-color($SUCREE-PRIMARY, 20%));
     border-radius: 50%;
     margin: 0 auto 1rem;
     display: flex;
@@ -131,7 +131,7 @@ $border-light: #f1f2f6;
     justify-content: center;
     color: white;
     font-size: 1.5rem;
-    box-shadow: 0 4px 10px rgba($NICOLE-PURPLE, 0.3);
+    box-shadow: 0 4px 10px rgba($SUCREE-PRIMARY, 0.3);
   }
 
   h3 {
@@ -197,12 +197,12 @@ $border-light: #f1f2f6;
     border-radius: 12px;
     outline: none;
     font-weight: 700;
-    color: $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
     transition: border-color 0.2s;
 
     &:focus {
-      border-color: $NICOLE-PURPLE;
-      box-shadow: 0 0 0 4px rgba($NICOLE-PURPLE, 0.1);
+      border-color: $SUCREE-PRIMARY;
+      box-shadow: 0 0 0 4px rgba($SUCREE-PRIMARY, 0.1);
     }
   }
 }
@@ -258,12 +258,12 @@ $border-light: #f1f2f6;
   }
 
   .btn-confirm {
-    background: $NICOLE-PURPLE;
+    background: $SUCREE-PRIMARY;
     color: white;
-    box-shadow: 0 4px 15px rgba($NICOLE-PURPLE, 0.3);
+    box-shadow: 0 4px 15px rgba($SUCREE-PRIMARY, 0.3);
 
     &:hover {
-      background: darken-color($NICOLE-PURPLE, 5%);
+      background: darken-color($SUCREE-PRIMARY, 5%);
     }
   }
 }

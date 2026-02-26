@@ -259,7 +259,7 @@ const confirmIn = () => {
 
   h2 {
     margin-top: 0;
-    color: $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
     margin-bottom: 1.5rem;
   }
 }
@@ -283,7 +283,7 @@ const confirmIn = () => {
 
 .mini-suggestions {
   background: #f8fafc;
-  border: 1px dashed $NICOLE-PURPLE;
+  border: 1px dashed $SUCREE-PRIMARY;
   padding: 0.75rem;
   border-radius: 10px;
   width: 100%;
@@ -296,7 +296,7 @@ const confirmIn = () => {
     display: block;
     font-size: 0.75rem;
     font-weight: 700;
-    color: $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
     margin-bottom: 0.4rem;
     text-transform: uppercase;
   }
@@ -339,8 +339,8 @@ const confirmIn = () => {
 
     &:focus {
       outline: none;
-      border-color: $NICOLE-PURPLE;
-      box-shadow: 0 0 0 2px rgba($NICOLE-PURPLE, 0.1);
+      border-color: $SUCREE-PRIMARY;
+      box-shadow: 0 0 0 2px rgba($SUCREE-PRIMARY, 0.1);
     }
   }
 }
@@ -356,7 +356,7 @@ const confirmIn = () => {
   font-weight: 500;
 
   i {
-    color: $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
     opacity: 0.7;
   }
 }
@@ -369,8 +369,8 @@ const confirmIn = () => {
   overflow: hidden;
 
   &:focus-within {
-    border-color: $NICOLE-PURPLE;
-    box-shadow: 0 0 0 2px rgba($NICOLE-PURPLE, 0.1);
+    border-color: $SUCREE-PRIMARY;
+    box-shadow: 0 0 0 2px rgba($SUCREE-PRIMARY, 0.1);
   }
 
   input {
@@ -424,7 +424,7 @@ const confirmIn = () => {
 }
 
 .btn-primary {
-  background: $NICOLE-PURPLE;
+  background: $SUCREE-PRIMARY;
   color: white;
   border: none;
   padding: 0.8rem 1.5rem;

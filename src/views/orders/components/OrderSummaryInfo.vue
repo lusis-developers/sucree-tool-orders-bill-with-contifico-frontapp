@@ -139,7 +139,7 @@ const deliveryBadgeClass = computed(() => ({
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
 
   &.primary {
-    border-left: 4px solid $NICOLE-PURPLE;
+    border-left: 4px solid $SUCREE-PRIMARY;
   }
 
   .label {
@@ -231,16 +231,16 @@ const deliveryBadgeClass = computed(() => ({
   }
 
   .maps-link {
-    color: $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
     text-decoration: none;
     font-weight: 700;
     font-size: 0.9rem;
-    border-bottom: 2px solid rgba($NICOLE-PURPLE, 0.2);
+    border-bottom: 2px solid rgba($SUCREE-PRIMARY, 0.2);
     transition: all 0.2s;
 
     &:hover {
-      color: $purple-dark;
-      border-bottom-color: $NICOLE-PURPLE;
+      color: $primary-dark;
+      border-bottom-color: $SUCREE-PRIMARY;
     }
   }
 }

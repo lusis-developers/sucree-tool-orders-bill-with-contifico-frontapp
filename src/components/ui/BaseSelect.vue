@@ -75,8 +75,8 @@ const selectedValue = computed({
 
   &:focus {
     outline: none;
-    border-color: $NICOLE-PURPLE;
-    box-shadow: 0 0 0 3px rgba($NICOLE-PURPLE, 0.1);
+    border-color: $SUCREE-PRIMARY;
+    box-shadow: 0 0 0 3px rgba($SUCREE-PRIMARY, 0.1);
   }
 
   &:disabled {

@@ -158,7 +158,7 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   // Update Document Title
-  const appTitle = 'Nicole Pastry Arts'
+  const appTitle = 'Sucree Croissanterie'
   document.title = to.meta.title ? `${to.meta.title} | ${appTitle}` : appTitle
 
   const isAuthenticated = localStorage.getItem('access_token')

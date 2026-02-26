@@ -141,9 +141,9 @@ watch(isOpen, (newVal) => {
   }
 
   &.open {
-    border-color: $NICOLE-PURPLE;
+    border-color: $SUCREE-PRIMARY;
     background: white;
-    box-shadow: 0 0 0 4px rgba($NICOLE-PURPLE, 0.1);
+    box-shadow: 0 0 0 4px rgba($SUCREE-PRIMARY, 0.1);
   }
 
   &.disabled {
@@ -222,7 +222,7 @@ watch(isOpen, (newVal) => {
 
     &:focus {
       outline: none;
-      border-color: $NICOLE-PURPLE;
+      border-color: $SUCREE-PRIMARY;
       background: white;
     }
   }
@@ -266,10 +266,10 @@ watch(isOpen, (newVal) => {
   }
 
   &.selected {
-    background: rgba($NICOLE-PURPLE, 0.1);
+    background: rgba($SUCREE-PRIMARY, 0.1);
 
     .option-label {
-      color: $NICOLE-PURPLE;
+      color: $SUCREE-PRIMARY;
       font-weight: 700;
     }
   }
@@ -294,7 +294,7 @@ watch(isOpen, (newVal) => {
   }
 
   .check-icon {
-    color: $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
     font-size: 0.9rem;
   }
 }

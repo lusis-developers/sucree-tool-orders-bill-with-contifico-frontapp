@@ -94,7 +94,7 @@ const emit = defineEmits<{
   h2 {
     margin: 0;
     font-size: 1.5rem;
-    color: $NICOLE-PURPLE;
+    color: $SUCREE-PRIMARY;
     font-family: $font-principal;
   }
 
@@ -146,7 +146,7 @@ const emit = defineEmits<{
   }
 
   .btn-proceed {
-    background: $NICOLE-PURPLE;
+    background: $SUCREE-PRIMARY;
     color: white;
     border: none;
     padding: 1rem 2.5rem; // Wider
@@ -158,16 +158,16 @@ const emit = defineEmits<{
     align-items: center;
     gap: 0.75rem;
     transition: all 0.2s;
-    box-shadow: 0 4px 12px rgba($NICOLE-PURPLE, 0.25);
+    box-shadow: 0 4px 12px rgba($SUCREE-PRIMARY, 0.25);
 
     i {
       transition: transform 0.2s;
     }
 
     &:hover:not(:disabled) {
-      background: lighten-color($NICOLE-PURPLE, 5%);
+      background: lighten-color($SUCREE-PRIMARY, 5%);
       transform: translateY(-2px);
-      box-shadow: 0 8px 15px rgba($NICOLE-PURPLE, 0.35);
+      box-shadow: 0 8px 15px rgba($SUCREE-PRIMARY, 0.35);
 
       i {
         transform: translateX(3px);
