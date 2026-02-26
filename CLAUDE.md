@@ -25,6 +25,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Routing & Roles
 
 The router (`src/router/index.ts`) enforces role-based access. Four roles exist:
+
 - **sales** (default) — `/orders/*`, `/reports/*`
 - **production** — `/production/*`
 - **RetailManager** — `/pos/*`
@@ -35,7 +36,8 @@ Auth tokens and user info are stored in `localStorage` (`access_token`, `user_in
 ### Services Layer
 
 All API services extend `APIBase` (`src/services/httpBase.ts`), which:
-- Builds URLs from `VITE_NICOLE_API` env var (defaults to `http://localhost:8101/api`)
+
+- Builds URLs from `VITE_SUCREE_API` env var (defaults to `http://localhost:8101/api`)
 - Attaches Bearer token from `localStorage`
 - Handles 401 → dispatches `auth:token-expired` event
 - Detects slow connections and shows warnings
@@ -45,6 +47,7 @@ Individual services (e.g., `order.service.ts`, `production.service.ts`, `deliver
 ### Styles
 
 Global SCSS is auto-imported into every component via Vite's `css.preprocessorOptions`. The entry point `src/styles/index.scss` forwards:
+
 - `colorVariables.module.scss` — color CSS custom properties
 - `fonts.modules.scss` — font declarations
 
